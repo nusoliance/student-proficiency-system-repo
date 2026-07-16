@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from avatar.models import Skill
 
 
 class Subject(models.Model):
@@ -36,6 +37,10 @@ class Activity(models.Model):
         Topic, on_delete=models.CASCADE, related_name='activities')
     title = models.CharField(max_length=200)
     deadline = models.DateField()
+    skills = models.ManyToManyField(
+        Skill, blank=True, related_name='activities')
+    completed_by = models.ManyToManyField(
+        User, blank=True, related_name='completed_activities')
 
     def __str__(self):
         return self.title
