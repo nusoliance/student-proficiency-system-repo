@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – Personal Workspace</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    /* Strict Maroon and White UI branding overrides */
+    .avatar.maroon-theme {
+      background: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .text-maroon {
+      color: #8B1A1A !important;
+    }
+    .btn-maroon {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+      border: none;
+      transition: background 0.2s ease;
+    }
+    .btn-maroon:hover {
+      background-color: #6B1212 !important;
+      color: #ffffff !important;
+    }
+    .btn-outline-maroon {
+      border: 1px solid #8B1A1A !important;
+      color: #8B1A1A !important;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+    .btn-outline-maroon:hover {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .form-check-input:checked {
+      background-color: #8B1A1A !important;
+      border-color: #8B1A1A !important;
+    }
+    .btn, button, .form-check-input, label {
+      cursor: pointer !important;
+    }
+    .task-label {
+      transition: all 0.2s ease;
+    }
+    .task-done {
+      text-decoration: line-through !important;
+      color: #6B7280 !important;
+      font-weight: normal !important;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NEW Personal Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub" style="color: #8B1A1A;">Personal Workspace</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="17-student-personal.html" class="active"><span class="nav-icon"><i class="bi bi-compass"></i></span> My Space</a>
+    <a href="18-personal-projects.html"><span class="nav-icon"><i class="bi bi-cpu"></i></span> Private Projects</a>
+    <a href="19-personal-notes.html"><span class="nav-icon"><i class="bi bi-journal-richtext"></i></span> My Notes</a>
+    <a href="21-saved-resources.html"><span class="nav-icon"><i class="bi bi-bookmark-star"></i></span> Saved Resources</a>
+    <a href="20-personal-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar maroon-theme">JD</div>
+    <div class="user-info">
+      <div class="user-name">Jade Panilagan</div>
+      <div class="user-role">Student</div>
+    </div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</aside>
+
+<!-- Topbar with Workspace Switcher -->
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <div class="topbar-title">Overview</div>
+    <div class="btn-group" role="group">
+      <a href="17-student-personal.html" class="btn btn-sm" style="background:#8B1A1A; color:white; font-weight:600;">Personal</a>
+      <a href="03-student-dashboard.html" class="btn btn-sm btn-outline-secondary" style="font-weight:600;">Professional (Class)</a>
+    </div>
+  </div>
+
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <!-- Floating Notifications -->
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-4 text-center text-muted" style="font-size: 13px;">
+          No new personal notifications.
+        </div>
+      </div>
+    </div>
+
+    <!-- Clickable Avatar (Personal Profile) -->
+    <div class="avatar maroon-theme" onclick="location.href='20-personal-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Personal Settings">JD</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="mb-4">
+    <h1 class="page-title">Your Private Hub 💡</h1>
+    <p class="text-muted text-sm mt-1">Track your self-study progress, manage side projects, and jot down notes away from the classroom.</p>
+  </div>
+
+  <div class="row g-3">
+    <!-- Private To-Do List -->
+    <div class="col-lg-6">
+      <div class="card h-100 p-4 shadow-sm" style="border-top: 4px solid #8B1A1A;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="fw-bold fs-5" style="color: #1B2A4A;">Personal Tasks</div>
+          <button class="btn btn-sm btn-outline-maroon" onclick="addNewTask()" title="Add Custom Task"><i class="bi bi-plus-lg"></i></button>
+        </div>
+        
+        <div id="todoListContainer">
+          <!-- Tasks injected dynamically below -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Self-Study Goals -->
+    <div class="col-lg-6">
+      <div class="card h-100 p-4 shadow-sm" style="border-top: 4px solid #1B2A4A;">
+        <div class="fw-bold fs-5 mb-3" style="color: #1B2A4A;">Skill Development</div>
+        
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-sm fw-bold">UI/UX Layouts (Figma & Framer)</span>
+            <span class="text-sm text-muted">80%</span>
+          </div>
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar" style="width: 80%; background-color: #8B1A1A;"></div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-sm fw-bold">C/C++ Abstract Data Types (CodeChum)</span>
+            <span class="text-sm text-muted">45%</span>
+          </div>
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar" style="width: 45%; background-color: #1B2A4A;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Dynamic in-memory task database
+  const personalTasks = [
+    { text: "Calculate map exploration Primogems for next banner", done: true },
+    { text: "Simulate sensor integration circuit in Proteus", done: false },
+    { text: "Review single-ended non-inverting diff amp (Av/2 (v1))", done: false },
+    { text: "Check iPhone 13 Pro battery health stats", done: false }
+  ];
+
+  const listContainer = document.getElementById('todoListContainer');
+
+  // Render to-do list items
+  function renderTasks() {
+    listContainer.innerHTML = "";
+    personalTasks.forEach((task, index) => {
+      const isChecked = task.done ? "checked" : "";
+      const labelClass = task.done ? "task-label text-sm task-done" : "task-label text-sm fw-bold text-dark";
+
+      listContainer.innerHTML += `
+        <div class="form-check mb-2.5 d-flex align-items-center gap-2">
+          <input class="form-check-input" type="checkbox" id="task-${index}" onchange="toggleTaskStatus(${index})" ${isChecked}>
+          <label class="${labelClass}" for="task-${index}">${task.text}</label>
+        </div>
+      `;
+    });
+  }
+
+  // Handle checking/unchecking items locally
+  function toggleTaskStatus(index) {
+    personalTasks[index].done = !personalTasks[index].done;
+    renderTasks();
+  }
+
+  // Quick action: Add new task to list
+  function addNewTask() {
+    const taskContent = prompt("Enter your private workspace task details:");
+    if (taskContent && taskContent.trim() !== "") {
+      personalTasks.push({
+        text: taskContent.trim(),
+        done: false
+      });
+      renderTasks();
+    }
+  }
+
+  // Run on load
+  renderTasks();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – Personal Notes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    .avatar.maroon-theme { background: #8B1A1A !important; color: #fff !important; }
+    .text-maroon { color: #8B1A1A !important; }
+    .btn-maroon { background-color: #8B1A1A !important; color: white !important; }
+    .btn-maroon:hover { background-color: #6B1212 !important; }
+    .btn-outline-maroon {
+      border: 1px solid #8B1A1A !important;
+      color: #8B1A1A !important;
+      background: transparent;
+    }
+    .btn-outline-maroon:hover {
+      background-color: #8B1A1A !important;
+      color: white !important;
+    }
+    .btn, button { cursor: pointer !important; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub" style="color: #ffffff;">Personal Workspace</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="17-student-personal.html"><span class="nav-icon"><i class="bi bi-compass"></i></span> My Space</a>
+    <a href="18-personal-projects.html"><span class="nav-icon"><i class="bi bi-cpu"></i></span> Private Projects</a>
+    <a href="19-personal-notes.html" class="active"><span class="nav-icon"><i class="bi bi-journal-richtext"></i></span> My Notes</a>
+    <a href="21-saved-resources.html"><span class="nav-icon"><i class="bi bi-bookmark-star"></i></span> Saved Resources</a>
+    <a href="20-personal-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar maroon-theme">JD</div>
+    <div class="user-info">
+      <div class="user-name">Jade Manlosa Panilagan</div>
+      <div class="user-role">Student</div>
+    </div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</aside>
+
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <div class="topbar-title">Overview</div>
+    <div class="btn-group" role="group">
+      <a href="17-student-personal.html" class="btn btn-sm text-white" style="background:#8B1A1A; font-weight:600;">Personal</a>
+      <a href="03-student-dashboard.html" class="btn btn-sm btn-outline-secondary" style="font-weight:600;">Professional (Class)</a>
+    </div>
+  </div>
+
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <!-- Floating Notifications -->
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-4 text-center text-muted" style="font-size: 13px;">
+          No new personal notifications.
+        </div>
+      </div>
+    </div>
+
+    <!-- Clickable Avatar -->
+    <div class="avatar maroon-theme" onclick="location.href='20-personal-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Personal Settings">JD</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="page-title">Digital Notebook</h1>
+    <button class="btn btn-maroon fw-bold" onclick="addNewNote()" style="padding: 8px 16px; border-radius: 8px;">
+      <i class="bi bi-plus-lg me-1"></i> Add New Note
+    </button>
+  </div>
+
+  <!-- Container where notes live -->
+  <div id="notesContainer">
+    
+    <!-- Existing Note 1 -->
+    <div class="card mb-4 note-card" id="note-1" style="border-left: 4px solid #8B1A1A;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" class="form-control note-title border-0 bg-transparent p-0 fw-bold" style="font-size: 18px; color: #0F172A;" value="Diff Amp & BJT Analysis Reminders" readonly />
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary edit-btn" onclick="toggleEdit('note-1')"><i class="bi bi-pencil"></i> Edit</button>
+          <button class="btn btn-sm text-white save-btn d-none" style="background:#8B1A1A;" onclick="saveNote('note-1')"><i class="bi bi-check-lg"></i> Save</button>
+        </div>
+      </div>
+      <textarea class="form-control note-body" rows="6" style="background: #F8FAFC; border: 1px dashed #CBD5E1; resize: none; font-family: monospace;" readonly>Ideal Approximations to remember:
+- I_T = V_EE/R_E
+- I_E = I_T/2
+
+For single-ended output non-inverting, use the correct textbook formula:
+A_v/2(v_1)
+(Do not use the 2nd approximation formula here!)</textarea>
+    </div>
+
+    <!-- Existing Note 2 -->
+    <div class="card mb-4 note-card" id="note-2" style="border-left: 4px solid #0F172A;">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <input type="text" class="form-control note-title border-0 bg-transparent p-0 fw-bold" style="font-size: 18px; color: #0F172A;" value="C Programming Formatting Rules" readonly />
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary edit-btn" onclick="toggleEdit('note-2')"><i class="bi bi-pencil"></i> Edit</button>
+          <button class="btn btn-sm text-white save-btn d-none" style="background:#8B1A1A;" onclick="saveNote('note-2')"><i class="bi bi-check-lg"></i> Save</button>
+        </div>
+      </div>
+      <textarea class="form-control note-body" rows="4" style="background: #F8FAFC; border: 1px dashed #CBD5E1; resize: none; font-family: monospace;" readonly>1. Array Swap Task: Remove `arr` and `size` in the function void signature to get it to compile properly.
+2. Loops: Refrain from using `while(1)` for infinite loops to avoid AI flags from the professor. Use standard conditionals instead.</textarea>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  let noteCounter = 3;
+
+  function toggleEdit(noteId) {
+    const card = document.getElementById(noteId);
+    const titleInput = card.querySelector('.note-title');
+    const bodyText = card.querySelector('.note-body');
+    const editBtn = card.querySelector('.edit-btn');
+    const saveBtn = card.querySelector('.save-btn');
+
+    titleInput.readOnly = false;
+    card.querySelector('.note-body').readOnly = false;
+    
+    titleInput.classList.remove('bg-transparent', 'border-0', 'p-0');
+    titleInput.classList.add('bg-white', 'border', 'px-2', 'py-1');
+    bodyText.style.background = '#FFFFFF';
+    bodyText.style.border = '1px solid #8B1A1A';
+
+    editBtn.classList.add('d-none');
+    saveBtn.classList.remove('d-none');
+  }
+
+  function saveNote(noteId) {
+    const card = document.getElementById(noteId);
+    const titleInput = card.querySelector('.note-title');
+    const bodyText = card.querySelector('.note-body');
+    const editBtn = card.querySelector('.edit-btn');
+    const saveBtn = card.querySelector('.save-btn');
+
+    titleInput.readOnly = true;
+    bodyText.readOnly = true;
+    
+    titleInput.classList.add('bg-transparent', 'border-0', 'p-0');
+    titleInput.classList.remove('bg-white', 'border', 'px-2', 'py-1');
+    bodyText.style.background = '#F8FAFC';
+    bodyText.style.border = '1px dashed #CBD5E1';
+
+    saveBtn.classList.add('d-none');
+    editBtn.classList.remove('d-none');
+  }
+
+  function addNewNote() {
+    const container = document.getElementById('notesContainer');
+    const newId = 'note-' + noteCounter;
+    
+    const newNoteHTML = `
+      <div class="card mb-4 note-card" id="${newId}" style="border-left: 4px solid #8B1A1A;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <input type="text" class="form-control note-title bg-white border px-2 py-1 fw-bold" style="font-size: 18px; color: #0F172A;" value="New Subject Note" />
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-maroon edit-btn d-none" onclick="toggleEdit('${newId}')"><i class="bi bi-pencil"></i> Edit</button>
+            <button class="btn btn-sm text-white save-btn" style="background:#8B1A1A;" onclick="saveNote('${newId}')"><i class="bi bi-check-lg"></i> Save</button>
+          </div>
+        </div>
+        <textarea class="form-control note-body" rows="5" style="background: #FFFFFF; border: 1px solid #8B1A1A; resize: none; font-family: monospace;" placeholder="Start typing your notes here..."></textarea>
+      </div>
+    `;
+
+    container.insertAdjacentHTML('afterbegin', newNoteHTML);
+    noteCounter++;
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

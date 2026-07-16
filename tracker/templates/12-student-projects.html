@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – My Projects</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  
+  <!-- Inline styles to guarantee the modal and elements render on top of style.css layout rules -->
+  <style>
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1050 !important;
+    }
+    /* Ensure the card buttons have a pointer and are physically clickable */
+    .btn, .btn-primary, .btn-outline-secondary, button {
+      cursor: pointer !important;
+      position: relative;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub">Student Proficiency System</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="03-student-dashboard.html"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span> Dashboard</a>
+    <a href="04-student-skills.html"><span class="nav-icon"><i class="bi bi-bar-chart-fill"></i></span> My Skills</a>
+    <a href="05-student-subjects.html"><span class="nav-icon"><i class="bi bi-journal-bookmark-fill"></i></span> My Subjects</a>
+    <a href="12-student-projects.html" class="active"><span class="nav-icon"><i class="bi bi-folder2-open"></i></span> Projects</a>
+    <a href="13-forum.html"><span class="nav-icon"><i class="bi bi-chat-dots-fill"></i></span> Forum</a>
+    <a href="06-student-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar">JD</div>
+    <div class="user-info">
+      <div class="user-name">Jade Panilagan</div>
+      <div class="user-role">Student</div>
+    </div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</aside>
+
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <div class="topbar-title">Dashboard</div>
+    <div class="btn-group" role="group">
+      <a href="17-student-personal.html" class="btn btn-sm btn-outline-secondary" style="font-weight:600;">Personal</a>
+      <a href="03-student-dashboard.html" class="btn btn-sm" style="background:#1B2A4A; color:white; font-weight:600;">Professional (Class)</a>
+    </div>
+  </div>
+  
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge">3</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-3" style="background: #F8FAFF; border-bottom: 1px solid #E2E8F0; border-radius: 12px 12px 0 0;">
+          <h6 class="mb-0 fw-bold" style="color: #1B2A4A;">Notifications</h6>
+        </div>
+        <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+          <a href="#" class="list-group-item list-group-item-action p-3">
+            <div class="d-flex gap-3 align-items-center">
+              <div class="stat-icon red" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:16px;background:rgba(139,26,26,0.1);display:flex;align-items:center;justify-content:center;">
+                <i class="bi bi-journal-plus" style="color:#8B1A1A;"></i>
+              </div>
+              <div>
+                <p class="mb-0 fw-bold" style="font-size: 13px; color: #1B2A4A;">New Quiz Available</p>
+                <p class="mb-0 text-muted" style="font-size: 12px;">Quiz 3 - Quadratics posted.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="p-2 text-center" style="border-top: 1px solid #E2E8F0;">
+          <a href="#" style="font-size: 12px; font-weight: 700; color: #8B1A1A; text-decoration: none;">Mark all as read</a>
+        </div>
+      </div>
+    </div>
+    <div class="avatar" onclick="location.href='06-student-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Profile">JD</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title">My Projects</h1>
+      <p class="text-muted text-sm mt-1">Manage and submit your ongoing academic projects.</p>
+    </div>
+    <!-- Simple JS alert fallback to test if the click works AT ALL -->
+    <button class="btn btn-primary d-flex align-items-center gap-1" onclick="openCreateModal()" style="background:#1B2A4A; border:none; font-weight:600; padding: 8px 16px; border-radius: 8px;">
+      <i class="bi bi-plus-lg"></i> New Project
+    </button>
+  </div>
+
+  <div class="row g-3" id="projectsGrid">
+    <!-- Rendered dynamically below -->
+  </div>
+</main>
+
+<!-- Modal: New Project Form -->
+<div class="modal fade" id="newProjectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:14px; overflow:hidden;">
+      <div class="modal-header text-white" style="background: #1B2A4A;">
+        <h5 class="modal-title fw-bold"><i class="bi bi-folder-plus me-2"></i>Create New Project</h5>
+        <button type="button" class="btn-close btn-close-white" onclick="closeCreateModal()"></button>
+      </div>
+      <form id="newProjectForm">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Project Name</label>
+            <input type="text" class="form-control" id="projName" required placeholder="e.g. Smart Irrigation System">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Category / Subject</label>
+            <input type="text" class="form-control" id="projCategory" required placeholder="e.g. Computer Engineering Lab">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Icon Category</label>
+            <select class="form-select" id="projIcon">
+              <option value="bi-cpu">Microprocessor / CPU</option>
+              <option value="bi-router">Networking / Hardware</option>
+              <option value="bi-github">Web Development / Github</option>
+              <option value="bi-code-slash">Software Coding</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Description</label>
+            <textarea class="form-control" id="projDesc" rows="3" required placeholder="Briefly describe what this project is about..."></textarea>
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Status</label>
+              <select class="form-select" id="projStatus" onchange="toggleCompletionInputs()">
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+                <option value="Published">Published</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3" id="gradeInputGroup" style="display:none;">
+              <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Grade (Optional)</label>
+              <input type="text" class="form-control" id="projGrade" placeholder="e.g. 95/100">
+            </div>
+            <div class="col-md-6 mb-3" id="progressInputGroup">
+              <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Progress (%)</label>
+              <input type="number" class="form-control" id="projProgress" min="0" max="100" value="0">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-light border" onclick="closeCreateModal()" style="font-weight:600;">Cancel</button>
+          <button type="submit" class="btn text-white" style="background:#1B2A4A; font-weight:600;">Save Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Generic Detail Viewer -->
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:14px; overflow:hidden;">
+      <div class="modal-header text-white" id="detailHeader">
+        <h5 class="modal-title fw-bold" id="detailTitle">Project Details</h5>
+        <button type="button" class="btn-close btn-close-white" onclick="closeDetailModal()"></button>
+      </div>
+      <div class="modal-body p-4">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <span class="badge" id="detailBadge">Status</span>
+          <span class="text-muted text-sm" id="detailCategory">Category</span>
+        </div>
+        <h6 class="fw-bold mb-2" style="color:#1B2A4A;">Project Scope</h6>
+        <p class="text-sm text-muted" id="detailDesc">Description goes here...</p>
+        
+        <div id="detailExtraArea" class="mt-4 pt-3 border-top">
+          <!-- Dyn area -->
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn w-100 text-white" onclick="closeDetailModal()" style="background:#1B2A4A; font-weight:600;">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Load JavaScript dependencies correctly -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Initial projects list
+  const projects = [
+    {
+      id: 1,
+      name: "Automated Smart Fan System",
+      category: "Computer Engineering Lab",
+      desc: "Integrated circuit project utilizing logic gates and motion sensors, simulated within a closed environment.",
+      status: "Completed",
+      icon: "bi-cpu",
+      color: "#16A34A",
+      grade: "98/100",
+      progress: 100,
+      badgeClass: "bg-success text-white"
+    },
+    {
+      id: 2,
+      name: "Smart Adaptive System",
+      category: "Exercise B · Electronics",
+      desc: "Updating the adaptive environment system featuring LDR signal smoothing and ultrasonic distance validation.",
+      status: "In Progress",
+      icon: "bi-router",
+      color: "#F5A623",
+      progress: 65,
+      badgeClass: "bg-warning text-dark"
+    },
+    {
+      id: 3,
+      name: "Interactive Web UI",
+      category: "Web Development",
+      desc: "A fully coded HTML/CSS interactive frontend website deployed and hosted live on GitHub Pages.",
+      status: "Published",
+      icon: "bi-github",
+      color: "#1B2A4A",
+      progress: 100,
+      badgeClass: "bg-primary text-white",
+      liveLink: "https://github.com"
+    }
+  ];
+
+  const grid = document.getElementById('projectsGrid');
+  let createModalInstance = null;
+  let detailModalInstance = null;
+
+  // Render project cards
+  function renderProjects() {
+    grid.innerHTML = "";
+    projects.forEach((p, index) => {
+      let statusFooter = "";
+      
+      if (p.status === "Completed") {
+        statusFooter = `
+          <div class="mt-auto pt-3 d-flex justify-content-between align-items-center">
+            <span class="text-sm fw-bold" style="color:#16A34A;">Grade: ${p.grade || 'N/A'}</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showDetails(${index})">View Details</button>
+          </div>`;
+      } else if (p.status === "Published") {
+        statusFooter = `
+          <div class="mt-auto pt-3 d-flex justify-content-between align-items-center">
+            <span class="text-sm fw-bold" style="color:#1B2A4A;">Live Link Active</span>
+            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showDetails(${index})">Manage Repo</button>
+          </div>`;
+      } else {
+        statusFooter = `
+          <div class="progress-wrap mb-2 mt-auto">
+            <div class="progress" style="height:6px;">
+              <div class="progress-bar" style="width:${p.progress}%; background:#F5A623;"></div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-sm text-muted">${p.progress}% Complete</span>
+            <button type="button" class="btn btn-sm text-white" style="background:#F5A623; font-weight:600;" onclick="showDetails(${index})">Continue</button>
+          </div>`;
+      }
+
+      grid.innerHTML += `
+        <div class="col-md-6 col-lg-4 mb-3">
+          <div class="card h-100" style="border-top:4px solid ${p.color};">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge ${p.badgeClass}">${p.status}</span>
+              <i class="bi ${p.icon}" style="color:#6B7280; font-size: 20px;"></i>
+            </div>
+            <div style="font-size:16px;font-weight:700;color:#1B2A4A;margin-bottom:4px;">${p.name}</div>
+            <div class="text-muted text-sm mb-3">${p.category}</div>
+            <p class="text-sm" style="color:#4B5563;">${p.desc}</p>
+            ${statusFooter}
+          </div>
+        </div>`;
+    });
+  }
+
+  // Modal Control Functions (Bypassing potential template bugs)
+  function openCreateModal() {
+    if (!createModalInstance) {
+      createModalInstance = new bootstrap.Modal(document.getElementById('newProjectModal'));
+    }
+    createModalInstance.show();
+  }
+
+  function closeCreateModal() {
+    if (createModalInstance) {
+      createModalInstance.hide();
+    }
+  }
+
+  function showDetails(index) {
+    const p = projects[index];
+    
+    document.getElementById('detailHeader').style.background = p.color;
+    document.getElementById('detailTitle').innerText = p.name;
+    document.getElementById('detailCategory').innerText = p.category;
+    document.getElementById('detailDesc').innerText = p.desc;
+    
+    const badge = document.getElementById('detailBadge');
+    badge.innerText = p.status;
+    badge.className = `badge ${p.badgeClass}`;
+
+    const extra = document.getElementById('detailExtraArea');
+    extra.innerHTML = "";
+
+    if (p.status === "Completed") {
+      extra.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-bold" style="color: #16A34A;">Grade Awarded</span>
+          <span class="badge bg-success p-2 fs-6">${p.grade || 'N/A'}</span>
+        </div>`;
+    } else if (p.status === "Published") {
+      extra.innerHTML = `
+        <div class="mb-3">
+          <label class="form-label fw-bold" style="font-size: 13px; color: #1B2A4A;">Deployment Link</label>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+            <input type="text" class="form-control" value="https://github.com/jadepan/my-app" readonly>
+            <button type="button" class="btn btn-outline-secondary" onclick="alert('Link Copied!')">Copy</button>
+          </div>
+        </div>`;
+    } else {
+      extra.innerHTML = `
+        <div class="mb-2">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-sm text-muted">Sprint Milestones</span>
+            <span class="text-sm fw-bold">${p.progress}%</span>
+          </div>
+          <div class="progress" style="height: 8px;">
+            <div class="progress-bar" role="progressbar" style="width: ${p.progress}%; background: #F5A623;"></div>
+          </div>
+        </div>`;
+    }
+
+    if (!detailModalInstance) {
+      detailModalInstance = new bootstrap.Modal(document.getElementById('detailModal'));
+    }
+    detailModalInstance.show();
+  }
+
+  function closeDetailModal() {
+    if (detailModalInstance) {
+      detailModalInstance.hide();
+    }
+  }
+
+  function toggleCompletionInputs() {
+    const status = document.getElementById('projStatus').value;
+    const gradeGroup = document.getElementById('gradeInputGroup');
+    const progressGroup = document.getElementById('progressInputGroup');
+    
+    if (status === "Completed") {
+      gradeGroup.style.display = "block";
+      progressGroup.style.display = "none";
+    } else {
+      gradeGroup.style.display = "none";
+      progressGroup.style.display = "block";
+    }
+  }
+
+  // Handle new project submission
+  document.getElementById('newProjectForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('projName').value;
+    const category = document.getElementById('projCategory').value;
+    const icon = document.getElementById('projIcon').value;
+    const desc = document.getElementById('projDesc').value;
+    const status = document.getElementById('projStatus').value;
+    const grade = document.getElementById('projGrade').value;
+    const progress = status === "Completed" || status === "Published" ? 100 : parseInt(document.getElementById('projProgress').value);
+
+    let color = "#1B2A4A";
+    let badgeClass = "bg-primary text-white";
+    if (status === "Completed") {
+      color = "#16A34A";
+      badgeClass = "bg-success text-white";
+    } else if (status === "In Progress") {
+      color = "#F5A623";
+      badgeClass = "bg-warning text-dark";
+    }
+
+    const newProj = {
+      id: Date.now(),
+      name,
+      category,
+      desc,
+      status,
+      icon,
+      color,
+      grade,
+      progress,
+      badgeClass
+    };
+
+    projects.unshift(newProj);
+    renderProjects();
+
+    this.reset();
+    closeCreateModal();
+  });
+
+  // Render initial set
+  renderProjects();
+</script>
+</body>
+</html>

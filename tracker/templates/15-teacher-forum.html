@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – Community Forum</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    /* Strict Maroon and White UI branding overrides */
+    .avatar.maroon-theme {
+      background: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .text-maroon {
+      color: #8B1A1A !important;
+    }
+    .btn-maroon {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+      border: none;
+      transition: background 0.2s ease;
+    }
+    .btn-maroon:hover {
+      background-color: #6B1212 !important;
+      color: #ffffff !important;
+    }
+    .btn-outline-maroon {
+      border: 1px solid #8B1A1A !important;
+      color: #8B1A1A !important;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+    .btn-outline-maroon:hover {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1050 !important;
+    }
+    .btn, button, .like-btn, .reply-btn {
+      cursor: pointer !important;
+      position: relative;
+      z-index: 5;
+    }
+    .like-btn:hover {
+      color: #8B1A1A !important;
+    }
+    .post-card {
+      transition: background-color 0.2s ease;
+    }
+    .post-card:hover {
+      background-color: #F8FAFF;
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub">Teacher Portal</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="07-teacher-dashboard.html"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span> Dashboard</a>
+    <a href="08-teacher-classes.html"><span class="nav-icon"><i class="bi bi-people-fill"></i></span> My Classes</a>
+    <a href="09-teacher-lesson-plans.html"><span class="nav-icon"><i class="bi bi-journal-text"></i></span> Lesson Plans</a>
+    <a href="10-teacher-activities.html"><span class="nav-icon"><i class="bi bi-list-check"></i></span> Activities</a>
+    <a href="15-teacher-forum.html" class="active"><span class="nav-icon"><i class="bi bi-chat-dots-fill"></i></span> Forum</a>
+    <a href="11-teacher-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar maroon-theme" id="sideAvatar">RS</div>
+    <div class="user-info">
+      <div class="user-name">Mr. Santos</div>
+      <div class="user-role">Teacher</div>
+    </div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</aside>
+
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="topbar-title">Teacher Dashboard</div>
+  
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <!-- Floating Notifications -->
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge" style="background:#8B1A1A;">2</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-3" style="background: #F8FAFF; border-bottom: 1px solid #E2E8F0; border-radius: 12px 12px 0 0;">
+          <h6 class="mb-0 fw-bold" style="color: #1B2A4A;">Notifications</h6>
+        </div>
+        <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+          <a href="#" class="list-group-item list-group-item-action p-3">
+            <div class="d-flex gap-3 align-items-center">
+              <div class="stat-icon" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:16px;background:rgba(139,26,26,0.1);display:flex;align-items:center;justify-content:center;">
+                <i class="bi bi-file-earmark-arrow-up" style="color:#8B1A1A;"></i>
+              </div>
+              <div>
+                <p class="mb-0 fw-bold" style="font-size: 13px; color: #1B2A4A;">Assignment Submitted</p>
+                <p class="mb-0 text-muted" style="font-size: 12px;">3 students submitted Quiz 1.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="p-2 text-center" style="border-top: 1px solid #E2E8F0;">
+          <a href="#" style="font-size: 12px; font-weight: 700; color: #8B1A1A; text-decoration: none;">Mark all as read</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clickable Avatar (Teacher Profile) -->
+    <div class="avatar maroon-theme" onclick="location.href='11-teacher-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Profile">RS</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title">Discussion Forum</h1>
+      <p class="text-muted text-sm mt-1">Answer questions, share announcements, and connect with your classes.</p>
+    </div>
+    <button class="btn btn-maroon d-flex align-items-center gap-1" onclick="openNewPostModal()" style="font-weight:600; padding: 8px 16px; border-radius: 8px;">
+      <i class="bi bi-pencil-square"></i> New Post
+    </button>
+  </div>
+
+  <div class="card p-0">
+    <div class="list-group list-group-flush" id="forumContainer" style="border-radius: 14px;">
+      <!-- Forum threads render dynamically here -->
+    </div>
+  </div>
+</main>
+
+<!-- Modal: New Post Form -->
+<div class="modal fade" id="newPostModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:14px; overflow:hidden;">
+      <div class="modal-header text-white" style="background: #8B1A1A;">
+        <h5 class="modal-title fw-bold"><i class="bi bi-megaphone me-2"></i>Post Class Announcement</h5>
+        <button type="button" class="btn-close btn-close-white" onclick="closeNewPostModal()"></button>
+      </div>
+      <form id="newPostForm">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Title / Heading</label>
+            <input type="text" class="form-control" id="postTitle" required placeholder="e.g. Laboratory Activity #2 Postponement">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Discussion Details</label>
+            <textarea class="form-control" id="postContent" rows="5" required placeholder="Type your message, query solution, or announcement specifications here..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-light border" onclick="closeNewPostModal()" style="font-weight:600;">Cancel</button>
+          <button type="submit" class="btn btn-maroon fw-semibold">Publish Announcement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Unified dataset
+  const forumPosts = [
+    {
+      id: 1,
+      author: "Jade Panilagan",
+      avatar: "JD",
+      avatarBg: "#1B2A4A",
+      title: "Proper loop conditions in C (Avoiding AI flags)",
+      time: "2 hours ago",
+      content: "Just a heads up for the latest programming assignment: try to refrain from using <code>while(1)</code> for your infinite loops. The professor mentioned it triggers the AI detection tools. Use proper exit flags or <code>stdbool.h</code> instead!",
+      replies: 4,
+      likes: 12,
+      isLiked: true
+    },
+    {
+      id: 2,
+      author: "Mr. Roberto Santos",
+      avatar: "RS",
+      avatarBg: "#8B1A1A",
+      title: "Clarification on Differential Amplifier Formulas",
+      time: "Yesterday",
+      content: "For Question #3 on the lab report, remember to stick to ideal approximations. Use <code>I_T = V_EE/R_E</code> and <code>I_E = I_T/2</code>. Also, for single-ended output non-inverting, stick to the standard formula: <code>A_v/2(v_1)</code>. Don't use the 2nd approximation formulas unless explicitly asked.",
+      replies: 8,
+      likes: 5,
+      isLiked: false
+    }
+  ];
+
+  const container = document.getElementById('forumContainer');
+  let postModalInstance = null;
+
+  function renderForum() {
+    container.innerHTML = "";
+    forumPosts.forEach((post, index) => {
+      const heartIcon = post.isLiked ? "bi-heart-fill text-danger" : "bi-heart";
+      const styleLike = post.isLiked ? "color:#8B1A1A;" : "";
+
+      container.innerHTML += `
+        <div class="list-group-item p-4 post-card" style="border-bottom: 1px solid #E2E8F0;">
+          <div class="d-flex gap-3">
+            <div class="avatar text-white d-flex align-items-center justify-content-center" 
+                 style="width:40px;height:40px;font-size:14px;border-radius:50%;background:${post.avatarBg};font-weight:700;">
+              ${post.avatar}
+            </div>
+            <div class="w-100">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h6 class="mb-0 fw-bold" style="color:#1B2A4A;">${post.title}</h6>
+                <span class="text-muted text-sm">${post.time}</span>
+              </div>
+              <p class="text-sm mb-2" style="color:#4B5563;">${post.content}</p>
+              <div class="d-flex gap-3 text-muted text-sm">
+                <button class="btn btn-link p-0 text-decoration-none text-muted reply-btn" style="font-size:13px;" onclick="triggerReplyAlert(${index})">
+                  <i class="bi bi-chat-left-text me-1"></i> ${post.replies} Replies
+                </button>
+                <button class="btn btn-link p-0 text-decoration-none text-muted like-btn" style="font-size:13px; ${styleLike}" onclick="toggleLike(${index})">
+                  <i class="bi ${heartIcon} me-1"></i> <span id="like-count-${index}">${post.likes}</span> Likes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function toggleLike(index) {
+    const post = forumPosts[index];
+    if (post.isLiked) {
+      post.likes--;
+      post.isLiked = false;
+    } else {
+      post.likes++;
+      post.isLiked = true;
+    }
+    renderForum();
+  }
+
+  function triggerReplyAlert(index) {
+    const post = forumPosts[index];
+    alert(`Opening replies thread for: "${post.title}"\n(Prototype navigation scope)`);
+  }
+
+  function openNewPostModal() {
+    if (!postModalInstance) {
+      postModalInstance = new bootstrap.Modal(document.getElementById('newPostModal'));
+    }
+    postModalInstance.show();
+  }
+
+  function closeNewPostModal() {
+    if (postModalInstance) {
+      postModalInstance.hide();
+    }
+  }
+
+  document.getElementById('newPostForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const title = document.getElementById('postTitle').value;
+    const content = document.getElementById('postContent').value;
+
+    const newPost = {
+      id: Date.now(),
+      author: "Mr. Roberto Santos",
+      avatar: "RS",
+      avatarBg: "#8B1A1A",
+      title: title,
+      time: "Just now",
+      content: content.replace(/\n/g, '<br>'),
+      replies: 0,
+      likes: 0,
+      isLiked: false
+    };
+
+    forumPosts.unshift(newPost);
+    renderForum();
+
+    this.reset();
+    closeNewPostModal();
+  });
+
+  renderForum();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – My Skills</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    .avatar-student { background: #8B1A1A !important; color: #fff !important; }
+    .bg-maroon-light { background-color: rgba(139, 26, 26, 0.05) !important; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub">Student Proficiency System</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="03-student-dashboard.html"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span> Dashboard</a>
+    <a href="04-student-skills.html" class="active"><span class="nav-icon"><i class="bi bi-bar-chart-fill"></i></span> My Skills</a>
+    <a href="05-student-subjects.html"><span class="nav-icon"><i class="bi bi-journal-bookmark-fill"></i></span> My Subjects</a>
+    <a href="12-student-projects.html"><span class="nav-icon"><i class="bi bi-folder2-open"></i></span> Projects</a>
+    <a href="13-forum.html"><span class="nav-icon"><i class="bi bi-chat-dots-fill"></i></span> Forum</a>
+    <a href="06-student-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar avatar-student">JD</div>
+    <div class="user-info">
+      <div class="user-name">Jade Panilagan</div>
+      <div class="user-role">Student</div>
+    </div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</aside>
+
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <div class="topbar-title">Dashboard</div>
+    <div class="btn-group" role="group">
+      <a href="17-student-personal.html" class="btn btn-sm btn-outline-secondary" style="font-weight:600;">Personal</a>
+      <a href="03-student-dashboard.html" class="btn btn-sm text-white" style="background:#8B1A1A; font-weight:600;">Professional (Class)</a>
+    </div>
+  </div>
+  
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <!-- Floating Notifications -->
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge" style="background:#8B1A1A;">3</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-3" style="background: #F8FAFF; border-bottom: 1px solid #E2E8F0; border-radius: 12px 12px 0 0;">
+          <h6 class="mb-0 fw-bold" style="color: #8B1A1A;">Notifications</h6>
+        </div>
+        <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+          <a href="#" class="list-group-item list-group-item-action p-3">
+            <div class="d-flex gap-3 align-items-center">
+              <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:16px;">
+                <i class="bi bi-journal-plus text-maroon"></i>
+              </div>
+              <div>
+                <p class="mb-0 fw-bold" style="font-size: 13px; color: #1B2A4A;">New Quiz Available</p>
+                <p class="mb-0 text-muted" style="font-size: 12px;">Quiz 3 - Quadratics posted.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="p-2 text-center" style="border-top: 1px solid #E2E8F0;">
+          <a href="#" style="font-size: 12px; font-weight: 700; color: #8B1A1A; text-decoration: none;">Mark all as read</a>
+        </div>
+      </div>
+    </div>
+    <div class="avatar avatar-student" onclick="location.href='06-student-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Profile">JD</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title">My Skills</h1>
+      <p class="text-muted text-sm mt-1">Track your proficiency across different competencies.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <select class="form-select" style="width:auto;font-size:13px;">
+        <option>All Subjects</option>
+        <option>Math 101</option>
+        <option>CompSci 3</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Level banner -->
+  <div class="card mb-4" style="background:linear-gradient(135deg,#8B1A1A,#5A1010);border:none; box-shadow:0 8px 24px rgba(139,26,26,0.15);">
+    <div class="row align-items-center p-3">
+      <div class="col-auto">
+        <div style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,0.15);
+                    border:3px solid #fff;display:flex;align-items:center;justify-content:center;
+                    font-size:26px;font-weight:800;color:#fff;">3</div>
+      </div>
+      <div class="col">
+        <div style="color:#fff;font-size:18px;font-weight:700;">Level 3 — Developing</div>
+        <div style="color:rgba(255,255,255,0.7);font-size:13px;margin-top:2px;">1,240 / 1,500 points to Level 4</div>
+        <div style="margin-top:10px;background:rgba(255,255,255,0.2);border-radius:99px;height:8px;">
+          <div style="width:72%;height:8px;border-radius:99px;background:#fff;"></div>
+        </div>
+      </div>
+      <div class="col-auto text-end">
+        <div style="color:rgba(255,255,255,0.6);font-size:12px;">Next level</div>
+        <div style="color:#fff;font-size:16px;font-weight:700;">Level 4 — Proficient</div>
+        <div style="color:rgba(255,255,255,0.6);font-size:12px;margin-top:4px;">260 pts needed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skill categories -->
+  <div class="row g-3" id="skillGrid"></div>
+</main>
+
+<script>
+  const skills = [
+    { name:'Critical Thinking',  icon:'bi-lightbulb-fill',    pct:82, level:'Advanced',   color:'#8B1A1A' },
+    { name:'Problem Solving',    icon:'bi-puzzle-fill',       pct:74, level:'Proficient',  color:'#8B1A1A' },
+    { name:'Communication',      icon:'bi-chat-quote-fill',   pct:60, level:'Developing',  color:'#8B1A1A' },
+    { name:'Technical Skills',   icon:'bi-code-slash',        pct:90, level:'Advanced',   color:'#8B1A1A' },
+    { name:'Collaboration',      icon:'bi-people-fill',       pct:55, level:'Developing',  color:'#8B1A1A' },
+    { name:'Research & Analysis',icon:'bi-search',            pct:48, level:'Beginner',    color:'#8B1A1A' },
+  ];
+
+  const levelColors = {Advanced:'badge-green', Proficient:'badge-blue', Developing:'badge-amber', Beginner:'badge-red'};
+  const grid = document.getElementById('skillGrid');
+
+  skills.forEach(s => {
+    grid.innerHTML += `
+      <div class="col-md-6 col-lg-4">
+        <div class="card card-sm h-100 shadow-sm p-3">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" style="width:40px; height:40px; border-radius:8px;">
+              <i class="bi ${s.icon}" style="color:${s.color};font-size:20px;"></i>
+            </div>
+            <div>
+              <div style="font-weight:700;font-size:14px;color:#0F172A;">${s.name}</div>
+              <span class="badge ${levelColors[s.level]}">${s.level}</span>
+            </div>
+          </div>
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-sm text-muted">Proficiency</span>
+            <span class="text-sm fw-bold text-maroon">${s.pct}%</span>
+          </div>
+          <div class="progress" style="height:6px;">
+            <div class="progress-bar" style="width:${s.pct}%;background:${s.color};"></div>
+          </div>
+        </div>
+      </div>`;
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

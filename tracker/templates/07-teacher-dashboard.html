@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – Teacher Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    .avatar.maroon-theme {
+      background: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .text-maroon {
+      color: #8B1A1A !important;
+    }
+    .bg-maroon-light {
+      background-color: rgba(139, 26, 26, 0.05) !important;
+    }
+    .btn, button { cursor: pointer !important; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub">Teacher Portal</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="07-teacher-dashboard.html" class="active"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span> Dashboard</a>
+    <a href="08-teacher-classes.html"><span class="nav-icon"><i class="bi bi-people-fill"></i></span> My Classes</a>
+    <a href="09-teacher-lesson-plans.html"><span class="nav-icon"><i class="bi bi-journal-text"></i></span> Lesson Plans</a>
+    <a href="10-teacher-activities.html"><span class="nav-icon"><i class="bi bi-list-check"></i></span> Activities</a>
+    <a href="15-teacher-forum.html"><span class="nav-icon"><i class="bi bi-chat-dots-fill"></i></span> Forum</a>
+    <a href="11-teacher-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar maroon-theme">RS</div>
+    <div class="user-info">
+      <div class="user-name">Mr. Santos</div>
+      <div class="user-role">Teacher</div>
+    </div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'"><i class="bi bi-box-arrow-right"></i></button>
+  </div>
+</aside>
+
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="topbar-title">Teacher Dashboard</div>
+  
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <!-- Floating Notifications -->
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge" style="background:#8B1A1A;">2</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-3" style="background: #F8FAFF; border-bottom: 1px solid #E2E8F0; border-radius: 12px 12px 0 0;">
+          <h6 class="mb-0 fw-bold" style="color: #0F172A;">Notifications</h6>
+        </div>
+        <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+          <a href="#" class="list-group-item list-group-item-action p-3">
+            <div class="d-flex gap-3 align-items-center">
+              <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:16px;">
+                <i class="bi bi-file-earmark-arrow-up text-maroon"></i>
+              </div>
+              <div>
+                <p class="mb-0 fw-bold" style="font-size: 13px; color: #0F172A;">Assignment Submitted</p>
+                <p class="mb-0 text-muted" style="font-size: 12px;">3 students submitted Quiz 1.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="p-2 text-center" style="border-top: 1px solid #E2E8F0;">
+          <a href="#" style="font-size: 12px; font-weight: 700; color: #8B1A1A; text-decoration: none;">Mark all as read</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clickable Avatar (Teacher Profile) -->
+    <div class="avatar maroon-theme" onclick="location.href='11-teacher-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Profile">RS</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h1 class="page-title">Good morning, Mr. Santos! 👋</h1>
+      <p class="text-muted text-sm mt-1">Here's an overview of your classes.</p>
+    </div>
+    <a href="08-teacher-classes.html" class="btn-maroon fw-semibold btn" style="text-decoration:none; padding:8px 16px; border-radius:8px;"><i class="bi bi-plus-lg me-1"></i> Enroll Student</a>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid-4 mb-4">
+    <div class="stat-card">
+      <div class="stat-icon red"><i class="bi bi-people-fill" style="color:#8B1A1A;"></i></div>
+      <div><div class="stat-val">3</div><div class="stat-label">Active Classes</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red"><i class="bi bi-person-fill" style="color:#8B1A1A;"></i></div>
+      <div><div class="stat-val">87</div><div class="stat-label">Total Students</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red"><i class="bi bi-journal-text" style="color:#8B1A1A;"></i></div>
+      <div><div class="stat-val">12</div><div class="stat-label">Lesson Plans</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red"><i class="bi bi-check2-all" style="color:#8B1A1A;"></i></div>
+      <div><div class="stat-val">24</div><div class="stat-label">Activities Posted</div></div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Class performance -->
+    <div class="col-lg-7">
+      <div class="card shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="section-title">Class Performance</div>
+          <a href="08-teacher-classes.html" class="text-sm fw-bold text-decoration-none text-maroon">View all</a>
+        </div>
+        <table class="sps-table">
+          <thead>
+            <tr><th>Class</th><th>Students</th><th>Avg Score</th><th>Top Level</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>BSCPE-3A</strong><div class="text-muted text-sm">Math 101</div></td>
+              <td>32</td>
+              <td><strong class="text-maroon">78%</strong></td>
+              <td><span class="badge badge-navy">Level 3</span></td>
+              <td><span class="badge bg-success text-white">Active</span></td>
+            </tr>
+            <tr>
+              <td><strong>BSCPE-3B</strong><div class="text-muted text-sm">Math 101</div></td>
+              <td>28</td>
+              <td><strong class="text-maroon">65%</strong></td>
+              <td><span class="badge badge-blue">Level 2</span></td>
+              <td><span class="badge bg-success text-white">Active</span></td>
+            </tr>
+            <tr>
+              <td><strong>BSCPE-2A</strong><div class="text-muted text-sm">Algebra</div></td>
+              <td>27</td>
+              <td><strong class="text-maroon">82%</strong></td>
+              <td><span class="badge bg-success text-white">Level 4</span></td>
+              <td><span class="badge bg-success text-white">Active</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="col-lg-5">
+      <div class="card shadow-sm">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="section-title">Recent Activity</div>
+        </div>
+        <div class="d-flex flex-column gap-3">
+          <div class="d-flex gap-3 align-items-start">
+            <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;">
+              <i class="bi bi-person-plus-fill text-maroon" style="font-size:14px;"></i>
+            </div>
+            <div><div style="font-size:13px;font-weight:600; color:#0F172A;">3 new students enrolled</div><div class="text-muted text-sm">BSCPE-3A · 2h ago</div></div>
+          </div>
+          <div class="d-flex gap-3 align-items-start">
+            <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;">
+              <i class="bi bi-unlock-fill text-maroon" style="font-size:14px;"></i>
+            </div>
+            <div><div style="font-size:13px;font-weight:600; color:#0F172A;">Topic 5 unlocked</div><div class="text-muted text-sm">BSCPE-3B · 5h ago</div></div>
+          </div>
+          <div class="d-flex gap-3 align-items-start">
+            <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;">
+              <i class="bi bi-file-earmark-plus text-maroon" style="font-size:14px;"></i>
+            </div>
+            <div><div style="font-size:13px;font-weight:600; color:#0F172A;">Quiz 3 added</div><div class="text-muted text-sm">BSCPE-2A · Yesterday</div></div>
+          </div>
+          <div class="d-flex gap-3 align-items-start">
+            <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:8px;flex-shrink:0;">
+              <i class="bi bi-bar-chart-fill text-maroon" style="font-size:14px;"></i>
+            </div>
+            <div><div style="font-size:13px;font-weight:600; color:#0F172A;">Student leveled up</div><div class="text-muted text-sm">BSCPE-3A → Level 4 · Yesterday</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

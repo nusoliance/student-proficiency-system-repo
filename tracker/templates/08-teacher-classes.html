@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – My Classes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    /* Strict Maroon and White UI branding overrides */
+    .avatar.maroon-theme {
+      background: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .text-maroon {
+      color: #8B1A1A !important;
+    }
+    .btn-maroon {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+      border: none;
+      transition: background 0.2s ease;
+    }
+    .btn-maroon:hover {
+      background-color: #6B1212 !important;
+      color: #ffffff !important;
+    }
+    .btn-outline-maroon {
+      border: 1px solid #8B1A1A !important;
+      color: #8B1A1A !important;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+    .btn-outline-maroon:hover {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .btn, button, a {
+      cursor: pointer !important;
+    }
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1050 !important;
+    }
+    /* Simple dynamic table styling */
+    #studentTable tr {
+      transition: background-color 0.2s ease;
+    }
+    #studentTable tr:hover {
+      background-color: #F8FAFF;
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub">Teacher Portal</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="07-teacher-dashboard.html"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span> Dashboard</a>
+    <a href="08-teacher-classes.html" class="active"><span class="nav-icon"><i class="bi bi-people-fill"></i></span> My Classes</a>
+    <a href="09-teacher-lesson-plans.html"><span class="nav-icon"><i class="bi bi-journal-text"></i></span> Lesson Plans</a>
+    <a href="10-teacher-activities.html"><span class="nav-icon"><i class="bi bi-list-check"></i></span> Activities</a>
+    <a href="15-teacher-forum.html"><span class="nav-icon"><i class="bi bi-chat-dots-fill"></i></span> Forum</a>
+    <a href="11-teacher-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar maroon-theme">RS</div>
+    <div class="user-info"><div class="user-name">Mr. Santos</div><div class="user-role">Teacher</div></div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'"><i class="bi bi-box-arrow-right"></i></button>
+  </div>
+</aside>
+
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="topbar-title">My Classes</div>
+  
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <!-- Floating Notifications -->
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge" style="background: #8B1A1A;">2</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-3" style="background: #F8FAFF; border-bottom: 1px solid #E2E8F0; border-radius: 12px 12px 0 0;">
+          <h6 class="mb-0 fw-bold" style="color: #1B2A4A;">Notifications</h6>
+        </div>
+        <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+          <a href="#" class="list-group-item list-group-item-action p-3">
+            <div class="d-flex gap-3 align-items-center">
+              <div class="stat-icon" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:16px;background:rgba(139,26,26,0.1);display:flex;align-items:center;justify-content:center;">
+                <i class="bi bi-file-earmark-arrow-up" style="color:#8B1A1A;"></i>
+              </div>
+              <div>
+                <p class="mb-0 fw-bold" style="font-size: 13px; color: #1B2A4A;">Assignment Submitted</p>
+                <p class="mb-0 text-muted" style="font-size: 12px;">3 students submitted Quiz 1.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="p-2 text-center" style="border-top: 1px solid #E2E8F0;">
+          <a href="#" style="font-size: 12px; font-weight: 700; color: #8B1A1A; text-decoration: none;">Mark all as read</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Clickable Avatar (Teacher Profile) -->
+    <div class="avatar maroon-theme" onclick="location.href='11-teacher-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Profile">RS</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title">My Classes</h1>
+      <p class="text-muted text-sm mt-1">Manage enrolled students and topic access.</p>
+    </div>
+    <button class="btn btn-maroon d-flex align-items-center gap-2" onclick="openEnrollModal()" style="font-weight:600; padding:8px 16px; border-radius:8px;">
+      <i class="bi bi-person-plus-fill"></i> Enroll Student
+    </button>
+  </div>
+
+  <!-- Classes -->
+  <div class="row g-3 mb-4" id="classCards"></div>
+
+  <!-- Student list -->
+  <div class="card p-4 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="fw-bold fs-5" style="color:#1B2A4A;">BSCPE-3A · Student List</div>
+      <input class="form-control" id="studentSearch" placeholder="Search student…" style="width:200px;font-size:13px;" />
+    </div>
+    <div class="table-responsive">
+      <table class="table align-middle" style="font-size: 14px;">
+        <thead class="table-light">
+          <tr><th>#</th><th>Name</th><th>Student ID</th><th>Level</th><th>Points</th><th>Progress</th><th>Action</th></tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<!-- Enroll Modal -->
+<div class="modal fade" id="enrollModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px; border:none;">
+      <div class="modal-header" style="border-bottom:1px solid #E2E8F0;">
+        <h5 class="modal-title fw-bold text-maroon"><i class="bi bi-person-plus me-2"></i>Enroll a Student</h5>
+        <button type="button" class="btn-close" onclick="closeEnrollModal()"></button>
+      </div>
+      <form id="enrollForm">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px;">Full Name</label>
+            <input class="form-control" id="enrollName" placeholder="e.g. Juan dela Cruz" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px;">Student ID</label>
+            <input class="form-control" id="enrollID" placeholder="e.g. 2021-00199" required />
+          </div>
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold" style="font-size:13px;">Starting Level</label>
+              <select class="form-select" id="enrollLevel">
+                <option value="1">Level 1</option>
+                <option value="2">Level 2</option>
+                <option value="3" selected>Level 3</option>
+                <option value="4">Level 4</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label fw-semibold" style="font-size:13px;">Starting Points</label>
+              <input type="number" class="form-control" id="enrollPoints" value="0" min="0" required />
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px;">Subject</label>
+            <select class="form-select" id="enrollSubject">
+              <option selected>Mathematics 101</option>
+              <option>Algebra</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid #E2E8F0; border:0;">
+          <button type="button" class="btn btn-light border" onclick="closeEnrollModal()" style="font-weight:600;">Cancel</button>
+          <button type="submit" class="btn btn-maroon fw-semibold">Enroll Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Student Detail Performance Modal -->
+<div class="modal fade" id="studentDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
+      <div class="modal-header text-white" id="detailModalHeader" style="background: #8B1A1A;">
+        <h5 class="modal-title fw-bold" id="detailModalTitle">Student Performance</h5>
+        <button type="button" class="btn-close btn-close-white" onclick="closeDetailModal()"></button>
+      </div>
+      <div class="modal-body p-4" style="background:#F8FAFF;">
+        <div class="text-center mb-4">
+          <div class="avatar maroon-theme d-flex align-items-center justify-content-center text-white fw-bold fs-4 mx-auto mb-2" id="detailAvatar" style="width: 70px; height: 70px; border-radius: 50%;">JD</div>
+          <h5 class="mb-0 fw-bold" id="detailName" style="color:#1B2A4A;">Name</h5>
+          <small class="text-muted" id="detailID">ID</small>
+        </div>
+        
+        <div class="row g-3">
+          <div class="col-6">
+            <div class="p-3 bg-white rounded-3 border text-center">
+              <small class="text-muted d-block">Current Level</small>
+              <span class="badge mt-1" id="detailLevelBadge">Level</span>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="p-3 bg-white rounded-3 border text-center">
+              <small class="text-muted d-block">SPS Points</small>
+              <strong class="fs-5" id="detailPoints" style="color:#1B2A4A;">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 bg-white rounded-3 border">
+          <div class="d-flex justify-content-between mb-1">
+            <small class="text-muted fw-semibold">Class Progress Tracker</small>
+            <strong id="detailProgressPct" class="text-maroon">0%</strong>
+          </div>
+          <div class="progress" style="height:8px;">
+            <div class="progress-bar" id="detailProgressBar" role="progressbar" style="width: 0%; background: #8B1A1A;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary w-100" onclick="closeDetailModal()" style="font-weight:600;">Back to Classes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // 1. Core Classes Metadata definition layout mapping
+  const classes = [
+    { name:'BSCPE-3A', subject:'Math 101', avg:0, color:'#8B1A1A' },
+    { name:'BSCPE-3B', subject:'Math 101', avg:0, color:'#8B1A1A' },
+    { name:'BSCPE-2A', subject:'Algebra',  avg:0, color:'#8B1A1A' },
+  ];
+
+  const cc = document.getElementById('classCards');
+  const tb = document.getElementById('studentTable');
+  let enrollModalInstance = null;
+  let detailModalInstance = null;
+
+  // Render class cards shell structure
+  function renderClassSummaries(studentDataset) {
+    cc.innerHTML = "";
+    classes.forEach(c => {
+      // Dynamically calculate average scores and student counts using our real database list
+      const classMembers = studentDataset.filter(s => s.section === c.name && s.subject === c.subject);
+      const totalStudents = classMembers.length;
+      
+      let classAvg = 0;
+      if (totalStudents > 0) {
+        const sum = classMembers.reduce((acc, curr) => acc + curr.pct, 0);
+        classAvg = Math.round(sum / totalStudents);
+      }
+
+      cc.innerHTML += `
+        <div class="col-md-4">
+          <div class="card shadow-sm p-4 h-100" style="border-top:4px solid ${c.color};">
+            <div class="fw-bold mb-1" style="font-size:18px; color:#1B2A4A;">${c.name}</div>
+            <div class="text-muted text-sm mb-3">${c.subject}</div>
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-sm text-muted">Class average</span>
+              <span class="text-sm fw-bold text-maroon">${classAvg}%</span>
+            </div>
+            <div class="progress mb-3" style="height:6px;">
+              <div class="progress-bar" style="width:${classAvg}%; background:#8B1A1A;"></div>
+            </div>
+            <div class="text-muted text-sm"><i class="bi bi-people-fill me-1"></i>${totalStudents} students</div>
+          </div>
+        </div>`;
+    });
+  }
+
+  // Render core reactive list elements
+  function renderStudents() {
+    // READ array state straight from global memory storage
+    const currentStudents = JSON.parse(localStorage.getItem('sps_global_students')) || [];
+    const searchQuery = document.getElementById('studentSearch').value.toLowerCase();
+    
+    // Refresh header statistics metrics
+    renderClassSummaries(currentStudents);
+
+    const filteredList = currentStudents.filter(s => 
+      s.name.toLowerCase().includes(searchQuery) || s.id.includes(searchQuery)
+    );
+
+    tb.innerHTML = "";
+    
+    if (filteredList.length === 0) {
+      tb.innerHTML = `
+        <tr>
+          <td colspan="7" class="text-center py-4 text-muted">
+            No dynamic match records found. Submit an 'Enroll Student' entry to add to this data layer.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    filteredList.forEach((s, i) => {
+      const lvlColor = s.level >= 4 ? 'bg-success text-white' : s.level === 3 ? 'bg-warning text-dark' : s.level === 2 ? 'bg-primary text-white' : 'bg-danger text-white';
+      tb.innerHTML += `
+        <tr>
+          <td class="text-muted">${i+1}</td>
+          <td><strong>${s.name}</strong></td>
+          <td class="text-muted">${s.id}</td>
+          <td><span class="badge ${lvlColor}">Level ${s.level}</span></td>
+          <td><strong>${s.pts}</strong></td>
+          <td style="width:140px;">
+            <div class="progress" style="height: 6px; margin-bottom: 4px;">
+              <div class="progress-bar" style="width:${s.pct}%; background:#8B1A1A;"></div>
+            </div>
+            <div class="text-muted" style="font-size:11px;">${s.pct}% complete</div>
+          </td>
+          <td><button class="btn btn-link p-0 text-decoration-none fw-semibold" style="color:#8B1A1A; font-size:14px;" onclick="viewStudentDetails('${s.id}')">View</button></td>
+        </tr>`;
+    });
+  }
+
+  // Live filter integration binding
+  document.getElementById('studentSearch').addEventListener('input', renderStudents);
+
+  function openEnrollModal() {
+    if (!enrollModalInstance) enrollModalInstance = new bootstrap.Modal(document.getElementById('enrollModal'));
+    enrollModalInstance.show();
+  }
+  function closeEnrollModal() { if (enrollModalInstance) enrollModalInstance.hide(); }
+
+  // WRITE changes to LocalStorage array data structures
+  document.getElementById('enrollForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('enrollName').value;
+    const id = document.getElementById('enrollID').value;
+    const level = parseInt(document.getElementById('enrollLevel').value);
+    const pts = parseInt(document.getElementById('enrollPoints').value);
+    const subject = document.getElementById('enrollSubject').value;
+    const section = document.getElementById('enrollLevel').parentElement.parentElement.parentElement.querySelector('select').value;
+
+    let currentDatabase = JSON.parse(localStorage.getItem('sps_global_students')) || [];
+
+    const newStudentObj = {
+      name: name,
+      id: id,
+      level: level,
+      pts: pts,
+      pct: 0, // Starts at zero progress
+      subject: subject,
+      section: "BSCPE-3A" // Default section map assignment rule matching student panel context
+    };
+
+    currentDatabase.push(newStudentObj);
+    localStorage.setItem('sps_global_students', JSON.stringify(currentDatabase));
+
+    this.reset();
+    closeEnrollModal();
+    renderStudents(); // Re-render instantly
+  });
+
+  function viewStudentDetails(studentID) {
+    const currentStudents = JSON.parse(localStorage.getItem('sps_global_students')) || [];
+    const s = currentStudents.find(item => item.id === studentID);
+    if(!s) return;
+
+    const initials = s.name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+
+    document.getElementById('detailName').innerText = s.name;
+    document.getElementById('detailID').innerText = `Student ID: ${s.id}`;
+    document.getElementById('detailAvatar').innerText = initials;
+    document.getElementById('detailPoints').innerText = s.pts.toLocaleString();
+    document.getElementById('detailProgressPct').innerText = `${s.pct}%`;
+    document.getElementById('detailProgressBar').style.width = `${s.pct}%`;
+
+    const lvlBadge = document.getElementById('detailLevelBadge');
+    lvlBadge.innerText = `Level ${s.level}`;
+    
+    if (!detailModalInstance) detailModalInstance = new bootstrap.Modal(document.getElementById('studentDetailModal'));
+    detailModalInstance.show();
+  }
+
+  function closeDetailModal() { if (detailModalInstance) detailModalInstance.hide(); }
+
+  // Initial Draw render loops
+  renderStudents();
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – Teacher Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    /* Strictly Maroon and White theme overrides */
+    .avatar.maroon-theme {
+      background: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .editable-maroon {
+      border: 1px solid #8B1A1A !important;
+      background-color: #fff !important;
+      box-shadow: 0 0 0 0.2rem rgba(139, 26, 26, 0.15) !important;
+    }
+    .btn-maroon {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+      border: none;
+      transition: background 0.2s ease;
+    }
+    .btn-maroon:hover {
+      background-color: #6B1212 !important;
+      color: #ffffff !important;
+    }
+    .btn-outline-maroon {
+      border: 1px solid #8B1A1A !important;
+      color: #8B1A1A !important;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+    .btn-outline-maroon:hover {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .btn, button {
+      cursor: pointer !important;
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub">Teacher Portal</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="07-teacher-dashboard.html"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span> Dashboard</a>
+    <a href="08-teacher-classes.html"><span class="nav-icon"><i class="bi bi-people-fill"></i></span> My Classes</a>
+    <a href="09-teacher-lesson-plans.html"><span class="nav-icon"><i class="bi bi-journal-text"></i></span> Lesson Plans</a>
+    <a href="10-teacher-activities.html"><span class="nav-icon"><i class="bi bi-list-check"></i></span> Activities</a>
+    <a href="15-teacher-forum.html"><span class="nav-icon"><i class="bi bi-chat-dots-fill"></i></span> Forum</a>
+    <a href="11-teacher-profile.html" class="active"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar maroon-theme" id="sideAvatar">RS</div>
+    <div class="user-info"><div class="user-name" id="sideName">Mr. Roberto Santos</div><div class="user-role">Teacher</div></div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'"><i class="bi bi-box-arrow-right"></i></button>
+  </div>
+</aside>
+
+<header class="topbar">
+  <div class="topbar-title">Profile</div>
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <button class="notif-btn" style="border:none; background:transparent;"><i class="bi bi-bell"></i><span class="notif-badge" style="background:#8B1A1A;">2</span></button>
+    <div class="avatar maroon-theme" id="topAvatar" style="width:34px;height:34px;font-size:13px;">RS</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <h1 class="page-title mb-4">My Profile</h1>
+
+  <div class="row g-3">
+    <!-- Profile Card -->
+    <div class="col-lg-4">
+      <div class="card text-center p-4 shadow-sm">
+        <div id="cardAvatar" class="avatar maroon-theme" style="width:80px;height:80px;border-radius:50%;font-size:30px;font-weight:800;
+                    display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">RS</div>
+        <div style="font-size:20px;font-weight:800;color:#1B2A4A;" id="cardDisplayName">Mr. Roberto Santos</div>
+        <div class="text-muted text-sm mt-1" id="cardDisplayDept">Mathematics Department</div>
+        <div class="mt-3"><span class="badge text-white" style="background:#8B1A1A;">Teacher</span></div>
+        <hr class="my-3" />
+        <div class="row g-2">
+          <div class="col-4">
+            <div style="font-size:20px;font-weight:800;color:#1B2A4A;">3</div>
+            <div class="text-sm text-muted">Classes</div>
+          </div>
+          <div class="col-4">
+            <div style="font-size:20px;font-weight:800;color:#8B1A1A;">87</div>
+            <div class="text-sm text-muted">Students</div>
+          </div>
+          <div class="col-4">
+            <div style="font-size:20px;font-weight:800;color:#8B1A1A;">24</div>
+            <div class="text-sm text-muted">Activities</div>
+          </div>
+        </div>
+        <hr class="my-3" />
+        <div id="actionButtonGroup">
+          <button class="btn btn-outline-maroon w-100 fw-bold" onclick="startEditing()"><i class="bi bi-pencil me-1"></i>Edit Profile</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info + Achievements -->
+    <div class="col-lg-8">
+      <div class="card mb-3 p-4 shadow-sm">
+        <div class="fw-bold mb-3" style="font-size: 18px; color: #1B2A4A;">Account Information</div>
+        <div class="row g-3">
+          <div class="col-sm-6">
+            <label class="form-label fw-semibold text-muted" style="font-size:12px;">Full Name</label>
+            <input class="form-control" id="inputName" value="Roberto Santos" readonly />
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label fw-semibold text-muted" style="font-size:12px;">Employee ID</label>
+            <input class="form-control" id="inputID" value="TCH-2018-004" readonly />
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label fw-semibold text-muted" style="font-size:12px;">Email</label>
+            <input class="form-control" id="inputEmail" value="r.santos@school.edu" readonly />
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label fw-semibold text-muted" style="font-size:12px;">Department</label>
+            <input class="form-control" id="inputDept" value="Mathematics" readonly />
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label fw-semibold text-muted" style="font-size:12px;">Subjects Handled</label>
+            <input class="form-control" id="inputSubjects" value="Math 101, Algebra" readonly />
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label fw-semibold text-muted" style="font-size:12px;">Semester</label>
+            <input class="form-control" id="inputSemester" value="2nd Semester, A.Y. 2025–2026" readonly />
+          </div>
+        </div>
+      </div>
+
+      <div class="card p-4 shadow-sm">
+        <div class="fw-bold mb-3" style="font-size: 18px; color: #1B2A4A;">Classes Summary</div>
+        <div class="table-responsive">
+          <table class="table align-middle" style="font-size: 14px;">
+            <thead class="table-light">
+              <tr><th>Class</th><th>Subject</th><th>Students</th><th>Avg Score</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>BSCPE-3A</strong></td><td>Math 101</td><td>32</td><td><span class="badge" style="background:#8B1A1A; color:#fff;">78%</span></td></tr>
+              <tr><td><strong>BSCPE-3B</strong></td><td>Math 101</td><td>28</td><td><span class="badge bg-secondary text-white">65%</span></td></tr>
+              <tr><td><strong>BSCPE-2A</strong></td><td>Algebra</td><td>27</td><td><span class="badge" style="background:#8B1A1A; color:#fff;">82%</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const teacherData = {
+    name: "Roberto Santos",
+    empID: "TCH-2018-004",
+    email: "r.santos@school.edu",
+    dept: "Mathematics",
+    subjects: "Math 101, Algebra",
+    semester: "2nd Semester, A.Y. 2025–2026"
+  };
+
+  const inputs = {
+    name: document.getElementById('inputName'),
+    id: document.getElementById('inputID'),
+    email: document.getElementById('inputEmail'),
+    dept: document.getElementById('inputDept'),
+    subjects: document.getElementById('inputSubjects'),
+    semester: document.getElementById('inputSemester')
+  };
+
+  const btnContainer = document.getElementById('actionButtonGroup');
+
+  function startEditing() {
+    inputs.name.removeAttribute('readonly');
+    inputs.email.removeAttribute('readonly');
+    inputs.dept.removeAttribute('readonly');
+    inputs.subjects.removeAttribute('readonly');
+
+    inputs.name.classList.add('editable-maroon');
+    inputs.email.classList.add('editable-maroon');
+    inputs.dept.classList.add('editable-maroon');
+    inputs.subjects.classList.add('editable-maroon');
+
+    btnContainer.innerHTML = `
+      <div class="d-flex flex-column gap-2">
+        <button class="btn btn-maroon w-100 fw-bold" onclick="saveProfileEdits()"><i class="bi bi-check-lg me-1"></i>Save Changes</button>
+        <button class="btn btn-light border w-100 fw-bold" onclick="cancelProfileEdits()">Cancel</button>
+      </div>
+    `;
+  }
+
+  function saveProfileEdits() {
+    teacherData.name = inputs.name.value;
+    teacherData.email = inputs.email.value;
+    teacherData.dept = inputs.dept.value;
+    teacherData.subjects = inputs.subjects.value;
+
+    syncProfileElements();
+    lockInputs();
+  }
+
+  function cancelProfileEdits() {
+    inputs.name.value = teacherData.name;
+    inputs.email.value = teacherData.email;
+    inputs.dept.value = teacherData.dept;
+    inputs.subjects.value = teacherData.subjects;
+
+    lockInputs();
+  }
+
+  function lockInputs() {
+    Object.values(inputs).forEach(input => {
+      input.setAttribute('readonly', true);
+      input.classList.remove('editable-maroon');
+    });
+
+    btnContainer.innerHTML = `
+      <button class="btn btn-outline-maroon w-100 fw-bold" onclick="startEditing()"><i class="bi bi-pencil me-1"></i>Edit Profile</button>
+    `;
+  }
+
+  function syncProfileElements() {
+    const names = teacherData.name.split(' ');
+    let initials = "";
+    if(names.length > 1) {
+      initials = names[0][0] + names[1][0];
+    } else {
+      initials = names[0][0] + (names[0][1] || "");
+    }
+    initials = initials.toUpperCase();
+
+    document.getElementById('sideAvatar').innerText = initials;
+    document.getElementById('topAvatar').innerText = initials;
+    document.getElementById('cardAvatar').innerText = initials;
+
+    document.getElementById('sideName').innerText = `Mr. ${teacherData.name}`;
+    document.getElementById('cardDisplayName').innerText = `Mr. ${teacherData.name}`;
+    document.getElementById('cardDisplayDept').innerText = `${teacherData.dept} Department`;
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

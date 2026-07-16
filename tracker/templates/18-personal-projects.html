@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – Private Projects</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    .avatar.maroon-theme { background: #8B1A1A !important; color: #fff !important; }
+    .text-maroon { color: #8B1A1A !important; }
+    .bg-maroon-light { background-color: rgba(139, 26, 26, 0.05) !important; }
+    .btn, button { cursor: pointer !important; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub" style="color: #ffffff;">Personal Workspace</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="17-student-personal.html"><span class="nav-icon"><i class="bi bi-compass"></i></span> My Space</a>
+    <a href="18-personal-projects.html" class="active"><span class="nav-icon"><i class="bi bi-cpu"></i></span> Private Projects</a>
+    <a href="19-personal-notes.html"><span class="nav-icon"><i class="bi bi-journal-richtext"></i></span> My Notes</a>
+    <a href="21-saved-resources.html"><span class="nav-icon"><i class="bi bi-bookmark-star"></i></span> Saved Resources</a>
+    <a href="20-personal-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar maroon-theme">JD</div>
+    <div class="user-info">
+      <div class="user-name">Jade Panilagan</div>
+      <div class="user-role">Student</div>
+    </div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</aside>
+
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <div class="topbar-title">Overview</div>
+    <div class="btn-group" role="group">
+      <a href="17-student-personal.html" class="btn btn-sm text-white" style="background:#8B1A1A; font-weight:600;">Personal</a>
+      <a href="03-student-dashboard.html" class="btn btn-sm btn-outline-secondary" style="font-weight:600;">Professional (Class)</a>
+    </div>
+  </div>
+
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <!-- Floating Notifications -->
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-4 text-center text-muted" style="font-size: 13px;">
+          No new personal notifications.
+        </div>
+      </div>
+    </div>
+
+    <!-- Clickable Avatar -->
+    <div class="avatar maroon-theme" onclick="location.href='20-personal-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Personal Settings">JD</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title">My Projects Sandbox</h1>
+      <p class="text-muted text-sm mt-1">Hardware builds, UI prototypes, and code experiments.</p>
+    </div>
+    <button class="btn btn-maroon fw-bold" style="padding: 8px 16px; border-radius: 8px;"><i class="bi bi-plus-lg me-1"></i> New Project</button>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100" style="border-top:4px solid #8B1A1A;">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="badge" style="background:#FFEBEE; color:#8B1A1A;">Prototyping</span>
+          <i class="bi bi-palette text-maroon" style="font-size: 20px;"></i>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:4px;">Portfolio Landing Page</div>
+        <div class="text-muted text-sm mb-3">Framer / Figma</div>
+        <p class="text-sm" style="color:#4B5563;">Designing custom interactive buttons and web templates for my personal developer site.</p>
+      </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100" style="border-top:4px solid #0F172A;">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="badge bg-dark text-white">Coding</span>
+          <i class="bi bi-terminal text-dark" style="font-size: 20px;"></i>
+        </div>
+        <div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:4px;">C++ Data Structures</div>
+        <div class="text-muted text-sm mb-3">Self-Study</div>
+        <p class="text-sm" style="color:#4B5563;">Practicing memory allocation, linked lists, stacks, and queues. Ensuring no <code>while(1)</code> loops are used.</p>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</html>

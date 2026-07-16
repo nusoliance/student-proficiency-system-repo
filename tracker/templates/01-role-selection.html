@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – Select Role</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #1B2A4A;
+      --red:  #8B1A1A;
+      --amber:#F5A623;
+    }
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1B2A4A 0%, #243558 60%, #1B2A4A 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    .role-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px 40px;
+      width: 100%; max-width: 500px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+    }
+    .brand { text-align: center; margin-bottom: 32px; }
+    .brand-name { font-size: 28px; font-weight: 800; color: var(--navy); }
+    .brand-sub  { font-size: 13px; color: #6B7280; margin-top: 4px; }
+    .role-card {
+      border: 2px solid #E2E8F0;
+      border-radius: 14px; padding: 20px;
+      cursor: pointer; transition: all 0.2s;
+      position: relative;
+    }
+    .role-card:hover  { border-color: var(--navy); background: #F8FAFF; }
+    .role-card.active { border-color: var(--red);  background: #FFF5F5; }
+    .role-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 12px;
+    }
+    .role-icon.student { background: rgba(139,26,26,0.1); color: var(--red); }
+    .role-icon.teacher { background: rgba(27,42,74,0.1);  color: var(--navy); }
+    .role-title { font-size: 16px; font-weight: 700; color: var(--navy); }
+    .role-desc  { font-size: 13px; color: #6B7280; margin-top: 4px; }
+    .check-circle {
+      position: absolute; top: 16px; right: 16px;
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid #E2E8F0;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .role-card.active .check-circle {
+      background: var(--red); border-color: var(--red); color: #fff;
+    }
+    .btn-continue {
+      background: var(--red); color: #fff;
+      border: none; border-radius: 10px;
+      width: 100%; padding: 14px;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background 0.2s; margin-top: 24px;
+    }
+    .btn-continue:hover { background: #6f1515; }
+  </style>
+</head>
+<body>
+  <div class="role-box">
+    <div class="brand">
+      <div class="brand-name">Welcome to EduSpace</div>
+      <div class="brand-sub">Who are you? Pick a role to get started.</div>
+    </div>
+
+    <div class="d-flex flex-column gap-3">
+      <!-- Student -->
+      <div class="role-card active" onclick="selectRole(this)" data-role="student">
+        <div class="check-circle"><i class="bi bi-check2" style="font-size:13px;"></i></div>
+        <div class="role-icon student"><i class="bi bi-mortarboard-fill"></i></div>
+        <div class="role-title">Student</div>
+        <div class="role-desc">Browse courses, track your progress, and connect with classmates.</div>
+      </div>
+
+      <!-- Teacher -->
+      <div class="role-card" onclick="selectRole(this)" data-role="teacher">
+        <div class="check-circle"></div>
+        <div class="role-icon teacher"><i class="bi bi-book-fill"></i></div>
+        <div class="role-title">Teacher</div>
+        <div class="role-desc">Build lessons, assign work, and follow your students' growth.</div>
+      </div>
+    </div>
+
+    <!-- Instead of redirecting, this now opens the modal -->
+    <button class="btn-continue" onclick="openLoginModal()">Continue as Student</button>
+  </div>
+
+  <!-- Dynamic Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius:16px; border:none; padding: 10px;">
+        <div class="modal-header" style="border-bottom:none;">
+          <h4 class="modal-title fw-bold" id="modalTitle" style="color:#1B2A4A;">Student Login</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          
+          <div id="errorAlert" class="alert alert-danger d-none" style="font-size: 13px; padding: 10px;"></div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 13px; font-weight: 600; color: #1B2A4A;">Email address</label>
+            <input type="email" class="form-control" id="loginEmail" placeholder="you@school.edu" style="border: 1.5px solid #E2E8F0; border-radius: 8px; padding: 11px 14px; font-size: 14px;" />
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label" style="font-size: 13px; font-weight: 600; color: #1B2A4A;">Password</label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="passInput" placeholder="••••••••" style="border: 1.5px solid #E2E8F0; border-right:none; border-radius: 8px 0 0 8px; padding: 11px 14px; font-size: 14px;" />
+              <span class="input-group-text" onclick="togglePass()" style="cursor:pointer; background: #F5F5F7; border: 1.5px solid #E2E8F0; border-left: none; border-radius: 0 8px 8px 0;">
+                <i class="bi bi-eye" id="eyeIcon"></i>
+              </span>
+            </div>
+          </div>
+
+          <button id="modalLoginBtn" class="btn w-100 mb-3" style="background:#8B1A1A; color:#fff; font-weight:700; padding:12px; border-radius:10px;" onclick="doLogin()">Sign In</button>
+          
+          <div class="text-center">
+            <a href="16-signup.html" style="color: #1B2A4A; font-size: 13px; font-weight: 600; text-decoration: none;">Don't have an account? Sign up</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS is required for the Modal to pop up -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    let currentRole = 'student';
+    let loginModal;
+
+    // Initialize the modal when the page loads
+    document.addEventListener("DOMContentLoaded", function() {
+      loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+    });
+
+    function selectRole(el) {
+      document.querySelectorAll('.role-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      currentRole = el.dataset.role;
+      
+      const btn = document.querySelector('.btn-continue');
+      btn.textContent = 'Continue as ' + currentRole.charAt(0).toUpperCase() + currentRole.slice(1);
+
+      // Change the button color based on role
+      if(currentRole === 'teacher') {
+        btn.style.background = '#1B2A4A'; // Navy for teacher
+      } else {
+        btn.style.background = '#8B1A1A'; // Red for student
+      }
+    }
+
+    function openLoginModal() {
+      // Customize the modal before showing it
+      const modalTitle = document.getElementById('modalTitle');
+      const loginBtn = document.getElementById('modalLoginBtn');
+      
+      if (currentRole === 'student') {
+        modalTitle.textContent = 'Student Login';
+        loginBtn.style.background = '#8B1A1A'; 
+      } else {
+        modalTitle.textContent = 'Teacher Login';
+        loginBtn.style.background = '#1B2A4A'; 
+      }
+
+      // Hide any previous errors
+      document.getElementById('errorAlert').classList.add('d-none');
+      
+      // Show the popup
+      loginModal.show();
+    }
+
+    function togglePass() {
+      const inp = document.getElementById('passInput');
+      const ico = document.getElementById('eyeIcon');
+      if (inp.type === 'password') { 
+        inp.type = 'text'; 
+        ico.className = 'bi bi-eye-slash'; 
+      } else { 
+        inp.type = 'password'; 
+        ico.className = 'bi bi-eye'; 
+      }
+    }
+
+    // The login logic reusing Local Storage
+    function doLogin() {
+  const emailInput = document.getElementById('loginEmail').value;
+  const passInput = document.getElementById('passInput').value;
+  const errorAlert = document.getElementById('errorAlert');
+
+  // Hardcoded account configurations for presentation testing if registration is blank
+  if (emailInput === "student@school.edu" && passInput === "123456" && currentRole === "student") {
+    localStorage.setItem('sps_current_user_role', 'student');
+    localStorage.setItem('sps_current_student_id', '2021-00142');
+    localStorage.setItem('sps_current_student_name', 'Jade Panilagan');
+    window.location.href = '03-student-dashboard.html';
+    return;
+  }
+  if (emailInput === "teacher@school.edu" && passInput === "123456" && currentRole === "teacher") {
+    localStorage.setItem('sps_current_user_role', 'teacher');
+    window.location.href = '07-teacher-dashboard.html';
+    return;
+  }
+
+  // LocalStorage verification backup fallbacks
+  const savedEmail = localStorage.getItem('sps_email');
+  const savedPass = localStorage.getItem('sps_password');
+  const savedRole = localStorage.getItem('sps_role');
+
+  if (emailInput === savedEmail && passInput === savedPass && currentRole === savedRole) {
+    localStorage.setItem('sps_current_user_role', savedRole);
+    if (currentRole === 'student') {
+      localStorage.setItem('sps_current_student_id', '2021-00142');
+      localStorage.setItem('sps_current_student_name', 'Jade Panilagan');
+      window.location.href = '03-student-dashboard.html';
+    } else {
+      window.location.href = '07-teacher-dashboard.html';
+    }
+  } else {
+    errorAlert.textContent = "Invalid credentials or role selection mismatches.";
+    errorAlert.classList.remove('d-none');
+  }
+}
+  </script>
+</body>
+</html>
