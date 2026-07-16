@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – Saved Resources</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    /* Strictly Maroon and White theme overrides */
+    .text-maroon {
+      color: #8B1A1A !important;
+    }
+    .bg-maroon-light {
+      background-color: rgba(139, 26, 26, 0.08) !important;
+    }
+    .avatar.maroon-theme {
+      background: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .btn-maroon {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+      border: none;
+      transition: background 0.2s ease;
+    }
+    .btn-maroon:hover {
+      background-color: #6B1212 !important;
+      color: #ffffff !important;
+    }
+    .btn-outline-maroon {
+      border: 1px solid #8B1A1A !important;
+      color: #8B1A1A !important;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+    .btn-outline-maroon:hover {
+      background-color: #8B1A1A !important;
+      color: #ffffff !important;
+    }
+    .btn, button, .resource-link {
+      cursor: pointer !important;
+    }
+    .modal-backdrop {
+      z-index: 1040 !important;
+    }
+    .modal {
+      z-index: 1050 !important;
+    }
+    /* Card Hover Highlight */
+    .resource-card {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .resource-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 26, 26, 0.1) !important;
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub" style="color: #8B1A1A;">Personal Workspace</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="17-student-personal.html"><span class="nav-icon"><i class="bi bi-compass"></i></span> My Space</a>
+    <a href="18-personal-projects.html"><span class="nav-icon"><i class="bi bi-cpu"></i></span> Private Projects</a>
+    <a href="19-personal-notes.html"><span class="nav-icon"><i class="bi bi-journal-richtext"></i></span> My Notes</a>
+    <a href="21-saved-resources.html" class="active"><span class="nav-icon"><i class="bi bi-bookmark-star"></i></span> Saved Resources</a>
+    <a href="20-personal-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile Settings</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar maroon-theme">JD</div>
+    <div class="user-info">
+      <div class="user-name">Jade Manlosa Panilagan</div>
+      <div class="user-role">Student</div>
+    </div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</aside>
+
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <div class="topbar-title">Overview</div>
+    <div class="btn-group" role="group">
+      <a href="17-student-personal.html" class="btn btn-sm" style="background:#8B1A1A; color:white; font-weight:600;">Personal</a>
+      <a href="03-student-dashboard.html" class="btn btn-sm btn-outline-secondary" style="font-weight:600;">Professional (Class)</a>
+    </div>
+  </div>
+
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <!-- Floating Notifications -->
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-4 text-center text-muted" style="font-size: 13px;">
+          No new personal notifications.
+        </div>
+      </div>
+    </div>
+
+    <!-- Clickable Avatar (Personal Profile) -->
+    <div class="avatar maroon-theme" onclick="location.href='20-personal-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Personal Settings">JD</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title">My Bookmarks</h1>
+      <p class="text-muted text-sm mt-1">Quick links, hardware guides, and reference material.</p>
+    </div>
+    <button class="btn btn-maroon d-flex align-items-center gap-1" onclick="openAddLinkModal()" style="font-weight:600; padding:8px 16px; border-radius:8px;">
+      <i class="bi bi-plus-lg"></i> Add Link
+    </button>
+  </div>
+
+  <div class="row g-3" id="resourcesGrid">
+    <!-- Dynamic Resource Cards render here -->
+  </div>
+</main>
+
+<!-- Modal: Add Bookmark Form -->
+<div class="modal fade" id="addLinkModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:14px; overflow:hidden;">
+      <div class="modal-header text-white" style="background: #8B1A1A;">
+        <h5 class="modal-title fw-bold"><i class="bi bi-bookmark-plus me-2"></i>Add Saved Link</h5>
+        <button type="button" class="btn-close btn-close-white" onclick="closeAddLinkModal()"></button>
+      </div>
+      <form id="addLinkForm">
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Title</label>
+            <input type="text" class="form-control" id="linkTitle" required placeholder="e.g. Arduino Sensor Library">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">External URL</label>
+            <input type="url" class="form-control" id="linkUrl" required placeholder="https://example.com">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Category Icon</label>
+            <select class="form-select" id="linkIcon">
+              <option value="bi-tools">Mechanical / Tools</option>
+              <option value="bi-phone">Hardware / Phone Verification</option>
+              <option value="bi-controller">Gaming / Trackers</option>
+              <option value="bi-github">Web Development / GitHub Pages</option>
+              <option value="bi-cpu">Circuits / Electronics</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold" style="font-size:13px; color:#1B2A4A;">Short Description</label>
+            <textarea class="form-control" id="linkDesc" rows="3" required placeholder="Provide a brief reference reminder..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-light border" onclick="closeAddLinkModal()" style="font-weight:600;">Cancel</button>
+          <button type="submit" class="btn btn-maroon fw-semibold">Save Link</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // Dynamic Datastore featuring Jade's references
+  const resourcesData = [
+    {
+      title: "Rusi Swish Mono ZX125 Specs & Maintenance",
+      desc: "Reference for seat height adjustments, engine vibration fixes, and checking mechanical leaks.",
+      url: "#",
+      icon: "bi-tools"
+    },
+    {
+      title: "iPhone 13 Pro/14 Hardware Verification",
+      desc: "Guide on checking 'unknown part' display notifications, regional variants, and preserving battery health.",
+      url: "#",
+      icon: "bi-phone"
+    },
+    {
+      title: "Genshin Impact Tracker",
+      desc: "Map exploration reward calculations and 'pity' carry-over mechanics between character banners.",
+      url: "#",
+      icon: "bi-controller"
+    },
+    {
+      title: "GitHub Pages HTML/CSS Hosting",
+      desc: "Steps for linking local HTML files and hosting interactive coded websites (like the Valentine's project) live.",
+      url: "#",
+      icon: "bi-github"
+    }
+  ];
+
+  const grid = document.getElementById('resourcesGrid');
+  let addModalInstance = null;
+
+  // Render cards dynamically using the uniform Maroon theme
+  function renderResources() {
+    grid.innerHTML = "";
+    resourcesData.forEach(r => {
+      grid.innerHTML += `
+        <div class="col-md-6 mb-3">
+          <div class="card h-100 resource-card shadow-sm p-3">
+            <div class="d-flex gap-3 align-items-start">
+              <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" 
+                   style="width:48px; height:48px; border-radius:12px; flex-shrink:0;">
+                <i class="bi ${r.icon} text-maroon" style="font-size:20px;"></i>
+              </div>
+              <div>
+                <h6 class="mb-1 fw-bold" style="color:#1B2A4A;">${r.title}</h6>
+                <p class="text-sm mb-2" style="color:#4B5563;">${r.desc}</p>
+                <a href="${r.url}" class="text-sm fw-bold text-maroon text-decoration-none resource-link" target="_blank">
+                  Open Reference <i class="bi bi-box-arrow-up-right ms-1" style="font-size:11px;"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  // Modal display controllers
+  function openAddLinkModal() {
+    if (!addModalInstance) {
+      addModalInstance = new bootstrap.Modal(document.getElementById('addLinkModal'));
+    }
+    addModalInstance.show();
+  }
+
+  function closeAddLinkModal() {
+    if (addModalInstance) {
+      addModalInstance.hide();
+    }
+  }
+
+  // Handle addition form submissions
+  document.getElementById('addLinkForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const title = document.getElementById('linkTitle').value;
+    const url = document.getElementById('linkUrl').value;
+    const icon = document.getElementById('linkIcon').value;
+    const desc = document.getElementById('linkDesc').value;
+
+    const newResource = {
+      title,
+      desc,
+      url,
+      icon
+    };
+
+    resourcesData.unshift(newResource); // Prepend so newly created bookmark is placed first
+    renderResources();
+
+    this.reset();
+    closeAddLinkModal();
+  });
+
+  // Initial Draw
+  renderResources();
+</script>
+</body>
+</html>

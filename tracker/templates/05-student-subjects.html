@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – My Subjects</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    .avatar-student { background: #8B1A1A !important; color: #fff !important; }
+    .text-maroon { color: #8B1A1A !important; }
+    .bg-maroon-light { background-color: rgba(139, 26, 26, 0.05) !important; }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub">Student Proficiency System</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="03-student-dashboard.html"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span> Dashboard</a>
+    <a href="04-student-skills.html"><span class="nav-icon"><i class="bi bi-bar-chart-fill"></i></span> My Skills</a>
+    <a href="05-student-subjects.html" class="active"><span class="nav-icon"><i class="bi bi-journal-bookmark-fill"></i></span> My Subjects</a>
+    <a href="12-student-projects.html"><span class="nav-icon"><i class="bi bi-folder2-open"></i></span> Projects</a>
+    <a href="13-forum.html"><span class="nav-icon"><i class="bi bi-chat-dots-fill"></i></span> Forum</a>
+    <a href="06-student-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar avatar-student">JD</div>
+    <div class="user-info"><div class="user-name">Jade Panilagan</div><div class="user-role">Student</div></div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'"><i class="bi bi-box-arrow-right"></i></button>
+  </div>
+</aside>
+
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <div class="topbar-title">Dashboard</div>
+    <div class="btn-group" role="group">
+      <a href="17-student-personal.html" class="btn btn-sm btn-outline-secondary" style="font-weight:600;">Personal</a>
+      <a href="03-student-dashboard.html" class="btn btn-sm text-white" style="background:#8B1A1A; font-weight:600;">Professional (Class)</a>
+    </div>
+  </div>
+  
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge" style="background:#8B1A1A;">3</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-3" style="background: #F8FAFF; border-bottom: 1px solid #E2E8F0; border-radius: 12px 12px 0 0;">
+          <h6 class="mb-0 fw-bold" style="color: #8B1A1A;">Notifications</h6>
+        </div>
+        <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+          <a href="#" class="list-group-item list-group-item-action p-3">
+            <div class="d-flex gap-3 align-items-center">
+              <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:16px;">
+                <i class="bi bi-journal-plus text-maroon"></i>
+              </div>
+              <div>
+                <p class="mb-0 fw-bold" style="font-size: 13px; color: #1B2A4A;">New Quiz Available</p>
+                <p class="mb-0 text-muted" style="font-size: 12px;">Quiz 3 - Quadratics posted.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="p-2 text-center" style="border-top: 1px solid #E2E8F0;">
+          <a href="#" style="font-size: 12px; font-weight: 700; color: #8B1A1A; text-decoration: none;">Mark all as read</a>
+        </div>
+      </div>
+    </div>
+    <div class="avatar avatar-student" onclick="location.href='06-student-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Profile">JD</div>
+  </div>
+</header>
+
+<main class="main-content">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="page-title">My Subjects</h1>
+      <p class="text-muted text-sm mt-1">Your enrolled courses this semester.</p>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <input class="form-control" id="searchBar" placeholder="Search subjects…" style="width:200px;font-size:13px;" />
+    </div>
+  </div>
+
+  <div class="row g-3" id="subjectGrid"></div>
+</main>
+
+<!-- Interactive Subject Details Modal -->
+<div class="modal fade" id="subjectModal" tabindex="-1" aria-labelledby="subjectModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 16px; overflow: hidden; border: none;">
+      <div class="modal-header text-white" id="modalHeader" style="padding: 1.5rem;">
+        <div>
+          <span class="badge bg-white text-dark mb-2" id="modalSubjectCode" style="font-weight: 700;">CODE</span>
+          <h5 class="modal-title fw-bold" id="modalSubjectName" style="font-size: 22px;">Subject Name</h5>
+          <p class="mb-0 text-white-50 text-sm" id="modalSubjectTeacher"><i class="bi bi-person-fill me-1"></i>Teacher</p>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4" style="background: #F8FAFF;">
+        <div class="row g-4">
+          <!-- Syllabus Tracker -->
+          <div class="col-md-7">
+            <h6 class="fw-bold mb-3" style="color: #0F172A;"><i class="bi bi-list-task me-2"></i>Syllabus & Progress</h6>
+            <div class="p-3 bg-white rounded-3 border mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-sm text-muted">Completed Topics</span>
+                <span class="text-sm fw-bold text-maroon" id="modalProgressPct">0%</span>
+              </div>
+              <div class="progress" style="height: 8px; border-radius: 4px;">
+                <div class="progress-bar" id="modalProgressBar" role="progressbar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <div class="list-group" id="modalTopicList" style="max-height: 250px; overflow-y: auto;">
+              <!-- Dynamic Topics injected here -->
+            </div>
+          </div>
+          <!-- Activities Panel -->
+          <div class="col-md-5">
+            <h6 class="fw-bold mb-3" style="color: #0F172A;"><i class="bi bi-calendar-check me-2"></i>Tasks & Quizzes</h6>
+            <div id="modalActivityList" class="d-flex flex-column gap-2">
+              <!-- Dynamic Activities injected here -->
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 p-3" style="background: #fff;">
+        <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal" style="border-radius: 8px; font-weight: 600;">Back to Subjects</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const grid = document.getElementById('subjectGrid');
+
+  function loadEnrolledSubjects() {
+    // 1. Pull dynamic contextual keys from auth cache structures
+    const loggedStudentID = localStorage.getItem('sps_current_student_id') || "2021-00142";
+    const globalStudentRegistry = JSON.parse(localStorage.getItem('sps_global_students')) || [];
+
+    // 2. Identify entries matching our specific student profile context
+    const myRegistrations = globalStudentRegistry.filter(entry => entry.id === loggedStudentID);
+
+    grid.innerHTML = "";
+
+    // 3. EMPTY STATE: Render pristine notification card frame if the list length reads zero
+    if (myRegistrations.length === 0) {
+      grid.innerHTML = `
+        <div class="col-12">
+          <div class="empty-state-box">
+            <div class="empty-state-icon"><i class="bi bi-journal-x text-maroon"></i></div>
+            <div class="empty-state-title">No Active Class Enrollments</div>
+            <div class="empty-state-desc">Your professional portfolio dashboard is currently clean. Classes and subject maps will sync instantly here once assigned by your course instructor.</div>
+          </div>
+        </div>`;
+      return;
+    }
+
+    // 4. DATA PRESENT: Render identical static card configurations dynamically matching inputs
+    myRegistrations.forEach((s, index) => {
+      // Map systematic course parameters based on structural selections
+      const courseCode = s.subject === "Math 101" ? "MATH101" : "ALGE202";
+      
+      grid.innerHTML += `
+        <div class="col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm" style="border-top:4px solid #8B1A1A;">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-secondary text-white">${courseCode}</span>
+              <span class="badge bg-success text-white">All Unlocked</span>
+            </div>
+            <div style="font-size:16px;font-weight:700;color:#0F172A;margin-bottom:4px;">${s.subject}</div>
+            <div class="text-muted text-sm mb-3"><i class="bi bi-person-fill me-1"></i>Mr. Roberto Santos</div>
+
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-sm text-muted">Progress</span>
+              <span class="text-sm fw-bold text-maroon">${s.pct}%</span>
+            </div>
+            <div class="progress-wrap mb-3">
+              <div class="progress" style="height:6px;">
+                <div class="progress-bar" style="width:${s.pct}%; background:#8B1A1A;"></div>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between text-sm text-muted mb-3">
+              <span><i class="bi bi-check2-circle me-1"></i>0 / 5 Topics Complete</span>
+              <span><i class="bi bi-lock me-1"></i>0 Locked</span>
+            </div>
+
+            <button onclick="alert('Module loading standard topic layout contexts...')" class="btn btn-maroon w-100 fw-semibold" style="border-radius:8px;">Open Subject</button>
+          </div>
+        </div>`;
+    });
+  }
+
+  // Load execution calls
+  loadEnrolledSubjects();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPS – Student Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+  <style>
+    .avatar-student { background: #8B1A1A !important; color: #fff !important; }
+    .text-maroon { color: #8B1A1A !important; }
+    .bg-maroon-light { background-color: rgba(139, 26, 26, 0.05) !important; }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo-text">EduSpace</div>
+    <div class="logo-sub">Student Proficiency System</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="03-student-dashboard.html" class="active"><span class="nav-icon"><i class="bi bi-speedometer2"></i></span> Dashboard</a>
+    <a href="04-student-skills.html"><span class="nav-icon"><i class="bi bi-bar-chart-fill"></i></span> My Skills</a>
+    <a href="05-student-subjects.html"><span class="nav-icon"><i class="bi bi-journal-bookmark-fill"></i></span> My Subjects</a>
+    <a href="12-student-projects.html"><span class="nav-icon"><i class="bi bi-folder2-open"></i></span> Projects</a>
+    <a href="13-forum.html"><span class="nav-icon"><i class="bi bi-chat-dots-fill"></i></span> Forum</a>
+    <a href="06-student-profile.html"><span class="nav-icon"><i class="bi bi-person-fill"></i></span> Profile</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="avatar avatar-student">JD</div>
+    <div class="user-info">
+      <div class="user-name">Jade Panilagan</div>
+      <div class="user-role">Student</div>
+    </div>
+    <button class="logout-btn" onclick="location.href='01-role-selection.html'" title="Logout">
+      <i class="bi bi-box-arrow-right"></i>
+    </button>
+  </div>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar d-flex justify-content-between align-items-center">
+  <div class="d-flex align-items-center gap-3">
+    <div class="topbar-title">Dashboard</div>
+    <div class="btn-group" role="group">
+      <a href="17-student-personal.html" class="btn btn-sm btn-outline-secondary" style="font-weight:600;">Personal</a>
+      <a href="03-student-dashboard.html" class="btn btn-sm text-white" style="background:#8B1A1A; font-weight:600;">Professional (Class)</a>
+    </div>
+  </div>
+  
+  <div class="topbar-right d-flex align-items-center gap-3">
+    <div class="dropdown">
+      <button class="notif-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border:none; background:transparent;">
+        <i class="bi bi-bell"></i>
+        <span class="notif-badge">3</span>
+      </button>
+      <div class="dropdown-menu dropdown-menu-end shadow p-0" style="width: 320px; border-radius: 12px; border: 1px solid #E2E8F0; margin-top: 15px;">
+        <div class="p-3" style="background: #F8FAFF; border-bottom: 1px solid #E2E8F0; border-radius: 12px 12px 0 0;">
+          <h6 class="mb-0 fw-bold" style="color: #8B1A1A;">Notifications</h6>
+        </div>
+        <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+          <a href="#" class="list-group-item list-group-item-action p-3">
+            <div class="d-flex gap-3 align-items-center">
+              <div class="stat-icon bg-maroon-light d-flex align-items-center justify-content-center" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:16px;">
+                <i class="bi bi-journal-plus text-maroon"></i>
+              </div>
+              <div>
+                <p class="mb-0 fw-bold" style="font-size: 13px; color: #1B2A4A;">New Quiz Available</p>
+                <p class="mb-0 text-muted" style="font-size: 12px;">Quiz 3 - Quadratics posted.</p>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="p-2 text-center" style="border-top: 1px solid #E2E8F0;">
+          <a href="#" style="font-size: 12px; font-weight: 700; color: #8B1A1A; text-decoration: none;">Mark all as read</a>
+        </div>
+      </div>
+    </div>
+    <div class="avatar avatar-student" onclick="location.href='06-student-profile.html'" style="width:34px;height:34px;font-size:13px; cursor:pointer;" title="View Profile">JD</div>
+  </div>
+</header>
+
+<!-- Main Area -->
+<main class="main-content">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h1 class="page-title">Good morning, Jade! 👋</h1>
+      <p class="text-muted text-sm mt-1">Here's your academic progress at a glance.</p>
+    </div>
+    <a href="05-student-subjects.html" class="btn-primary" style="text-decoration:none;"><i class="bi bi-book me-1"></i> View Subjects</a>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="grid-4 mb-4">
+    <div class="stat-card">
+      <div class="stat-icon red"><i class="bi bi-journal-check" style="color:#8B1A1A;"></i></div>
+      <div>
+        <div class="stat-val">5</div>
+        <div class="stat-label">Enrolled Subjects</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red"><i class="bi bi-lightning-charge-fill" style="color:#8B1A1A;"></i></div>
+      <div>
+        <div class="stat-val">1,240</div>
+        <div class="stat-label">Total Points</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red"><i class="bi bi-star-fill" style="color:#8B1A1A;"></i></div>
+      <div>
+        <div class="stat-val">Level 3</div>
+        <div class="stat-label">Current Level</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red"><i class="bi bi-check2-circle" style="color:#8B1A1A;"></i></div>
+      <div>
+        <div class="stat-val">18</div>
+        <div class="stat-label">Activities Done</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Level progress -->
+    <div class="col-lg-5">
+      <div class="card h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="section-title">Level Progress</div>
+          <span class="badge badge-navy">Level 3</span>
+        </div>
+        <div class="text-center mb-3">
+          <div style="width:120px;height:120px;border-radius:50%;border:10px solid #E2E8F0;
+                      border-top-color:#8B1A1A;border-right-color:#8B1A1A;
+                      display:inline-flex;align-items:center;justify-content:center;
+                      font-size:28px;font-weight:800;color:#8B1A1A;">72%</div>
+        </div>
+        <p class="text-muted text-sm text-center mb-3">260 pts to reach Level 4</p>
+        <div class="progress-wrap">
+          <div class="progress-bar" style="width:72%; background:#8B1A1A;"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-2">
+          <span class="text-sm text-muted">1,240 pts</span>
+          <span class="text-sm text-muted">1,500 pts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent activity -->
+    <div class="col-lg-7">
+      <div class="card h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="section-title">Recent Activities</div>
+          <a href="#" class="text-sm text-decoration-none fw-bold" style="color:#8B1A1A;">View all</a>
+        </div>
+        <table class="sps-table">
+          <thead>
+            <tr>
+              <th>Activity</th>
+              <th>Subject</th>
+              <th>Points</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><i class="bi bi-file-earmark-text me-2" style="color:#8B1A1A;"></i>Quiz 1</td>
+              <td class="text-muted">Math 101</td>
+              <td><strong class="text-maroon">+80</strong></td>
+              <td><span class="badge badge-green">Passed</span></td>
+            </tr>
+            <tr>
+              <td><i class="bi bi-pencil-square me-2" style="color:#8B1A1A;"></i>Essay Draft</td>
+              <td class="text-muted">English 2</td>
+              <td><strong class="text-maroon">+60</strong></td>
+              <td><span class="badge badge-amber">Submitted</span></td>
+            </tr>
+            <tr>
+              <td><i class="bi bi-code-slash me-2" style="color:#8B1A1A;"></i>Lab Exercise 3</td>
+              <td class="text-muted">CompSci 3</td>
+              <td><strong class="text-maroon">+100</strong></td>
+              <td><span class="badge badge-green">Passed</span></td>
+            </tr>
+            <tr>
+              <td><i class="bi bi-camera-video me-2" style="color:#8B1A1A;"></i>Video Report</td>
+              <td class="text-muted">Science 2</td>
+              <td><strong class="text-maroon">+40</strong></td>
+              <td><span class="badge badge-blue">Pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Subject progress -->
+    <div class="col-12">
+      <div class="card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="section-title">Subject Progress</div>
+          <a href="05-student-subjects.html" class="text-sm text-decoration-none fw-bold" style="color:#8B1A1A;">All subjects</a>
+        </div>
+        <div class="row g-3" id="subjRow"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  function renderDashboardMetrics() {
+    const loggedStudentID = localStorage.getItem('sps_current_student_id') || "2021-00142";
+    const globalStudentRegistry = JSON.parse(localStorage.getItem('sps_global_students')) || [];
+
+    // Find our current profile entry record match block
+    const me = globalStudentRegistry.find(entry => entry.id === loggedStudentID);
+
+    // Domestic fallback values map metrics if data layer reads blank initialization state
+    const currentPoints = me ? me.pts : 0;
+    const currentLevel = me ? me.level : 1;
+    const enrolledCount = globalStudentRegistry.filter(entry => entry.id === loggedStudentID).length;
+
+    // Direct string injections to metric dashboard indicators
+    document.querySelectorAll('.stat-val')[0].innerText = enrolledCount;
+    document.querySelectorAll('.stat-val')[1].innerText = currentPoints.toLocaleString();
+    document.querySelectorAll('.stat-val')[2].innerText = `Level ${currentLevel}`;
+    
+    // Progress computations layout updates tracking bar
+    const progressPct = me ? me.pct : 0;
+    const targetIndicatorCircle = document.querySelector('.text-center .display-inline-flex') || document.createElement('div');
+    targetIndicatorCircle.innerText = `${progressPct}%`;
+  }
+
+  // Initial draw bootstrap runner execution calls
+  renderDashboardMetrics();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
