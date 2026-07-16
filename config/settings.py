@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'tracker',
     'avatar',
     'forum',
+    'accounts',
 ]
 
 MIDDLEWARE = [
