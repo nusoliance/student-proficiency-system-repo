@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Student Proficiency System</title>
+</head>
+
+<body>
+    <nav>
+        {% if user.is_authenticated %}
+        <span>Welcome, {{ user.username }} ({{ user.profile.role }})</span>
+        |
+        {% if user.profile.role == 'teacher' %}
+        <a href="#">My Subjects</a>
+        {% else %}
+        <a href="#">My Subjects</a>
+        <a href="#">My Skills</a>
+        {% endif %}
+        |
+        <a href="{% url 'logout' %}">Log Out</a>
+        {% else %}
+        <a href="{% url 'login' %}">Log In</a>
+        <a href="{% url 'signup' %}">Sign Up</a>
+        {% endif %}
+    </nav>
+    <hr>
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+
+</html>
