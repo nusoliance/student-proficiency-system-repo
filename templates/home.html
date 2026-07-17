@@ -1,4 +1,7 @@
+{% extends 'base.html' %}
+
+{% block content %}
 <h2>Welcome, {{ user.username }}!</h2>
 <p>Role: {{ user.profile.role }}</p>
 <p>Mode: {{ user.profile.mode|default:"N/A" }}</p>
-<a href="/admin/">Go to Admin</a>
+{% endblock %}
