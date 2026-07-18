@@ -9,10 +9,12 @@ from datetime import timedelta
 
 @login_required
 def subject_list(request):
-    if request.user.profile.role == 'teacher':
-        subjects = Subject.objects.filter(teacher=request.user)
+    if request.user.profile.is_manager:
+        owned = Subject.objects.filter(teacher=request.user)
     else:
-        subjects = request.user.subjects_enrolled.all()
+        owned = Subject.objects.none()
+    enrolled = request.user.subjects_enrolled.all()
+    subjects = (owned | enrolled).distinct()
     return render(request, 'tracker/subject_list.html', {'subjects': subjects})
 
 
@@ -25,6 +27,8 @@ def add_subject(request):
             subject.teacher = request.user
             subject.save()
             form.save_m2m()
+            if request.user.profile.mode == 'personal':
+                subject.students.add(request.user)
             LessonPlan.objects.create(subject=subject)
             return redirect('subject_list')
     else:
@@ -99,23 +103,25 @@ def add_project(request, subject_id):
 @login_required
 def project_detail(request, project_id):
     project = get_object_or_404(Project, id=project_id)
-    if request.user.profile.role == 'student':
-        submission = ProjectSubmission.objects.filter(
-            project=project, student=request.user).first()
-        if request.method == 'POST' and not submission:
-            form = SubmissionForm(request.POST)
-            if form.is_valid():
-                sub = form.save(commit=False)
-                sub.project = project
-                sub.student = request.user
-                sub.save()
-                return redirect('project_detail', project_id=project.id)
-        else:
-            form = SubmissionForm()
-        return render(request, 'tracker/project_detail_student.html', {'project': project, 'submission': submission, 'form': form})
-    else:
+    is_owner = project.subject.teacher == request.user
+
+    if is_owner:
         submissions = project.submissions.all()
         return render(request, 'tracker/project_detail_teacher.html', {'project': project, 'submissions': submissions})
+
+    submission = ProjectSubmission.objects.filter(
+        project=project, student=request.user).first()
+    if request.method == 'POST' and not submission:
+        form = SubmissionForm(request.POST)
+        if form.is_valid():
+            sub = form.save(commit=False)
+            sub.project = project
+            sub.student = request.user
+            sub.save()
+            return redirect('project_detail', project_id=project.id)
+    else:
+        form = SubmissionForm()
+    return render(request, 'tracker/project_detail_student.html', {'project': project, 'submission': submission, 'form': form})
 
 
 @login_required

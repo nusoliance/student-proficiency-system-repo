@@ -1,11 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 from tracker.models import Subject
+from avatar.models import Course
 
 
 class ForumPost(models.Model):
     subject = models.ForeignKey(
-        Subject, on_delete=models.CASCADE, related_name='posts')
+        Subject, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

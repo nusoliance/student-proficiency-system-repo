@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ subject.name }} — Forum</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Post Question</button>
+</form>
+<ul>
+    {% for post in posts %}
+    <li>
+        <a href="{% url 'post_detail' post.id %}">{{ post.text|truncatewords:15 }}</a>
+        — {{ post.author.username }}
+        {% if post.id in bookmarked_ids %}★{% endif %}
+    </li>
+    {% empty %}
+    <li>No questions yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

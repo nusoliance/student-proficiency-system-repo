@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ post.author.username }} asks:</h2>
+<p>{{ post.text }}</p>
+
+<form method="post" action="{% url 'toggle_bookmark' post.id %}">
+    {% csrf_token %}
+    <button type="submit">{% if is_bookmarked %}Remove Bookmark{% else %}Bookmark{% endif %}</button>
+</form>
+<a href="{% url 'report_post' post.id %}">Report</a>
+
+<h3>Answers</h3>
+<ul>
+    {% for answer in post.answers.all %}
+    <li>{{ answer.author.username }}: {{ answer.text }}</li>
+    {% empty %}
+    <li>No answers yet.</li>
+    {% endfor %}
+</ul>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Post Answer</button>
+</form>
+{% endblock %}
