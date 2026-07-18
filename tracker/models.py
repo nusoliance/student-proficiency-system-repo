@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from avatar.models import Skill
+from django.utils import timezone
+from datetime import timedelta
 
 
 class Subject(models.Model):
@@ -41,6 +43,10 @@ class Activity(models.Model):
         Skill, blank=True, related_name='activities')
     completed_by = models.ManyToManyField(
         User, blank=True, related_name='completed_activities')
+
+    @property
+    def due_soon(self):
+        return 0 <= (self.deadline - timezone.now().date()).days <= 3
 
     def __str__(self):
         return self.title

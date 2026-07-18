@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>My Subjects</h2>
+<ul>
+    {% for subject in subjects %}
+    <li><a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a></li>
+    {% empty %}
+    <li>No subjects yet.</li>
+    {% endfor %}
+</ul>
+{% if user.profile.role == 'teacher' %}
+<a href="{% url 'add_subject' %}">+ Add Subject</a>
+{% endif %}
+{% endblock %}

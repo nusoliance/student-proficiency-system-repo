@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>{{ subject.name }} — Lesson Plan</h2>
+{% for topic in topics %}
+<h3>Week {{ topic.week_number }}: {{ topic.title }}</h3>
+<ul>
+    {% for activity in topic.activities.all %}
+    <li>
+        {{ activity.title }} — due {{ activity.deadline }}
+        {% if activity.due_soon %}<strong style="color:red;">DUE SOON</strong>{% endif %}
+        {% if request.user in activity.completed_by.all %}
+        <span style="color:green;">✓ Completed</span>
+        {% elif user.profile.role == 'student' %}
+        <a href="{% url 'mark_complete' activity.id %}">Mark Complete</a>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li>No activities yet.</li>
+    {% endfor %}
+</ul>
+{% if user.profile.role == 'teacher' %}
+<a href="{% url 'add_activity' topic.id %}">+ Add Activity</a>
+{% endif %}
+{% empty %}
+<p>No topics added yet.</p>
+{% endfor %}
+{% if user.profile.role == 'teacher' %}
+<a href="{% url 'add_topic' subject.id %}">+ Add Topic</a>
+{% endif %}
+{% endblock %}
