@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from avatar.models import Course
 
 
 class Profile(models.Model):
@@ -19,6 +20,8 @@ class Profile(models.Model):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     mode = models.CharField(
         max_length=15, choices=MODE_CHOICES, blank=True, null=True)
+    course = models.ForeignKey(
+        Course, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"

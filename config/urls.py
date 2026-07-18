@@ -13,5 +13,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('tracker/', include('tracker.urls')),
+    path('avatar/', include('avatar.urls')),
     path('', home_view, name='home'),
 ]
