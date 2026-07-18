@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .forms import SubjectForm, TopicForm, ActivityForm
-from .models import Subject, LessonPlan, Topic, Activity
+from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm
+from .models import Subject, LessonPlan, Topic, Activity, Project, ProjectSubmission, SkillAward
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -79,3 +79,80 @@ def mark_complete(request, activity_id):
         student_skill.points += 10
         student_skill.save()
     return redirect('lesson_plan_view', subject_id=activity.topic.lesson_plan.subject.id)
+
+
+@login_required
+def add_project(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    if request.method == 'POST':
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.subject = subject
+            project.save()
+            return redirect('lesson_plan_view', subject_id=subject.id)
+    else:
+        form = ProjectForm()
+    return render(request, 'tracker/add_project.html', {'form': form, 'subject': subject})
+
+
+@login_required
+def project_detail(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    if request.user.profile.role == 'student':
+        submission = ProjectSubmission.objects.filter(
+            project=project, student=request.user).first()
+        if request.method == 'POST' and not submission:
+            form = SubmissionForm(request.POST)
+            if form.is_valid():
+                sub = form.save(commit=False)
+                sub.project = project
+                sub.student = request.user
+                sub.save()
+                return redirect('project_detail', project_id=project.id)
+        else:
+            form = SubmissionForm()
+        return render(request, 'tracker/project_detail_student.html', {'project': project, 'submission': submission, 'form': form})
+    else:
+        submissions = project.submissions.all()
+        return render(request, 'tracker/project_detail_teacher.html', {'project': project, 'submissions': submissions})
+
+
+@login_required
+def evaluate_submission(request, submission_id):
+    submission = get_object_or_404(ProjectSubmission, id=submission_id)
+    if request.method == 'POST':
+        form = SkillAwardForm(request.POST, student=submission.student)
+        if form.is_valid():
+            award = form.save(commit=False)
+            award.submission = submission
+            award.save()
+            student_skill, created = submission.student.skills.get_or_create(
+                skill=award.skill)
+            student_skill.points += award.points
+            student_skill.save()
+            return redirect('evaluate_submission', submission_id=submission.id)
+    else:
+        form = SkillAwardForm(student=submission.student)
+    return render(request, 'tracker/evaluate_submission.html', {'submission': submission, 'form': form})
+
+
+@login_required
+def finish_evaluation(request, submission_id):
+    submission = get_object_or_404(ProjectSubmission, id=submission_id)
+    submission.evaluated = True
+    submission.save()
+    return redirect('project_detail', project_id=submission.project.id)
+
+
+@login_required
+def manage_students(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    if request.method == 'POST':
+        form = ManageStudentsForm(request.POST, instance=subject)
+        if form.is_valid():
+            form.save()
+            return redirect('lesson_plan_view', subject_id=subject.id)
+    else:
+        form = ManageStudentsForm(instance=subject)
+    return render(request, 'tracker/manage_students.html', {'form': form, 'subject': subject})

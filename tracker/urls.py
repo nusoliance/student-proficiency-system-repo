@@ -10,4 +10,13 @@ urlpatterns = [
          views.add_activity, name='add_activity'),
     path('activity/<int:activity_id>/complete/',
          views.mark_complete, name='mark_complete'),
+    path('<int:subject_id>/add-project/',
+         views.add_project, name='add_project'),
+    path('project/<int:project_id>/', views.project_detail, name='project_detail'),
+    path('submission/<int:submission_id>/evaluate/',
+         views.evaluate_submission, name='evaluate_submission'),
+    path('submission/<int:submission_id>/finish/',
+         views.finish_evaluation, name='finish_evaluation'),
+    path('<int:subject_id>/manage-students/',
+         views.manage_students, name='manage_students'),
 ]

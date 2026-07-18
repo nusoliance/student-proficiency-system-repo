@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Evaluate: {{ submission.student.username }}</h2>
+<p>{{ submission.content }}</p>
+
+<h3>Skill Points Awarded So Far</h3>
+<ul>
+    {% for award in submission.skill_awards.all %}
+    <li>{{ award.skill.name }}: +{{ award.points }}</li>
+    {% empty %}
+    <li>None yet.</li>
+    {% endfor %}
+</ul>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Skill Points</button>
+</form>
+
+{% if not submission.evaluated %}
+<a href="{% url 'finish_evaluation' submission.id %}">Mark as Fully Evaluated</a>
+{% endif %}
+{% endblock %}

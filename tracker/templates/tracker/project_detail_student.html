@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ project.title }}</h2>
+<p>{{ project.description }}</p>
+{% if project.deadline %}<p>Deadline: {{ project.deadline }}</p>{% endif %}
+
+{% if submission %}
+<h3>Your Submission</h3>
+<p>{{ submission.content }}</p>
+{% if submission.evaluated %}
+<p>Status: Evaluated</p>
+{% if submission.feedback %}<p>Feedback: {{ submission.feedback }}</p>{% endif %}
+<ul>
+    {% for award in submission.skill_awards.all %}
+    <li>{{ award.skill.name }}: +{{ award.points }} points</li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>Status: Waiting for evaluation</p>
+{% endif %}
+{% else %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit</button>
+</form>
+{% endif %}
+{% endblock %}
