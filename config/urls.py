@@ -14,5 +14,6 @@ urlpatterns = [
     path('accounts/', include('accounts.urls')),
     path('tracker/', include('tracker.urls')),
     path('avatar/', include('avatar.urls')),
+    path('forum/', include('forum.urls')),
     path('', home_view, name='home'),
 ]

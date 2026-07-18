@@ -26,6 +26,10 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username} ({self.role})"
 
+    @property
+    def is_manager(self):
+        return self.role == 'teacher' or self.mode == 'personal'
+
 
 @receiver(post_save, sender=User)
 def create_profile(sender, instance, created, **kwargs):

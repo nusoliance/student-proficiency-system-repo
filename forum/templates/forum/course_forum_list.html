@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Course Forums</h2>
+<ul>
+    {% for course in courses %}
+    <li><a href="{% url 'course_forum_view_detail' course.id %}">{{ course.name }}</a></li>
+    {% empty %}
+    <li>No courses yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
