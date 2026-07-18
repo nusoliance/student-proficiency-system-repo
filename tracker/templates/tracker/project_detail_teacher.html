@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ project.title }} — Submissions</h2>
+<ul>
+    {% for submission in submissions %}
+    <li>
+        {{ submission.student.username }} —
+        {% if submission.evaluated %}Evaluated{% else %}Pending{% endif %}
+        <a href="{% url 'evaluate_submission' submission.id %}">View / Evaluate</a>
+    </li>
+    {% empty %}
+    <li>No submissions yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

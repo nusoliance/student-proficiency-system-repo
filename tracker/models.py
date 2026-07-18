@@ -50,3 +50,41 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class Project(models.Model):
+    subject = models.ForeignKey(
+        Subject, on_delete=models.CASCADE, related_name='projects')
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    deadline = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
+
+
+class ProjectSubmission(models.Model):
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name='submissions')
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='project_submissions')
+    content = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    evaluated = models.BooleanField(default=False)
+    feedback = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('project', 'student')
+
+    def __str__(self):
+        return f"{self.student.username} - {self.project.title}"
+
+
+class SkillAward(models.Model):
+    submission = models.ForeignKey(
+        ProjectSubmission, on_delete=models.CASCADE, related_name='skill_awards')
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    points = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.skill.name}: {self.points} pts"
