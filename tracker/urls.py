@@ -19,4 +19,6 @@ urlpatterns = [
          views.finish_evaluation, name='finish_evaluation'),
     path('<int:subject_id>/manage-students/',
          views.manage_students, name='manage_students'),
+    path('activity/<int:activity_id>/add-skill/',
+         views.add_activity_skill, name='add_activity_skill'),
 ]

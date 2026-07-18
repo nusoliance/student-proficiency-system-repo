@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from avatar.models import Skill
-from .models import Subject, Topic, Activity, Project, ProjectSubmission, SkillAward
+from .models import Subject, Topic, Activity, Project, ProjectSubmission, SkillAward, ActivitySkillPoints
 
 
 class SubjectForm(forms.ModelForm):
@@ -24,10 +24,14 @@ class TopicForm(forms.ModelForm):
 class ActivityForm(forms.ModelForm):
     class Meta:
         model = Activity
-        fields = ['title', 'deadline', 'skills']
-        widgets = {
-            'deadline': forms.DateInput(attrs={'type': 'date'}),
-        }
+        fields = ['title', 'deadline']
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+
+
+class ActivitySkillPointsForm(forms.ModelForm):
+    class Meta:
+        model = ActivitySkillPoints
+        fields = ['skill', 'points']
 
 
 class ProjectForm(forms.ModelForm):
