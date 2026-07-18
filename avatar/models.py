@@ -2,8 +2,25 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-class Skill(models.Model):
+class Course(models.Model):
     name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Skill(models.Model):
+    CATEGORY_CHOICES = [
+        ('general', 'General Education'),
+        ('course', 'Course-Specific'),
+        ('broad', 'Broad (Non-College)'),
+    ]
+    name = models.CharField(max_length=100)
+    description = models.TextField(blank=True)
+    category = models.CharField(
+        max_length=10, choices=CATEGORY_CHOICES, default='course')
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, null=True, blank=True, related_name='skills')
 
     def __str__(self):
         return self.name

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>My Skills</h2>
+<ul>
+    {% for student_skill in student_skills %}
+    <li>{{ student_skill.skill.name }} — {{ student_skill.points }} points (Level {{ student_skill.level }})</li>
+    {% empty %}
+    <li>No skills yet. Complete an activity to start earning points!</li>
+    {% endfor %}
+</ul>
+{% endblock %}
