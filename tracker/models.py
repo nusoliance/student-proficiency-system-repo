@@ -39,8 +39,6 @@ class Activity(models.Model):
         Topic, on_delete=models.CASCADE, related_name='activities')
     title = models.CharField(max_length=200)
     deadline = models.DateField()
-    skills = models.ManyToManyField(
-        Skill, blank=True, related_name='activities')
     completed_by = models.ManyToManyField(
         User, blank=True, related_name='completed_activities')
 
@@ -50,6 +48,19 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class ActivitySkillPoints(models.Model):
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='skill_points')
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    points = models.PositiveIntegerField(default=10)
+
+    class Meta:
+        unique_together = ('activity', 'skill')
+
+    def __str__(self):
+        return f"{self.skill.name}: {self.points} pts"
 
 
 class Project(models.Model):

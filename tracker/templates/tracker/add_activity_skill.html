@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Assign Skill Points — {{ activity.title }}</h2>
+<h3>Currently Assigned</h3>
+<ul>
+    {% for sp in activity.skill_points.all %}
+    <li>{{ sp.skill.name }}: {{ sp.points }} pts</li>
+    {% empty %}
+    <li>None yet.</li>
+    {% endfor %}
+</ul>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Skill</button>
+</form>
+<a href="{% url 'lesson_plan_view' activity.topic.lesson_plan.subject.id %}">Done — Back to Lesson Plan</a>
+{% endblock %}

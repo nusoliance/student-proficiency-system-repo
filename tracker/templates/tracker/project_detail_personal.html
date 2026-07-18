@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ project.title }} (Personal)</h2>
+<p>{{ project.description }}</p>
+{% if project.deadline %}<p>Deadline: {{ project.deadline }}</p>{% endif %}
+
+{% if submission %}
+<p>Status: {% if submission.evaluated %}Evaluated{% else %}Submitted, not yet evaluated{% endif %}</p>
+<a href="{% url 'evaluate_submission' submission.id %}">Evaluate</a>
+{% else %}
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Mark as Submitted</button>
+</form>
+{% endif %}
+{% endblock %}
