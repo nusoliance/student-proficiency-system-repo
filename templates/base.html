@@ -26,6 +26,29 @@
         </div>
         {% endif %}
     </nav>
+    {% if reminder_count %}
+    <div class="reminder-bar">
+        <button id="reminderToggle" class="reminder-btn">⚠ {{ reminder_count }} item{{ reminder_count|pluralize }} due
+            soon</button>
+        <div id="reminderList" class="reminder-list">
+            <ul class="ruled-list">
+                {% for item in reminder_items %}
+                <li>
+                    <a href="{% url item.url_name item.obj_id %}">{{ item.type }}: {{ item.title }}</a>
+                    <span class="muted-note">due {{ item.deadline }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <script>
+        const reminderToggle = document.getElementById('reminderToggle');
+        const reminderList = document.getElementById('reminderList');
+        reminderToggle.addEventListener('click', () => {
+            reminderList.classList.toggle('open');
+        });
+    </script>
+    {% endif %}
 
     {% if user.is_authenticated %}
     <div id="dropdownMenu" class="dropdown-menu">
