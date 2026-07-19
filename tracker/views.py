@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta
+from django.contrib.auth.models import User
 
 
 @login_required
@@ -179,11 +180,28 @@ def finish_evaluation(request, submission_id):
 @login_required
 def manage_students(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
-    if request.method == 'POST':
-        form = ManageStudentsForm(request.POST, instance=subject)
-        if form.is_valid():
-            form.save()
-            return redirect('lesson_plan_view', subject_id=subject.id)
-    else:
-        form = ManageStudentsForm(instance=subject)
-    return render(request, 'tracker/manage_students.html', {'form': form, 'subject': subject})
+    query = request.GET.get('q', '')
+    results = []
+    if query:
+        results = User.objects.filter(
+            profile__role='student', profile__mode='professional', username__icontains=query
+        ).exclude(id__in=subject.students.values_list('id', flat=True))
+    return render(request, 'tracker/manage_students.html', {
+        'subject': subject, 'query': query, 'results': results
+    })
+
+
+@login_required
+def add_student_to_subject(request, subject_id, student_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    student = get_object_or_404(User, id=student_id)
+    subject.students.add(student)
+    return redirect('manage_students', subject_id=subject.id)
+
+
+@login_required
+def remove_student_from_subject(request, subject_id, student_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    student = get_object_or_404(User, id=student_id)
+    subject.students.remove(student)
+    return redirect('manage_students', subject_id=subject.id)
