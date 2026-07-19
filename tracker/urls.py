@@ -21,4 +21,8 @@ urlpatterns = [
          views.manage_students, name='manage_students'),
     path('activity/<int:activity_id>/add-skill/',
          views.add_activity_skill, name='add_activity_skill'),
+    path('<int:subject_id>/manage-students/add/<int:student_id>/',
+         views.add_student_to_subject, name='add_student_to_subject'),
+    path('<int:subject_id>/manage-students/remove/<int:student_id>/',
+         views.remove_student_from_subject, name='remove_student_from_subject'),
 ]

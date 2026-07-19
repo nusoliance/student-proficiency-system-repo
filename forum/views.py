@@ -113,3 +113,14 @@ def course_forum_view(request, course_id=None):
 def course_forum_list(request):
     courses = Course.objects.all()
     return render(request, 'forum/course_forum_list.html', {'courses': courses})
+
+
+@login_required
+def forum_list(request):
+    if request.user.profile.role == 'teacher':
+        subjects = Subject.objects.filter(teacher=request.user)
+    elif request.user.profile.mode == 'professional':
+        subjects = request.user.subjects_enrolled.all()
+    else:
+        subjects = Subject.objects.none()
+    return render(request, 'forum/forum_list.html', {'subjects': subjects})
