@@ -39,8 +39,6 @@ class Activity(models.Model):
         Topic, on_delete=models.CASCADE, related_name='activities')
     title = models.CharField(max_length=200)
     deadline = models.DateField()
-    completed_by = models.ManyToManyField(
-        User, blank=True, related_name='completed_activities')
 
     @property
     def due_soon(self):
@@ -48,6 +46,24 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class ActivityCompletion(models.Model):
+    activity = models.ForeignKey(
+        Activity, on_delete=models.CASCADE, related_name='completions')
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='activity_completions')
+    image = models.ImageField(
+        upload_to='activity_submissions/images/', null=True, blank=True)
+    document = models.FileField(
+        upload_to='activity_submissions/documents/', null=True, blank=True)
+    completed_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('activity', 'student')
+
+    def __str__(self):
+        return f"{self.student.username} completed {self.activity.title}"
 
 
 class ActivitySkillPoints(models.Model):
@@ -79,7 +95,10 @@ class ProjectSubmission(models.Model):
         Project, on_delete=models.CASCADE, related_name='submissions')
     student = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='project_submissions')
-    content = models.TextField()
+    image = models.ImageField(
+        upload_to='project_submissions/images/', null=True, blank=True)
+    document = models.FileField(
+        upload_to='project_submissions/documents/', null=True, blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     evaluated = models.BooleanField(default=False)
     feedback = models.TextField(blank=True)

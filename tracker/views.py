@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivitySkillPointsForm
-from .models import Subject, LessonPlan, Topic, Activity, Project, ProjectSubmission, SkillAward, ActivitySkillPoints
+from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, ActivitySkillPoints, Project, ProjectSubmission, SkillAward
+from .forms import SubjectForm, TopicForm, ActivityForm, ActivitySkillPointsForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -90,15 +90,26 @@ def add_activity_skill(request, activity_id):
 
 
 @login_required
-def mark_complete(request, activity_id):
+def activity_detail(request, activity_id):
     activity = get_object_or_404(Activity, id=activity_id)
-    activity.completed_by.add(request.user)
-    for sp in activity.skill_points.all():
-        student_skill, created = request.user.skills.get_or_create(
-            skill=sp.skill)
-        student_skill.points += sp.points
-        student_skill.save()
-    return redirect('lesson_plan_view', subject_id=activity.topic.lesson_plan.subject.id)
+    completion = ActivityCompletion.objects.filter(
+        activity=activity, student=request.user).first()
+    if request.method == 'POST' and not completion:
+        form = ActivityCompletionForm(request.POST, request.FILES)
+        if form.is_valid():
+            completion = form.save(commit=False)
+            completion.activity = activity
+            completion.student = request.user
+            completion.save()
+            for sp in activity.skill_points.all():
+                student_skill, created = request.user.skills.get_or_create(
+                    skill=sp.skill)
+                student_skill.points += sp.points
+                student_skill.save()
+            return redirect('activity_detail', activity_id=activity.id)
+    else:
+        form = ActivityCompletionForm()
+    return render(request, 'tracker/activity_detail.html', {'activity': activity, 'completion': completion, 'form': form})
 
 
 @login_required
@@ -127,8 +138,7 @@ def project_detail(request, project_id):
             project=project, student=request.user).first()
         if request.method == 'POST' and not submission:
             submission = ProjectSubmission.objects.create(
-                project=project, student=request.user, content='Submitted (personal mode)'
-            )
+                project=project, student=request.user)
         return render(request, 'tracker/project_detail_personal.html', {'project': project, 'submission': submission})
 
     if is_owner:
@@ -138,7 +148,7 @@ def project_detail(request, project_id):
     submission = ProjectSubmission.objects.filter(
         project=project, student=request.user).first()
     if request.method == 'POST' and not submission:
-        form = SubmissionForm(request.POST)
+        form = SubmissionForm(request.POST, request.FILES)
         if form.is_valid():
             sub = form.save(commit=False)
             sub.project = project
@@ -205,3 +215,60 @@ def remove_student_from_subject(request, subject_id, student_id):
     student = get_object_or_404(User, id=student_id)
     subject.students.remove(student)
     return redirect('manage_students', subject_id=subject.id)
+
+
+@login_required
+def task_list(request):
+    if request.user.profile.is_manager:
+        owned = Subject.objects.filter(teacher=request.user)
+    else:
+        owned = Subject.objects.none()
+    enrolled = request.user.subjects_enrolled.all()
+    subjects = (owned | enrolled).distinct()
+
+    activities = Activity.objects.filter(
+        topic__lesson_plan__subject__in=subjects).order_by('deadline')
+    completed_activity_ids = set(
+        ActivityCompletion.objects.filter(
+            student=request.user, activity__in=activities).values_list('activity_id', flat=True)
+    )
+
+    projects = Project.objects.filter(
+        subject__in=subjects).order_by('deadline')
+    project_data = []
+    for project in projects:
+        submission = ProjectSubmission.objects.filter(
+            project=project, student=request.user).first()
+        project_data.append({'project': project, 'submission': submission})
+
+    return render(request, 'tracker/task_list.html', {
+        'activities': activities, 'completed_activity_ids': completed_activity_ids, 'project_data': project_data
+    })
+
+
+@login_required
+def add_task_activity(request):
+    if not (request.user.profile.role == 'student' and request.user.profile.mode == 'personal'):
+        return redirect('task_list')
+    if request.method == 'POST':
+        form = TaskActivityForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('task_list')
+    else:
+        form = TaskActivityForm(user=request.user)
+    return render(request, 'tracker/add_task_activity.html', {'form': form})
+
+
+@login_required
+def add_task_project(request):
+    if not (request.user.profile.role == 'student' and request.user.profile.mode == 'personal'):
+        return redirect('task_list')
+    if request.method == 'POST':
+        form = TaskProjectForm(request.POST, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('task_list')
+    else:
+        form = TaskProjectForm(user=request.user)
+    return render(request, 'tracker/add_task_project.html', {'form': form})

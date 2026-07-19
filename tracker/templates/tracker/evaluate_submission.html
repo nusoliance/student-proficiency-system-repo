@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Evaluate: {{ submission.student.username }}</h2>
-<p>{{ submission.content }}</p>
+<p>{% if submission.image %}
+<p><img src="{{ submission.image.url }}" style="max-width:100%; border-radius:8px;"></p>{% endif %}
+{% if submission.document %}<p><a href="{{ submission.document.url }}">View submitted document</a></p>{% endif %}
+{% if not submission.image and not submission.document %}<p style="color:var(--muted);">No files attached.</p>{% endif
+%}</p>
 
 <h3>Skill Points Awarded So Far</h3>
 <ul>
