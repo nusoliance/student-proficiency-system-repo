@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from avatar.models import Skill
-from .models import Subject, Topic, Activity, Project, ProjectSubmission, SkillAward, ActivitySkillPoints
+from .models import Subject, Topic, Activity, Project, ProjectSubmission, SkillAward, ActivitySkillPoints, ActivityCompletion
 
 
 class SubjectForm(forms.ModelForm):
@@ -28,6 +28,12 @@ class ActivityForm(forms.ModelForm):
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
 
+class ActivityCompletionForm(forms.ModelForm):
+    class Meta:
+        model = ActivityCompletion
+        fields = ['image', 'document']
+
+
 class ActivitySkillPointsForm(forms.ModelForm):
     class Meta:
         model = ActivitySkillPoints
@@ -44,7 +50,7 @@ class ProjectForm(forms.ModelForm):
 class SubmissionForm(forms.ModelForm):
     class Meta:
         model = ProjectSubmission
-        fields = ['content']
+        fields = ['image', 'document']
 
 
 class SkillAwardForm(forms.ModelForm):
@@ -70,3 +76,31 @@ class ManageStudentsForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['students'].queryset = User.objects.filter(
             profile__role='student')
+
+
+class TaskActivityForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(queryset=Topic.objects.none())
+
+    class Meta:
+        model = Activity
+        fields = ['topic', 'title', 'deadline']
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        self.fields['topic'].queryset = Topic.objects.filter(
+            lesson_plan__subject__teacher=user)
+        self.fields['topic'].label_from_instance = lambda obj: f"{obj.lesson_plan.subject.name} — Week {obj.week_number}: {obj.title}"
+
+
+class TaskProjectForm(forms.ModelForm):
+    class Meta:
+        model = Project
+        fields = ['subject', 'title', 'description', 'deadline']
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        self.fields['subject'].queryset = Subject.objects.filter(teacher=user)

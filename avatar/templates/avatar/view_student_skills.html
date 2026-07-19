@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ student.username }}'s Avatar</h2>
+<ul class="ruled-list">
+    {% for student_skill in student_skills %}
+    <li>
+        {{ student_skill.skill.name }}
+        <span class="stamp stamp-level">Lv {{ student_skill.level }} · {{ student_skill.points }} pts</span>
+    </li>
+    {% empty %}
+    <li>No skills yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

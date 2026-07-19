@@ -1,36 +1,68 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 
 <head>
     <title>Student Proficiency System</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
 <body>
-    <nav>
+    <nav class="navbar">
+        <div class="navbar-left">
+            <button id="menuToggle" class="menu-btn" aria-label="Menu">☰</button>
+            <span class="brand">Student Proficiency System</span>
+        </div>
         {% if user.is_authenticated %}
-        <span>Welcome, {{ user.username }} ({{ user.profile.role }})</span>
-        |
-        {% if user.profile.role == 'teacher' %}
-        <a href="{% url 'subject_list' %}">My Subjects</a>
-        <a href="{% url 'course_forum_list' %}">Course Forums</a>
-        {% else %}
-        <a href="{% url 'subject_list' %}">My Subjects</a>
-        <a href="{% url 'my_skills' %}">My Skills</a>
+        <div class="navbar-right">
+            <span class="user-tag">{{ user.username }} · {{ user.profile.role }}</span>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="link-style">Log Out</button>
+            </form>
+        </div>
+        {% endif %}
+    </nav>
+
+    {% if user.is_authenticated %}
+    <div id="dropdownMenu" class="dropdown-menu">
+        <a href="{% url 'subject_list' %}">Subjects</a>
+        {% if user.profile.role == 'student' %}
+        <a href="{% url 'my_skills' %}">Avatar</a>
+        <a href="{% url 'task_list' %}">Tasks</a>
         {% if user.profile.mode == 'professional' %}
         <a href="{% url 'forum_list' %}">Subject Forums</a>
         {% endif %}
         <a href="{% url 'course_forum_view' %}">Course Forum</a>
-        {% endif %}
-        |
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit">Log Out</button>
-        </form>
         {% else %}
+        <a href="{% url 'student_directory' %}">Students</a>
+        <a href="{% url 'course_forum_list' %}">Course Forums</a>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="navbar-right" style="padding: 0.9rem 1.5rem;">
         <a href="{% url 'login' %}">Log In</a>
         <a href="{% url 'signup' %}">Sign Up</a>
-        {% endif %}
-    </nav>
+    </div>
+    {% endif %}
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        if (menuToggle) {
+            menuToggle.addEventListener('click', () => {
+                dropdownMenu.classList.toggle('open');
+            });
+            document.addEventListener('click', (e) => {
+                if (!menuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('open');
+                }
+            });
+        }
+    </script>
     <hr>
 
     {% block content %}

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Add Activity to a Task</h2>
+{% if form.fields.topic.queryset.exists %}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create</button>
+</form>
+{% else %}
+<p class="muted-note">You need a subject and topic first. Go to Subjects to create one.</p>
+{% endif %}
+{% endblock %}

@@ -8,13 +8,9 @@
 <ul>
     {% for activity in topic.activities.all %}
     <li>
-        {{ activity.title }} — due {{ activity.deadline }}
+
+        <a href="{% url 'activity_detail' activity.id %}">{{ activity.title }}</a> — due {{ activity.deadline }}
         {% if activity.due_soon %}<strong style="color:red;">DUE SOON</strong>{% endif %}
-        {% if request.user in activity.completed_by.all %}
-        <span style="color:green;">✓ Completed</span>
-        {% elif user.profile.role == 'student' %}
-        <a href="{% url 'mark_complete' activity.id %}">Mark Complete</a>
-        {% endif %}
     </li>
     {% empty %}
     <li>No activities yet.</li>

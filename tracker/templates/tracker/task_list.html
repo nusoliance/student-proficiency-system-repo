@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Tasks</h2>
+
+{% if user.profile.mode == 'personal' %}
+<a href="{% url 'add_task_activity' %}">+ Add Activity</a>
+<a href="{% url 'add_task_project' %}">+ Add Project</a>
+{% endif %}
+
+<h3>Activities</h3>
+<ul class="ruled-list">
+    {% for activity in activities %}
+    <li>
+        <span>
+            <a href="{% url 'activity_detail' activity.id %}">{{ activity.title }}</a>
+            <span class="muted-note">({{ activity.topic.lesson_plan.subject.name }})</span>
+        </span>
+        <span>
+            {% if activity.id in completed_activity_ids %}
+            <span class="stamp stamp-done">Done</span>
+            {% elif activity.due_soon %}
+            <span class="stamp stamp-due">Due {{ activity.deadline }}</span>
+            {% else %}
+            <span class="stamp stamp-level">Due {{ activity.deadline }}</span>
+            {% endif %}
+        </span>
+    </li>
+    {% empty %}
+    <li>No activities assigned yet.</li>
+    {% endfor %}
+</ul>
+
+<h3>Projects</h3>
+<ul class="ruled-list">
+    {% for item in project_data %}
+    <li>
+        <span>
+            <a href="{% url 'project_detail' item.project.id %}">{{ item.project.title }}</a>
+            <span class="muted-note">({{ item.project.subject.name }})</span>
+        </span>
+        <span>
+            {% if item.submission.evaluated %}
+            <span class="stamp stamp-done">Evaluated</span>
+            {% elif item.submission %}
+            <span class="stamp stamp-level">Submitted</span>
+            {% else %}
+            <span class="stamp stamp-due">Not Submitted</span>
+            {% endif %}
+        </span>
+    </li>
+    {% empty %}
+    <li>No projects assigned yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

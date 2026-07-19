@@ -8,8 +8,8 @@ urlpatterns = [
     path('<int:subject_id>/add-topic/', views.add_topic, name='add_topic'),
     path('topic/<int:topic_id>/add-activity/',
          views.add_activity, name='add_activity'),
-    path('activity/<int:activity_id>/complete/',
-         views.mark_complete, name='mark_complete'),
+    path('activity/<int:activity_id>/',
+         views.activity_detail, name='activity_detail'),
     path('<int:subject_id>/add-project/',
          views.add_project, name='add_project'),
     path('project/<int:project_id>/', views.project_detail, name='project_detail'),
@@ -25,4 +25,7 @@ urlpatterns = [
          views.add_student_to_subject, name='add_student_to_subject'),
     path('<int:subject_id>/manage-students/remove/<int:student_id>/',
          views.remove_student_from_subject, name='remove_student_from_subject'),
+    path('tasks/', views.task_list, name='task_list'),
+    path('tasks/add-activity/', views.add_task_activity, name='add_task_activity'),
+    path('tasks/add-project/', views.add_task_project, name='add_task_project'),
 ]

@@ -5,10 +5,8 @@
 {% if project.deadline %}<p>Deadline: {{ project.deadline }}</p>{% endif %}
 
 {% if submission %}
-<h3>Your Submission</h3>
-<p>{{ submission.content }}</p>
 {% if submission.evaluated %}
-<p>Status: Evaluated</p>
+<p><span class="stamp stamp-done">Evaluated</span></p>
 {% if submission.feedback %}<p>Feedback: {{ submission.feedback }}</p>{% endif %}
 <ul>
     {% for award in submission.skill_awards.all %}
@@ -16,10 +14,15 @@
     {% endfor %}
 </ul>
 {% else %}
-<p>Status: Waiting for evaluation</p>
+<p><span class="stamp stamp-level">Submitted, waiting for evaluation</span></p>
 {% endif %}
+{% if submission.image %}<p><img src="{{ submission.image.url }}" style="max-width:100%; border-radius:8px;"></p>{%
+endif %}
+{% if submission.document %}<p><a href="{{ submission.document.url }}">View submitted document</a></p>{% endif %}
+{% if not submission.image and not submission.document %}<p style="color:var(--muted);">No files attached.</p>{% endif
+%}
 {% else %}
-<form method="post">
+<form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
     <button type="submit">Submit</button>

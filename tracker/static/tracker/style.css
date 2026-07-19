@@ -311,3 +311,6 @@ body {
   color: #64748B;
   max-width: 320px;
 }
+
+.submission-img { max-width: 100%; border-radius: 8px; }
+.muted-note { color: var(--muted); }
