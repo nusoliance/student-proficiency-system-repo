@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ task.title }}</h2>
+
+<p>{{ task.get_difficulty_display }} difficulty · {{ task.get_importance_display }} importance</p>
+
+<p>
+    Main skill: {{ task.skill_main.name }} (+{{ task.main_points }} pts)
+</p>
+
+{% if task.skill_secondary %}
+<p>Secondary skill: {{ task.skill_secondary.name }} (+{{ task.secondary_points }} pts)</p>
+{% endif %}
+
+{% if task.skill_tertiary %}
+<p>Tertiary skill: {{ task.skill_tertiary.name }} (+{{ task.tertiary_points }} pts)</p>
+{% endif %}
+
+{% if task.no_deadline %}
+<p>No deadline</p>
+{% else %}
+<p>Deadline: {{ task.deadline }}</p>
+{% endif %}
+
+{% if task.repeat == 'weekly' %}
+<p>Repeats weekly on: {{ task.get_weekly_days_display }}</p>
+{% endif %}
+
+{% if task.repeat == 'daily' %}
+<p>Repeats daily</p>
+{% endif %}
+
+{% if task.repeat == 'none' %}
+<p>Does not repeat</p>
+{% endif %}
+
+{% if task.completed %}
+<p><span class="stamp stamp-done">Completed</span></p>
+{% else %}
+<form method="post" action="{% url 'complete_personal_task' task.id %}">
+    {% csrf_token %}
+    <button type="submit">Mark Complete</button>
+</form>
+{% endif %}
+
+{% endblock %}

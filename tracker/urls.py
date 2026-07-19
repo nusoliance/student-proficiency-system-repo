@@ -28,4 +28,10 @@ urlpatterns = [
     path('tasks/', views.task_list, name='task_list'),
     path('tasks/add-activity/', views.add_task_activity, name='add_task_activity'),
     path('tasks/add-project/', views.add_task_project, name='add_task_project'),
+    path('personal-tasks/', views.personal_task_list, name='personal_task_list'),
+    path('personal-tasks/add/', views.add_personal_task, name='add_personal_task'),
+    path('personal-tasks/<int:task_id>/complete/',
+         views.complete_personal_task, name='complete_personal_task'),
+    path('personal-tasks/<int:task_id>/',
+         views.personal_task_detail, name='personal_task_detail'),
 ]

@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, ActivitySkillPoints, Project, ProjectSubmission, SkillAward
-from .forms import SubjectForm, TopicForm, ActivityForm, ActivitySkillPointsForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm
+from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, ActivitySkillPoints, Project, ProjectSubmission, SkillAward, PersonalTask
+from .forms import SubjectForm, TopicForm, ActivityForm, ActivitySkillPointsForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -272,3 +272,54 @@ def add_task_project(request):
     else:
         form = TaskProjectForm(user=request.user)
     return render(request, 'tracker/add_task_project.html', {'form': form})
+
+
+@login_required
+def personal_task_list(request):
+    if request.user.profile.mode != 'personal':
+        return redirect('task_list')
+    tasks = PersonalTask.objects.filter(
+        student=request.user).order_by('deadline')
+    return render(request, 'tracker/personal_task_list.html', {'tasks': tasks})
+
+
+@login_required
+def add_personal_task(request):
+    if request.user.profile.mode != 'personal':
+        return redirect('task_list')
+    if request.method == 'POST':
+        form = PersonalTaskForm(request.POST, user=request.user)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.student = request.user
+            task.save()
+            form.save_m2m()
+            return redirect('personal_task_list')
+    else:
+        form = PersonalTaskForm(user=request.user)
+    return render(request, 'tracker/add_personal_task.html', {'form': form})
+
+
+@login_required
+def complete_personal_task(request, task_id):
+    task = get_object_or_404(PersonalTask, id=task_id, student=request.user)
+    if not task.completed:
+        task.completed = True
+        task.save()
+        awards = [(task.skill_main, task.main_points)]
+        if task.skill_secondary:
+            awards.append((task.skill_secondary, task.secondary_points))
+        if task.skill_tertiary:
+            awards.append((task.skill_tertiary, task.tertiary_points))
+        for skill, points in awards:
+            student_skill, created = request.user.skills.get_or_create(
+                skill=skill)
+            student_skill.points += points
+            student_skill.save()
+    return redirect('personal_task_detail', task_id=task.id)
+
+
+@login_required
+def personal_task_detail(request, task_id):
+    task = get_object_or_404(PersonalTask, id=task_id, student=request.user)
+    return render(request, 'tracker/personal_task_detail.html', {'task': task})

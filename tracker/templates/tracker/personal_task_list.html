@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Personal Tasks</h2>
+<a href="{% url 'add_personal_task' %}">+ Add Task</a>
+<ul class="ruled-list">
+    {% for task in tasks %}
+    <li>
+        <a href="{% url 'personal_task_detail' task.id %}">{{ task.title }}</a>
+        <span>
+            {% if task.completed %}
+            <span class="stamp stamp-done">Done</span>
+            {% elif task.no_deadline %}
+            <span class="stamp stamp-level">Ongoing</span>
+            {% elif task.due_soon %}
+            <span class="stamp stamp-due">Due {{ task.deadline }}</span>
+            {% else %}
+            <span class="stamp stamp-level">Due {{ task.deadline }}</span>
+            {% endif %}
+        </span>
+    </li>
+    {% empty %}
+    <li>No personal tasks yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

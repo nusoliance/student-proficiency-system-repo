@@ -118,3 +118,69 @@ class SkillAward(models.Model):
 
     def __str__(self):
         return f"{self.skill.name}: {self.points} pts"
+
+
+class PersonalTask(models.Model):
+    DIFFICULTY_CHOICES = [(1, 'Easy'), (2, 'Medium'), (3, 'Hard')]
+    IMPORTANCE_CHOICES = [(1, 'Low'), (2, 'Medium'), (3, 'High')]
+    REPEAT_CHOICES = [
+        ('none', 'Does not repeat'),
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+    ]
+    WEEKDAY_CHOICES = [
+        ('mon', 'Mon'), ('tue', 'Tue'), ('wed', 'Wed'), ('thu', 'Thu'),
+        ('fri', 'Fri'), ('sat', 'Sat'), ('sun', 'Sun'),
+    ]
+
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='personal_tasks')
+    title = models.CharField(max_length=200)
+    no_deadline = models.BooleanField(default=False)
+    deadline = models.DateField(null=True, blank=True)
+    difficulty = models.IntegerField(choices=DIFFICULTY_CHOICES)
+    importance = models.IntegerField(choices=IMPORTANCE_CHOICES)
+
+    skill_main = models.ForeignKey(
+        Skill, on_delete=models.CASCADE, related_name='personal_tasks_main')
+    skill_secondary = models.ForeignKey(
+        Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='personal_tasks_secondary')
+    skill_tertiary = models.ForeignKey(
+        Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='personal_tasks_tertiary')
+
+    repeat = models.CharField(
+        max_length=10, choices=REPEAT_CHOICES, default='none')
+    weekly_days = models.CharField(max_length=50, blank=True)
+    notify = models.BooleanField(default=True)
+    completed = models.BooleanField(default=False)
+
+    @property
+    def due_soon(self):
+        if self.no_deadline or not self.deadline:
+            return False
+        return 0 <= (self.deadline - timezone.now().date()).days <= 3
+
+    @property
+    def points_value(self):
+        return self.difficulty * self.importance * 10
+
+    @property
+    def main_points(self):
+        return self.points_value * 5 // 10
+
+    @property
+    def secondary_points(self):
+        return self.points_value * 3 // 10
+
+    @property
+    def tertiary_points(self):
+        return self.points_value * 2 // 10
+
+    def get_weekly_days_display(self):
+        if not self.weekly_days:
+            return ''
+        day_dict = dict(self.WEEKDAY_CHOICES)
+        return ', '.join(day_dict.get(d, d) for d in self.weekly_days.split(','))
+
+    def __str__(self):
+        return self.title

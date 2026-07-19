@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from avatar.models import Skill
-from .models import Subject, Topic, Activity, Project, ProjectSubmission, SkillAward, ActivitySkillPoints, ActivityCompletion
+from .models import Subject, Topic, Activity, Project, ProjectSubmission, SkillAward, ActivitySkillPoints, ActivityCompletion, PersonalTask
 
 
 class SubjectForm(forms.ModelForm):
@@ -104,3 +104,54 @@ class TaskProjectForm(forms.ModelForm):
         user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
         self.fields['subject'].queryset = Subject.objects.filter(teacher=user)
+
+
+class PersonalTaskForm(forms.ModelForm):
+    weekly_days = forms.MultipleChoiceField(
+        choices=PersonalTask.WEEKDAY_CHOICES, required=False,
+        widget=forms.CheckboxSelectMultiple, label="Repeat on which days"
+    )
+
+    class Meta:
+        model = PersonalTask
+        fields = ['title', 'no_deadline', 'deadline', 'difficulty', 'importance',
+                  'skill_main', 'skill_secondary', 'skill_tertiary', 'repeat', 'notify']
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        owned_skills = Skill.objects.filter(
+            id__in=user.skills.values_list('skill_id', flat=True))
+        self.fields['skill_main'].queryset = owned_skills
+        self.fields['skill_secondary'].queryset = owned_skills
+        self.fields['skill_tertiary'].queryset = owned_skills
+        if self.instance and self.instance.weekly_days:
+            self.fields['weekly_days'].initial = self.instance.weekly_days.split(
+                ',')
+
+    def clean(self):
+        cleaned = super().clean()
+        no_deadline = cleaned.get('no_deadline')
+        deadline = cleaned.get('deadline')
+        repeat = cleaned.get('repeat')
+        weekly_days = cleaned.get('weekly_days')
+
+        if no_deadline:
+            cleaned['deadline'] = None
+        elif not deadline:
+            self.add_error(
+                'deadline', 'A deadline is required unless this task has no deadline.')
+
+        if repeat == 'weekly' and not weekly_days:
+            self.add_error(
+                'weekly_days', 'Pick at least one day for a weekly task.')
+        return cleaned
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.weekly_days = ','.join(
+            self.cleaned_data.get('weekly_days', []))
+        if commit:
+            instance.save()
+        return instance

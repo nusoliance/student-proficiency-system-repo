@@ -5,6 +5,7 @@
 {% if user.profile.mode == 'personal' %}
 <a href="{% url 'add_task_activity' %}">+ Add Activity</a>
 <a href="{% url 'add_task_project' %}">+ Add Project</a>
+<a href="{% url 'personal_task_list' %}">View Personal Tasks</a>
 {% endif %}
 
 <h3>Activities</h3>
