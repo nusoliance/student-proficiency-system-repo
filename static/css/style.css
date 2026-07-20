@@ -351,4 +351,15 @@ input[type="submit"]:hover {
     .reminder-list.open {
         display: block;
     }
+
+    input[type="checkbox"] {
+        width: auto;
+        height: auto;
+        padding: 0;
+        border: none;
+        background: none;
+        accent-color: var(--blue);
+        margin-right: 0.4rem;
+        vertical-align: middle;
+    }
 }

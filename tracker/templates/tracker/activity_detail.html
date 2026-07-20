@@ -2,6 +2,9 @@
 {% block content %}
 <h2>{{ activity.title }}</h2>
 <p>Due: {{ activity.deadline }}</p>
+{% if activity.instructions %}
+<p>{{ activity.instructions|linebreaks }}</p>
+{% endif %}
 
 {% if completion %}
 <p><span class="stamp stamp-done">Completed</span> on {{ completion.completed_at|date:"M d, Y" }}</p>
