@@ -10,7 +10,7 @@
     <p>{{ form.skill_secondary.label_tag }} {{ form.skill_secondary }}</p>
     <p>{{ form.skill_tertiary.label_tag }} {{ form.skill_tertiary }}</p>
 
-    <p>{{ form.no_deadline }} {{ form.no_deadline.label_tag }}</p>
+    <p><label>{{ form.no_deadline }} {{ form.no_deadline.label }}</label></p>
     <div id="deadlineWrapper">
         <p>{{ form.deadline.label_tag }} {{ form.deadline }}</p>
     </div>
@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <p>{{ form.notify.label_tag }} {{ form.notify }}</p>
+    <p><label>{{ form.notify }} {{ form.notify.label }}</label></p>
     <button type="submit">Create</button>
 </form>
 

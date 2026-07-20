@@ -37,6 +37,7 @@ class Topic(models.Model):
 class Activity(models.Model):
     topic = models.ForeignKey(
         Topic, on_delete=models.CASCADE, related_name='activities')
+    instructions = models.TextField(blank=True)
     title = models.CharField(max_length=200)
     deadline = models.DateField()
 

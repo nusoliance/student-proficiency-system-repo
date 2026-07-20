@@ -24,7 +24,7 @@ class TopicForm(forms.ModelForm):
 class ActivityForm(forms.ModelForm):
     class Meta:
         model = Activity
-        fields = ['title', 'deadline']
+        fields = ['title', 'instructions', 'deadline']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
 
@@ -83,7 +83,7 @@ class TaskActivityForm(forms.ModelForm):
 
     class Meta:
         model = Activity
-        fields = ['topic', 'title', 'deadline']
+        fields = ['topic', 'title', 'instructions', 'deadline']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
     def __init__(self, *args, **kwargs):
