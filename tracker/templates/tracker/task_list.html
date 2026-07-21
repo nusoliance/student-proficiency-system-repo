@@ -1,7 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Tasks</h2>
-
+{% if reminder_items %}
+<div class="card">
+    <h3>Due Soon</h3>
+    <ul class="ruled-list">
+        {% for item in reminder_items %}
+        <li>
+            <a href="{% url item.url_name item.obj_id %}">{{ item.type }}: {{ item.title }}</a>
+            <span class="muted-note">due {{ item.deadline }}</span>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 {% if user.profile.mode == 'personal' %}
 <a href="{% url 'add_task_activity' %}">+ Add Activity</a>
 <a href="{% url 'add_task_project' %}">+ Add Project</a>
