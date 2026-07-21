@@ -30,16 +30,17 @@
     <div class="profile-banner">
         <div class="profile-banner-inner">
             <div class="profile-avatar-circle">{{ user.username|slice:":1"|upper }}</div>
-            <div>
+            <div class="profile-info">
                 <div class="profile-name">{{ user.username }}</div>
-                <div class="profile-meta">
-                    {% if user.profile.course %}{{ user.profile.course.name }} · {% else %}No course · {% endif %}
-                    {{ user.profile.mode|title }}
-                    {% if top_skill %} · Top skill: {{ top_skill.skill.name }} (Lv {{ top_skill.level }}){% else %} · No
-                    skills yet{% endif %}
-                </div>
+                <div class="profile-line">{% if user.profile.course %}{{ user.profile.course.name }}{% else %}No
+                    course{% endif %}</div>
+                <div class="profile-line">{% if top_skill %}Top skill: {{ top_skill.skill.name }}
+                    (Lv {{top_skill.level}}){% else %}No skills yet{% endif %}</div>
+                <div class="profile-line">{% if user.profile.mode == 'personal' %}Personal Account{% else %}Professional
+                    Account{% endif %}</div>
             </div>
         </div>
+    </div>
     </div>
     {% endif %}
     {% if reminder_count %}

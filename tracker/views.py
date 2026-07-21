@@ -7,6 +7,29 @@ from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.models import User
 import calendar as cal_module
+from django.db.models import Q, Case, When, Value, IntegerField
+from avatar.models import Skill
+
+
+def get_relevant_skills(subject):
+    course_ids = set()
+    if subject.teacher.profile.course_id:
+        course_ids.add(subject.teacher.profile.course_id)
+    for student in subject.students.all():
+        if student.profile.course_id:
+            course_ids.add(student.profile.course_id)
+
+    return Skill.objects.filter(
+        Q(category='general') | Q(category='broad') | Q(
+            category='course', course_id__in=course_ids)
+    ).annotate(
+        category_order=Case(
+            When(category='general', then=Value(0)),
+            When(category='course', then=Value(1)),
+            When(category='broad', then=Value(2)),
+            output_field=IntegerField(),
+        )
+    ).order_by('category_order', 'course__name', 'name')
 
 
 @login_required
@@ -95,16 +118,21 @@ def add_activity(request, topic_id):
 @login_required
 def add_activity_skill(request, activity_id):
     activity = get_object_or_404(Activity, id=activity_id)
+    subject = activity.topic.lesson_plan.subject
+    relevant_skills = get_relevant_skills(subject)
     if request.method == 'POST':
-        form = ActivitySkillPointsForm(request.POST)
+        form = ActivitySkillPointsForm(
+            request.POST, skill_queryset=relevant_skills)
         if form.is_valid():
             skill_points = form.save(commit=False)
             skill_points.activity = activity
             skill_points.save()
             return redirect('add_activity_skill', activity_id=activity.id)
     else:
-        form = ActivitySkillPointsForm()
-    return render(request, 'tracker/add_activity_skill.html', {'activity': activity, 'form': form})
+        form = ActivitySkillPointsForm(skill_queryset=relevant_skills)
+    return render(request, 'tracker/add_activity_skill.html', {
+        'activity': activity, 'form': form, 'skills': relevant_skills
+    })
 
 
 @login_required

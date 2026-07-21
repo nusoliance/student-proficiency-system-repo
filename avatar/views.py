@@ -29,5 +29,10 @@ def view_student_skills(request, student_id):
 
 @login_required
 def my_skills(request):
-    student_skills = request.user.skills.all()
-    return render(request, 'avatar/my_skills.html', {'student_skills': student_skills})
+    student_skills = request.user.skills.select_related('skill').all()
+    course_skills = student_skills.filter(skill__category='course')
+    general_skills = student_skills.filter(skill__category='general')
+    broad_skills = student_skills.filter(skill__category='broad')
+    return render(request, 'avatar/my_skills.html', {
+        'course_skills': course_skills, 'general_skills': general_skills, 'broad_skills': broad_skills
+    })

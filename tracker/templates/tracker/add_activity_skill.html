@@ -1,18 +1,71 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Assign Skill Points — {{ activity.title }}</h2>
+
 <h3>Currently Assigned</h3>
-<ul>
+<ul class="ruled-list">
     {% for sp in activity.skill_points.all %}
     <li>{{ sp.skill.name }}: {{ sp.points }} pts</li>
     {% empty %}
     <li>None yet.</li>
     {% endfor %}
 </ul>
+
 <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
+
+    <input type="text" id="skillSearch" placeholder="Search skills..." style="margin-bottom:0.8rem;">
+
+    <div id="skillOptions">
+        {% regroup skills by category as skill_categories %}
+        {% for cat in skill_categories %}
+
+        {% if cat.grouper == 'general' %}
+        <h4 class="skill-group-heading">General Education</h4>
+        {% for skill in cat.list %}
+        <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
+            <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
+        </label>
+        {% endfor %}
+        {% endif %}
+
+        {% if cat.grouper == 'course' %}
+        {% regroup cat.list by course.name as course_groups %}
+        {% for cg in course_groups %}
+        <h4 class="skill-group-heading">{{ cg.grouper }}</h4>
+        {% for skill in cg.list %}
+        <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
+            <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
+        </label>
+        {% endfor %}
+        {% endfor %}
+        {% endif %}
+
+        {% if cat.grouper == 'broad' %}
+        <h4 class="skill-group-heading">General Proficiency</h4>
+        {% for skill in cat.list %}
+        <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
+            <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
+        </label>
+        {% endfor %}
+        {% endif %}
+
+        {% endfor %}
+    </div>
+
+    <p style="margin-top:1rem;">{{ form.points.label_tag }} {{ form.points }}</p>
     <button type="submit">Add Skill</button>
 </form>
+
 <a href="{% url 'lesson_plan_view' activity.topic.lesson_plan.subject.id %}">Done — Back to Lesson Plan</a>
+
+<script>
+    const skillSearch = document.getElementById('skillSearch');
+    skillSearch.addEventListener('input', () => {
+        const q = skillSearch.value.toLowerCase();
+        document.querySelectorAll('.skill-radio-option').forEach(label => {
+            label.style.display = label.dataset.search.includes(q) ? '' : 'none';
+        });
+    });
+</script>
 {% endblock %}
