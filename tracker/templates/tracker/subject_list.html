@@ -1,12 +1,21 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<h2>My Subjects</h2>
-<ul>
-    {% for subject in subjects %}
-    <li><a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a></li>
+<h2>Subjects</h2>
+<ul class="subject-list">
+    {% for item in subject_data %}
+    <li>
+        <a href="{% url 'lesson_plan_view' item.subject.id %}" class="subject-card">
+            <div class="subject-card-text">
+                <div class="subject-card-name">{{ item.subject.name }}</div>
+                <div class="subject-card-teacher">{{ item.subject.teacher.username }}</div>
+            </div>
+            {% if item.due_count %}
+            <span class="subject-card-badge">{{ item.due_count }}</span>
+            {% endif %}
+        </a>
+    </li>
     {% empty %}
-    <li>No subjects yet.</li>
+    <li class="muted-note">No subjects yet.</li>
     {% endfor %}
 </ul>
 {% if user.profile.is_manager %}
