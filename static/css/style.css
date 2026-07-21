@@ -1,15 +1,17 @@
 :root {
-    --bg: #0B1220;
-    --panel: #141E33;
-    --panel-alt: #1B2740;
-    --line: #29354E;
-    --text: #EAF0FB;
-    --muted: #8C99B4;
-    --blue: #4C8DFF;
-    --blue-dark: #3A6FD1;
-    --amber: #F5A93F;
-    --green: #3ECF8E;
-    --rose: #F2596B;
+    --bg-dark: #0B1220;
+    --bg-light: #F5F7FA;
+    --panel: #FFFFFF;
+    --line: #E2E6EC;
+    --text: #101828;
+    --text-light: #EAF0FB;
+    --muted: #667085;
+    --muted-light: #9AA6C3;
+    --blue: #2F6FED;
+    --blue-dark: #1F54C4;
+    --amber: #B9700A;
+    --green: #0E8F6C;
+    --rose: #C13A50;
 }
 
 * {
@@ -18,7 +20,7 @@
 
 body {
     margin: 0;
-    background: var(--bg);
+    background: var(--bg-light);
     color: var(--text);
     font-family: 'Public Sans', sans-serif;
     line-height: 1.5;
@@ -38,7 +40,7 @@ a {
 }
 
 a:hover {
-    color: #82AEFF;
+    color: var(--blue-dark);
 }
 
 a:focus-visible,
@@ -50,10 +52,9 @@ textarea:focus-visible {
     outline-offset: 2px;
 }
 
-/* this is for the navigation bar */
+
 .navbar {
-    background: var(--panel);
-    border-bottom: 1px solid var(--line);
+    background: var(--bg-dark);
     padding: 0.9rem 1.5rem;
     display: flex;
     justify-content: space-between;
@@ -69,9 +70,9 @@ textarea:focus-visible {
 }
 
 .menu-btn {
-    background: var(--panel-alt);
-    border: 1px solid var(--line);
-    color: var(--text);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-light);
     font-size: 1.1rem;
     width: 2.2rem;
     height: 2.2rem;
@@ -85,7 +86,7 @@ textarea:focus-visible {
 }
 
 .navbar .brand {
-    color: var(--text);
+    color: var(--text-light);
     font-family: 'Sora', sans-serif;
     font-size: 1.1rem;
     font-weight: 700;
@@ -98,23 +99,23 @@ textarea:focus-visible {
 }
 
 .navbar-right a {
-    color: var(--muted);
+    color: var(--muted-light);
     font-size: 0.9rem;
 }
 
 .navbar-right a:hover {
-    color: var(--blue);
+    color: #fff;
 }
 
 .user-tag {
-    color: var(--muted);
+    color: var(--muted-light);
     font-size: 0.85rem;
 }
 
 .navbar button.link-style {
     background: none;
     border: none;
-    color: var(--muted);
+    color: var(--muted-light);
     font-size: 0.9rem;
     cursor: pointer;
     padding: 0;
@@ -136,7 +137,7 @@ textarea:focus-visible {
     border-radius: 8px;
     padding: 0.5rem;
     min-width: 180px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     z-index: 10;
 }
 
@@ -152,8 +153,70 @@ textarea:focus-visible {
 }
 
 .dropdown-menu a:hover {
-    background: var(--panel-alt);
+    background: var(--bg-light);
     color: var(--blue);
+}
+
+.profile-banner {
+    background: var(--bg-dark);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.1rem 1.5rem;
+}
+
+.profile-banner-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.profile-avatar-circle {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.profile-name {
+    color: var(--text-light);
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.profile-meta {
+    color: var(--muted-light);
+    font-size: 0.85rem;
+    margin-top: 0.15rem;
+}
+
+/*this is for the reminder of deadline soon activities */
+.reminder-bar {
+    background: rgba(185, 112, 10, 0.08);
+    border-bottom: 1px solid var(--amber);
+}
+
+.reminder-btn {
+    display: block;
+    width: 100%;
+    color: var(--amber);
+    padding: 0.7rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.reminder-btn:hover {
+    text-decoration: underline;
 }
 
 .page {
@@ -202,25 +265,25 @@ textarea:focus-visible {
 }
 
 .stamp-level {
-    color: var(--blue);
-    background: rgba(76, 141, 255, 0.14);
+    color: var(--blue-dark);
+    background: rgba(47, 111, 237, 0.1);
 }
 
 .stamp-due {
     color: var(--amber);
-    background: rgba(245, 169, 63, 0.14);
+    background: rgba(185, 112, 10, 0.1);
 }
 
 .stamp-done {
     color: var(--green);
-    background: rgba(62, 207, 142, 0.14);
+    background: rgba(14, 143, 108, 0.1);
 }
 
 .level-stat {
     font-family: 'Sora', sans-serif;
     font-weight: 700;
     font-size: 1.4rem;
-    color: var(--blue);
+    color: var(--blue-dark);
 }
 
 .level-stat-label {
@@ -229,7 +292,6 @@ textarea:focus-visible {
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
-
 
 form p {
     margin-bottom: 1rem;
@@ -251,7 +313,7 @@ textarea {
     border-radius: 6px;
     font-family: inherit;
     font-size: 0.95rem;
-    background: var(--panel-alt);
+    background: #fff;
     color: var(--text);
 }
 
@@ -259,10 +321,21 @@ textarea {
     min-height: 100px;
 }
 
+input[type="checkbox"] {
+    width: auto;
+    height: auto;
+    padding: 0;
+    border: none;
+    background: none;
+    accent-color: var(--blue);
+    margin-right: 0.4rem;
+    vertical-align: middle;
+}
+
 button,
 input[type="submit"] {
     background: var(--blue);
-    color: #0B1220;
+    color: #fff;
     border: none;
     padding: 0.6rem 1.2rem;
     border-radius: 6px;
@@ -275,86 +348,43 @@ input[type="submit"] {
 button:hover,
 input[type="submit"]:hover {
     background: var(--blue-dark);
-    color: #fff;
+}
+
+.muted-note {
+    color: var(--muted);
+}
+
+.submission-img {
+    max-width: 100%;
+    border-radius: 8px;
+}
+
+.weekday-picker {
+    display: flex;
+    gap: 0.7rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.weekday-toggle {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.weekday-toggle input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    margin: 0;
+    accent-color: var(--blue);
 }
 
 @media (max-width: 480px) {
     .navbar-right {
         gap: 0.6rem;
-    }
-
-}
-
-@media (max-width: 480px) {
-    .navbar {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .navbar a,
-    .navbar form {
-        margin-left: 0;
-        margin-right: 1rem;
-    }
-
-    /* for adjusting checklist in repeat weekly */
-    .weekday-picker {
-        display: flex;
-        gap: 0.7rem;
-        margin-top: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .weekday-toggle {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.3rem;
-        font-size: 0.78rem;
-        color: var(--muted);
-        cursor: pointer;
-    }
-
-    .weekday-toggle input[type="checkbox"] {
-        width: 1.1rem;
-        height: 1.1rem;
-        margin: 0;
-        accent-color: var(--blue);
-    }
-
-    .reminder-bar {
-        background: rgba(245, 169, 63, 0.12);
-        border-bottom: 1px solid var(--amber);
-    }
-
-    .reminder-bar {
-        background: rgba(245, 169, 63, 0.12);
-        border-bottom: 1px solid var(--amber);
-    }
-
-    .reminder-btn {
-        display: block;
-        width: 100%;
-        color: var(--amber);
-        padding: 0.7rem 1.5rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        text-decoration: none;
-    }
-
-    .reminder-btn:hover {
-        text-decoration: underline;
-    }
-
-
-    input[type="checkbox"] {
-        width: auto;
-        height: auto;
-        padding: 0;
-        border: none;
-        background: none;
-        accent-color: var(--blue);
-        margin-right: 0.4rem;
-        vertical-align: middle;
     }
 }
