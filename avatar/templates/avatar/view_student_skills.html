@@ -1,14 +1,52 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>{{ student.username }}'s Avatar</h2>
-<ul class="ruled-list">
-    {% for student_skill in student_skills %}
-    <li>
-        {{ student_skill.skill.name }}
-        <span class="stamp stamp-level">Lv {{ student_skill.level }} · {{ student_skill.points }} pts</span>
-    </li>
-    {% empty %}
-    <li>No skills yet.</li>
-    {% endfor %}
-</ul>
+<div class="dossier">
+    <div class="dossier-header">
+        <div class="dossier-header-fields">
+            <div class="dossier-field">
+                <span class="dossier-label">Name</span>
+                <span class="dossier-value">{{ student.username }}</span>
+            </div>
+            <div class="dossier-field">
+                <span class="dossier-label">Class</span>
+                <span class="dossier-value">{% if student.profile.course %}{{ student.profile.course.name }}
+                    {% else%}—{% endif %}</span>
+            </div>
+        </div>
+        <div class="dossier-photo"></div>
+    </div>
+
+    <h3 class="dossier-section-title">Evaluation</h3>
+    <div class="dossier-eval-columns">
+        <div class="dossier-eval-col">
+            <h4 class="dossier-col-heading">Course Skills</h4>
+            {% for student_skill in course_skills %}
+            <div class="dossier-eval-row">
+                <span class="dossier-eval-name">{{ student_skill.skill.name }}</span>
+                <span class="dossier-eval-score">Lv {{ student_skill.level|stringformat:"02d" }} ·
+                    {{student_skill.points_into_level }}/100</span>
+            </div>
+            {% empty %}
+            <p class="muted-note">None yet.</p>
+            {% endfor %}
+        </div>
+        <div class="dossier-eval-col">
+            <h4 class="dossier-col-heading">General Skills</h4>
+            {% for student_skill in general_skills %}
+            <div class="dossier-eval-row">
+                <span class="dossier-eval-name">{{ student_skill.skill.name }}</span>
+                <span class="dossier-eval-score">Lv {{ student_skill.level|stringformat:"02d" }} ·
+                    {{student_skill.points_into_level }}/100</span>
+            </div>
+            {% empty %}
+            <p class="muted-note">None yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <h3 class="dossier-section-title">Student brief description</h3>
+    <div class="dossier-comments">
+        <p> This is a student</p>
+    </div>
+</div>
 {% endblock %}

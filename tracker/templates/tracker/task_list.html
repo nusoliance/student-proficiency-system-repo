@@ -1,68 +1,86 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Tasks</h2>
-{% if reminder_items %}
-<div class="card">
-    <h3>Due Soon</h3>
-    <ul class="ruled-list">
-        {% for item in reminder_items %}
-        <li>
-            <a href="{% url item.url_name item.obj_id %}">{{ item.type }}: {{ item.title }}</a>
-            <span class="muted-note">due {{ item.deadline }}</span>
-        </li>
-        {% endfor %}
-    </ul>
+<div class="lesson-plan-container">
+    <div class="lesson-header">
+        <h2>Tasks</h2>
+        {% if reminder_items %}
+        <div class="card">
+            <h3>Due Soon</h3>
+            <ul class="ruled-list">
+                {% for item in reminder_items %}
+                <li>
+                    <a href="{% url item.url_name item.obj_id %}">{{ item.type }}: {{ item.title }}</a>
+                    <span class="muted-note">due {{ item.deadline }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% endif %}
+        {% if user.profile.mode == 'personal' %}
+        <div class="manager-actions">
+            <a href="{% url 'add_task_activity' %}">+ Add Activity</a>
+            <a href="{% url 'add_task_project' %}">+ Add Project</a>
+            <a href="{% url 'personal_task_list' %}">View Personal Tasks</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="topic-card">
+        <div class="topic-header">
+            <h3>Activities</h3>
+        </div>
+        <ul class="activity-list">
+            {% for activity in activities %}
+            <li class="activity-item">
+                <div class="activity-details">
+                    <a href="{% url 'activity_detail' activity.id %}" class="activity-title">{{activity.title}}</a>
+                    <span class="muted-note">({{ activity.topic.lesson_plan.subject.name }})</span>
+                </div>
+                <div class="activity-status">
+                    {% if activity.id in completed_activity_ids %}
+                    <span class="stamp stamp-done">Done</span>
+                    {% elif activity.due_soon %}
+                    <span class="stamp stamp-due">Due {{ activity.deadline }}</span>
+                    {% else %}
+                    <span class="stamp stamp-level">Due {{ activity.deadline }}</span>
+                    {% endif %}
+                </div>
+            </li>
+            {% empty %}
+            <li class="empty-state-sm">No activities assigned yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+    <div class="topic-card">
+        <div class="topic-header">
+            <h3>Projects</h3>
+        </div>
+        <ul class="activity-list">
+            {% for item in project_data %}
+            <li class="activity-item">
+                <div class="activity-details">
+                    <a href="{% url 'project_detail' item.project.id %}"
+                        class="activity-title">{{item.project.title}}</a>
+                    <span class="muted-note">({{ item.project.subject.name }})</span>
+                </div>
+                <div class="activity-status">
+                    {% if item.submission.evaluated %}
+                    <span class="stamp stamp-done">Evaluated</span>
+                    {% elif item.submission %}
+                    <span class="stamp stamp-level">Submitted</span>
+                    {% else %}
+                    <span class="stamp stamp-due">Not Submitted</span>
+                    {% endif %}
+                </div>
+            </li>
+            {% empty %}
+            <li>No projects assigned yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
 </div>
-{% endif %}
-{% if user.profile.mode == 'personal' %}
-<a href="{% url 'add_task_activity' %}">+ Add Activity</a>
-<a href="{% url 'add_task_project' %}">+ Add Project</a>
-<a href="{% url 'personal_task_list' %}">View Personal Tasks</a>
-{% endif %}
-
-<h3>Activities</h3>
-<ul class="ruled-list">
-    {% for activity in activities %}
-    <li>
-        <span>
-            <a href="{% url 'activity_detail' activity.id %}">{{ activity.title }}</a>
-            <span class="muted-note">({{ activity.topic.lesson_plan.subject.name }})</span>
-        </span>
-        <span>
-            {% if activity.id in completed_activity_ids %}
-            <span class="stamp stamp-done">Done</span>
-            {% elif activity.due_soon %}
-            <span class="stamp stamp-due">Due {{ activity.deadline }}</span>
-            {% else %}
-            <span class="stamp stamp-level">Due {{ activity.deadline }}</span>
-            {% endif %}
-        </span>
-    </li>
-    {% empty %}
-    <li>No activities assigned yet.</li>
-    {% endfor %}
-</ul>
-
-<h3>Projects</h3>
-<ul class="ruled-list">
-    {% for item in project_data %}
-    <li>
-        <span>
-            <a href="{% url 'project_detail' item.project.id %}">{{ item.project.title }}</a>
-            <span class="muted-note">({{ item.project.subject.name }})</span>
-        </span>
-        <span>
-            {% if item.submission.evaluated %}
-            <span class="stamp stamp-done">Evaluated</span>
-            {% elif item.submission %}
-            <span class="stamp stamp-level">Submitted</span>
-            {% else %}
-            <span class="stamp stamp-due">Not Submitted</span>
-            {% endif %}
-        </span>
-    </li>
-    {% empty %}
-    <li>No projects assigned yet.</li>
-    {% endfor %}
-</ul>
 {% endblock %}

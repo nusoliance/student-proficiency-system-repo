@@ -183,9 +183,16 @@ def project_detail(request, project_id):
         submission = ProjectSubmission.objects.filter(
             project=project, student=request.user).first()
         if request.method == 'POST' and not submission:
-            submission = ProjectSubmission.objects.create(
-                project=project, student=request.user)
-        return render(request, 'tracker/project_detail_personal.html', {'project': project, 'submission': submission})
+            form = SubmissionForm(request.POST, request.FILES)
+            if form.is_valid():
+                submission = form.save(commit=False)
+                submission.project = project
+                submission.student = request.user
+                submission.save()
+                return redirect('project_detail', project_id=project.id)
+        else:
+            form = SubmissionForm()
+        return render(request, 'tracker/project_detail_personal.html', {'project': project, 'submission': submission, 'form': form})
 
     if is_owner:
         submissions = project.submissions.all()
