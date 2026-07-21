@@ -1,7 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Welcome, {{ user.username }}!</h2>
-<p>Role: {{ user.profile.role }}</p>
-<p>Mode: {{ user.profile.mode|default:"N/A" }}</p>
+<div class="dashboard-card">
+    <h2>Welcome, {{ user.username }}!</h2>
+
+    <div class="profile-info">
+        <p>
+            <strong>Role:</strong>
+            <span>{{ user.profile.role }}</span>
+        </p>
+        <p>
+            <strong>Mode:</strong>
+            <span>{{ user.profile.mode|default:"N/A" }}</span>
+        </p>
+    </div>
+</div>
 {% endblock %}

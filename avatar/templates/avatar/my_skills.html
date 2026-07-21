@@ -1,67 +1,125 @@
 {% extends 'base.html' %}
+
 {% block content %}
+
 <h2>Avatar</h2>
 
 {% if course_skills %}
 <h3>Course Skills</h3>
+
 <ul class="skill-list">
     {% for student_skill in course_skills %}
-    <li class="skill-card">
+    <li class="skill-card {% cycle 'blue' 'purple' 'orange' 'green' 'cyan' 'pink' %}">
+
         <div class="skill-card-top">
-            <span class="skill-card-name">{{ student_skill.skill.name }}</span>
-            <span class="skill-card-level">LVL {{ student_skill.level|stringformat:"02d" }}</span>
+            <div class="skill-card-name">
+                {{ student_skill.skill.name }}
+            </div>
+
+            <div class="skill-card-level">
+                LVL {{ student_skill.level|stringformat:"02d" }}
+            </div>
         </div>
+
+        <div class="skill-description">
+            <!-- Description will go here -->
+        </div>
+
         <div class="skill-bar-track">
-            <div class="skill-bar-fill" style="width: {{ student_skill.points_into_level }}%;"></div>
+            <div class="skill-bar-fill" style="width: {{ student_skill.points_into_level }}%;">
+            </div>
         </div>
-        <div class="skill-card-points">{{ student_skill.points_into_level }} /
-            {{ student_skill.points_needed_for_level}}
+
+        <div class="skill-card-points">
+            {{ student_skill.points_into_level }}
+            /
+            {{ student_skill.points_needed_for_level }}
         </div>
+
     </li>
     {% endfor %}
 </ul>
 {% endif %}
+
 
 {% if general_skills %}
 <h3>General Education Skills</h3>
+
 <ul class="skill-list">
     {% for student_skill in general_skills %}
-    <li class="skill-card">
+    <li class="skill-card {% cycle 'blue' 'purple' 'orange' 'green' 'cyan' 'pink' %}">
+
         <div class="skill-card-top">
-            <span class="skill-card-name">{{ student_skill.skill.name }}</span>
-            <span class="skill-card-level">LVL {{ student_skill.level|stringformat:"02d" }}</span>
+            <div class="skill-card-name">
+                {{ student_skill.skill.name }}
+            </div>
+
+            <div class="skill-card-level">
+                LVL {{ student_skill.level|stringformat:"02d" }}
+            </div>
         </div>
+
+        <div class="skill-description">
+            <!-- Description will go here -->
+        </div>
+
         <div class="skill-bar-track">
-            <div class="skill-bar-fill" style="width: {{ student_skill.points_into_level }}%;"></div>
+            <div class="skill-bar-fill" style="width: {{ student_skill.points_into_level }}%;">
+            </div>
         </div>
-        <div class="skill-card-points">{{ student_skill.points_into_level }} /
-            {{student_skill.points_needed_for_level}}
+
+        <div class="skill-card-points">
+            {{ student_skill.points_into_level }}
+            /
+            {{ student_skill.points_needed_for_level }}
         </div>
+
     </li>
     {% endfor %}
 </ul>
 {% endif %}
 
+
 {% if broad_skills %}
 <h3>Skills</h3>
+
 <ul class="skill-list">
     {% for student_skill in broad_skills %}
-    <li class="skill-card">
+    <li class="skill-card {% cycle 'blue' 'purple' 'orange' 'green' 'cyan' 'pink' %}">
+
         <div class="skill-card-top">
-            <span class="skill-card-name">{{ student_skill.skill.name }}</span>
-            <span class="skill-card-level">LVL {{ student_skill.level|stringformat:"02d" }}</span>
+            <div class="skill-card-name">
+                {{ student_skill.skill.name }}
+            </div>
+
+            <div class="skill-card-level">
+                LVL {{ student_skill.level|stringformat:"02d" }}
+            </div>
         </div>
+
+        <div class="skill-description">
+            <!-- Description will go here -->
+        </div>
+
         <div class="skill-bar-track">
-            <div class="skill-bar-fill" style="width: {{ student_skill.points_into_level }}%;"></div>
+            <div class="skill-bar-fill" style="width: {{ student_skill.points_into_level }}%;">
+            </div>
         </div>
-        <div class="skill-card-points">{{ student_skill.points_into_level }} / {{student_skill.points_needed_for_level}}
+
+        <div class="skill-card-points">
+            {{ student_skill.points_into_level }}
+            /
+            {{ student_skill.points_needed_for_level }}
         </div>
+
     </li>
     {% endfor %}
 </ul>
 {% endif %}
+
 
 {% if not course_skills and not general_skills and not broad_skills %}
 <p class="muted-note">No skills yet.</p>
 {% endif %}
+
 {% endblock %}

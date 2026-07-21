@@ -23,8 +23,13 @@ def student_directory(request):
 @user_passes_test(is_teacher)
 def view_student_skills(request, student_id):
     student = get_object_or_404(User, id=student_id, profile__role='student')
-    student_skills = student.skills.all()
-    return render(request, 'avatar/view_student_skills.html', {'student': student, 'student_skills': student_skills})
+    student_skills = student.skills.filter(
+        skill__category__in=['course', 'general']).select_related('skill')
+    course_skills = student_skills.filter(skill__category='course')
+    general_skills = student_skills.filter(skill__category='general')
+    return render(request, 'avatar/view_student_skills.html', {
+        'student': student, 'course_skills': course_skills, 'general_skills': general_skills
+    })
 
 
 @login_required

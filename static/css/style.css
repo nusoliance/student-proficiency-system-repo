@@ -1,6 +1,6 @@
 :root {
     --bg-dark: #0B1220;
-    --bg-light: #F5F7FA;
+    --bg-light: #d6d7dc;
     --panel: #FFFFFF;
     --line: #E2E6EC;
     --text: #101828;
@@ -35,7 +35,8 @@ h3 {
 }
 
 a {
-    color: var(--blue);
+    color: var(--amber);
+    font-weight: 700;
     text-decoration: none;
 }
 
@@ -52,6 +53,193 @@ textarea:focus-visible {
     outline-offset: 2px;
 }
 
+/*login section - jade */
+.login-section {
+    display: flex;
+    justify-content: center;
+    min-height: 80vh;
+    align-items: center;
+    flex-direction: column;
+}
+
+.lgn-part {
+    border: 2px solid #1E293B;
+    background-color: #F8FAFF;
+    padding: 35px 30px;
+    border-radius: 6px;
+    width: 100%;
+    max-width: 320px;
+}
+
+.lgn-part h2 {
+    color: #0F172A;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.btn-lgn button {
+    background-color: #1E3A8A;
+    border: 2px solid #0F172A;
+    color: #FFFFFF;
+    padding: 10px 15px;
+    width: 100%;
+    border-radius: 5px;
+    margin-top: 20px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+
+}
+
+.lgn-part .frgt {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #334155;
+}
+
+
+
+.lgn-part .sgnup {
+    text-decoration: none;
+    color: #1E3A8A;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+
+
+.lgn-part form p {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.lgn-part form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #0F172A;
+    font-size: 14px;
+}
+
+
+
+.lgn-part form input:focus {
+    border-color: #1E3A8A;
+    outline: none;
+}
+
+.lgn-part form input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px #FFFFFF inset !important;
+    -webkit-text-fill-color: #0F172A !important;
+}
+
+/*for signup - jade*/
+.sgnup-part {
+    border: 2px solid #1E293B;
+    padding: 20px 25px;
+    border-radius: 6px;
+    width: 100%;
+    max-width: 380px;
+    background-color: #F8FAFF;
+}
+
+.sgnup-part h2 {
+    color: #0F172A;
+    font-weight: 700;
+    margin-top: 0;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 22px;
+}
+
+.sgnup-part form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sgnup-part form p {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    text-align: left;
+    width: 100%;
+}
+
+.sgnup-part form label {
+    font-size: 13px;
+    margin-bottom: 3px;
+    font-weight: 600;
+    color: #0F172A;
+}
+
+
+
+.sgnup-part form select option {
+    background-color: #FFFFFF;
+    color: #0F172A;
+}
+
+.sgnup-part form input:focus,
+.sgnup-part form select:focus {
+    border-color: #1E3A8A;
+    outline: none;
+}
+
+.sgnup-part form .helptext {
+    display: none;
+}
+
+.sgnup-part form ul {
+    font-size: 10px;
+    color: #334155;
+    margin: 3px 0 0 0;
+    padding-left: 15px;
+    line-height: 1.1;
+}
+
+.sgnup-part form input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px #FFFFFF inset !important;
+    -webkit-text-fill-color: #0F172A !important;
+}
+
+.sgnup-part .btn-lgn {
+    margin-top: 10px;
+}
+
+.sgnup-part .btn-lgn button {
+    background-color: #1E3A8A;
+    border: 2px solid #0F172A;
+    color: #FFFFFF;
+    padding: 10px 15px;
+    width: 100%;
+    border-radius: 5px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.sgnup-part .btn-lgn button:hover {
+    background-color: #162D72;
+}
+
+.sgnup-part .frgt {
+    margin-top: 15px;
+    margin-bottom: 0;
+    text-align: center;
+    font-size: 13px;
+    color: #334155;
+}
+
+.sgnup-part .sgnup {
+    text-decoration: none;
+    color: #1E3A8A;
+    font-weight: 600;
+}
 
 .navbar {
     background: var(--bg-dark);
@@ -157,49 +345,9 @@ textarea:focus-visible {
     color: var(--blue);
 }
 
-.profile-banner {
-    background: var(--bg-dark);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 1.1rem 1.5rem;
-}
 
-.profile-banner-inner {
-    max-width: 780px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
 
-.profile-avatar-circle {
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    background: var(--blue);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Sora', sans-serif;
-    font-weight: 700;
-    font-size: 1.2rem;
-    flex-shrink: 0;
-}
-
-.profile-name {
-    color: var(--text-light);
-    font-family: 'Sora', sans-serif;
-    font-weight: 700;
-    font-size: 1.05rem;
-}
-
-.profile-meta {
-    color: var(--muted-light);
-    font-size: 0.85rem;
-    margin-top: 0.15rem;
-}
-
-/*this is for the reminder of deadline soon activities - Kian */
+/*pang remind sa activities - Kian */
 .reminder-bar {
     background: rgba(193, 68, 60, 0.06);
     border-bottom: 1px solid var(--amber);
@@ -225,12 +373,100 @@ textarea:focus-visible {
     padding: 2rem 1.5rem 4rem;
 }
 
+/*tasks -kian*/
+.topic-card {
+    background-color: #FFFFFF;
+    border: 2px solid #1E293B;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.topic-header,
+.projects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #E2E8F0;
+    padding-bottom: 10px;
+}
+
+.topic-header h3,
+.projects-header h3 {
+    margin: 0;
+    color: #1E3A8A;
+    font-size: 18px;
+}
+
+.btn-sm {
+    background-color: transparent;
+    color: #334155;
+    border: 2px solid #334155;
+    padding: 4px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-sm:hover {
+    color: #0F172A;
+    border-color: #0F172A;
+}
+
+.activity-list,
+.project-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 10px;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #CBD5E1;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.activity-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.activity-title {
+    color: #0F172A;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+.activity-deadline {
+    color: #334155;
+    font-size: 13px;
+}
+
+.activity-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .card {
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 10px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
+    border-color: var(--amber);
 }
 
 .ruled-list {
@@ -264,15 +500,12 @@ textarea:focus-visible {
     border-radius: 999px;
 }
 
-.stamp-level {
-    color: var(--blue-dark);
-    background: rgba(47, 111, 237, 0.1);
-}
+
 
 .stamp-due {
     color: var(--amber);
     background: none;
-    padding: 0;
+    padding: 3;
     border-radius: 0;
     font-weight: 600;
 }
@@ -419,7 +652,7 @@ input[type="submit"]:hover {
     color: #fff;
 }
 
-/*this is for editing the calendar -kian*/
+/*para sa calendar -kian*/
 .cal-grid {
     margin-top: 1rem;
 }
@@ -500,10 +733,11 @@ input[type="submit"]:hover {
     color: #fff;
 }
 
+/*pilianan sa subject -kian*/
 .subject-list {
     list-style: none;
-    padding: 0;
-    margin: 0 0 1.5rem;
+    padding: 10px;
+    margin: 0 0 1.7rem;
 }
 
 .subject-card {
@@ -512,8 +746,8 @@ input[type="submit"]:hover {
     align-items: center;
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 1rem 1.1rem;
+    border-radius: 10px;
+    padding: 2.5rem 1.1rem;
     margin-bottom: 0.6rem;
     color: var(--text);
 }
@@ -550,61 +784,253 @@ input[type="submit"]:hover {
     flex-shrink: 0;
 }
 
+/*pand edit sa skills sa avatar -kian*/
 .skill-list {
     list-style: none;
     padding: 0;
-    margin: 0 0 2rem;
+    margin: 0 0 2.5rem;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(360px, 1fr));
+    gap: 1.5rem;
 }
 
 .skill-card {
-    background: var(--panel);
-    border: 1px solid var(--blue);
-    border-radius: 8px;
-    padding: 0.9rem 1.1rem;
-    margin-bottom: 0.6rem;
+    position: relative;
+
+    background: white;
+
+    border-radius: 14px;
+
+    padding: 1.8rem;
+
+    min-height: 200px;
+
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid #e8edf8;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 10px 24px rgba(15, 23, 42, .06);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
 }
+
+.skill-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    width: 100%;
+    height: 5px;
+
+    transition: .25s;
+
+    background: #3B82F6;
+}
+
+
+
+.skill-card.blue::before {
+    background: #3B82F6;
+}
+
+.skill-card.purple::before {
+    background: #8B5CF6;
+}
+
+.skill-card.orange::before {
+    background: #F97316;
+}
+
+.skill-card.green::before {
+    background: #22C55E;
+}
+
+.skill-card.cyan::before {
+    background: #06B6D4;
+}
+
+.skill-card.pink::before {
+    background: #EC4899;
+}
+
+
 
 .skill-card-top {
     display: flex;
+
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
+
+    align-items: flex-start;
+
+    gap: 1rem;
+
+    margin-bottom: 1rem;
+
 }
 
 .skill-card-name {
     font-family: 'Sora', sans-serif;
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--text);
+
+    font-size: 1.28rem;
+
+    font-weight: 700;
+
+    color: #0f172a;
+
+    line-height: 1.35;
+
+    letter-spacing: -.02em;
+
+    max-width: 75%;
+}
+
+.skill-description {
+
+    min-height: 54px;
+
+    color: #64748b;
+
+    font-size: .95rem;
+
+    line-height: 1.6;
+
+    margin-bottom: 1.4rem;
 }
 
 .skill-card-level {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: .5rem 1rem;
+
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, .75);
+
+    border: 1px solid rgba(59, 130, 246, .18);
+
+    color: #2563eb;
+
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--blue-dark);
+    font-weight: 700;
+    font-size: .82rem;
+
+    letter-spacing: .08em;
 }
 
 .skill-bar-track {
-    background: var(--bg-light);
-    border: 1px solid var(--line);
+    margin-top: auto;
+
+    height: 12px;
+
     border-radius: 999px;
-    height: 6px;
+
+    background: #edf2f7;
+
     overflow: hidden;
 }
 
 .skill-bar-fill {
-    background: var(--blue);
     height: 100%;
+
     border-radius: 999px;
+
+    background: linear-gradient(90deg,
+            #60a5fa,
+            #2563eb);
+
+    transition: width .9s ease;
 }
 
 .skill-card-points {
-    margin-top: 0.35rem;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
-    color: var(--muted);
+    margin-top: .9rem;
+
     text-align: right;
+
+    color: #64748b;
+
+    font-size: .82rem;
+
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.skill-card.blue .skill-bar-fill {
+    background: linear-gradient(90deg, #60a5fa, #2563eb);
+}
+
+.skill-card.purple .skill-bar-fill {
+    background: linear-gradient(90deg, #a78bfa, #7c3aed);
+}
+
+.skill-card.orange .skill-bar-fill {
+    background: linear-gradient(90deg, #fb923c, #ea580c);
+}
+
+.skill-card.green .skill-bar-fill {
+    background: linear-gradient(90deg, #4ade80, #16a34a);
+}
+
+.skill-card.cyan .skill-bar-fill {
+    background: linear-gradient(90deg, #22d3ee, #0891b2);
+}
+
+.skill-card.pink .skill-bar-fill {
+    background: linear-gradient(90deg, #f472b6, #db2777);
+}
+
+/*pang edit sa gamay na info sa taas -kian*/
+.profile-banner {
+    background: var(--bg-dark);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 1.1rem 1.5rem;
+}
+
+.profile-banner-inner {
+    width: 100%;
+    padding-left: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.profile-avatar-circle {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.profile-name {
+    color: var(--text-light);
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.profile-meta {
+    color: var(--muted-light);
+    font-size: 0.85rem;
+    margin-top: 0.15rem;
 }
 
 .profile-info {
@@ -640,4 +1066,111 @@ input[type="submit"]:hover {
     width: auto;
     margin: 0;
     accent-color: var(--blue);
+}
+
+/*student info when teacher checks a student profile -kian*/
+.dossier {
+    max-width: 620px;
+    margin: 0 auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.75rem;
+}
+
+.dossier-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.dossier-header-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.dossier-field {
+    display: flex;
+    gap: 0.5rem;
+    align-items: baseline;
+}
+
+.dossier-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    width: 3.5rem;
+    flex-shrink: 0;
+}
+
+.dossier-value {
+    font-family: 'Sora', sans-serif;
+    font-weight: 500;
+    font-size: 0.75rem;
+    color: var(--text);
+}
+
+.dossier-photo {
+    width: 100px;
+    height: 100px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.dossier-section-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.75rem;
+}
+
+.dossier-eval-columns {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.dossier-eval-col {
+    flex: 1;
+    min-width: 0;
+}
+
+.dossier-col-heading {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0 0 0.4rem;
+}
+
+.dossier-eval-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.15rem 0;
+    font-size: 0.88rem;
+}
+
+.dossier-eval-name {
+    color: #000;
+}
+
+.dossier-eval-score {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: #000;
+    white-space: nowrap;
+}
+
+.dossier-comments {
+    min-height: 3rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
 }
