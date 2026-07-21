@@ -27,19 +27,21 @@ class LessonPlan(models.Model):
 class Topic(models.Model):
     lesson_plan = models.ForeignKey(
         LessonPlan, on_delete=models.CASCADE, related_name='topics')
-    week_number = models.PositiveIntegerField()
     title = models.CharField(max_length=200)
+    start_date = models.DateField()
+    end_date = models.DateField()
 
     def __str__(self):
-        return f"Week {self.week_number}: {self.title}"
+        return f"{self.title} ({self.start_date} – {self.end_date})"
 
 
 class Activity(models.Model):
     topic = models.ForeignKey(
         Topic, on_delete=models.CASCADE, related_name='activities')
-    instructions = models.TextField(blank=True)
     title = models.CharField(max_length=200)
+    instructions = models.TextField(blank=True)
     deadline = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
     @property
     def due_soon(self):
@@ -86,6 +88,7 @@ class Project(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     deadline = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title

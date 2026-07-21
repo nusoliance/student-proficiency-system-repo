@@ -34,4 +34,5 @@ urlpatterns = [
          views.complete_personal_task, name='complete_personal_task'),
     path('personal-tasks/<int:task_id>/',
          views.personal_task_detail, name='personal_task_detail'),
+    path('<int:subject_id>/calendar/', views.calendar_view, name='calendar_view'),
 ]

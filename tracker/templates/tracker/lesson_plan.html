@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>{{ subject.name }} — Lesson Plan</h2>
+<div class="subjects-header">
+    <h2>{{ subject.name }} — Lesson Plan</h2>
+    <a href="{% url 'calendar_view' subject.id %}" class="btn-link">📅 Calendar View</a>
+</div>
 
 {% for topic in topics %}
-<h3>Week {{ topic.week_number }}: {{ topic.title }}</h3>
+<h3>{{ topic.title }} <span class="muted-note">({{ topic.start_date }} – {{ topic.end_date }})</span></h3>
 <ul>
     {% for activity in topic.activities.all %}
     <li>
