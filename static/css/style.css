@@ -322,35 +322,30 @@ input[type="submit"]:hover {
         accent-color: var(--blue);
     }
 
-    /* for banners */
+    .reminder-bar {
+        background: rgba(245, 169, 63, 0.12);
+        border-bottom: 1px solid var(--amber);
+    }
+
     .reminder-bar {
         background: rgba(245, 169, 63, 0.12);
         border-bottom: 1px solid var(--amber);
     }
 
     .reminder-btn {
+        display: block;
         width: 100%;
-        background: none;
-        border: none;
         color: var(--amber);
-        text-align: left;
         padding: 0.7rem 1.5rem;
         font-size: 0.9rem;
         font-weight: 600;
-        cursor: pointer;
-        font-family: inherit;
+        text-decoration: none;
     }
 
-    .reminder-list {
-        display: none;
-        padding: 0 1.5rem 1rem;
-        max-width: 780px;
-        margin: 0 auto;
+    .reminder-btn:hover {
+        text-decoration: underline;
     }
 
-    .reminder-list.open {
-        display: block;
-    }
 
     input[type="checkbox"] {
         width: auto;
