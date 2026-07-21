@@ -59,7 +59,7 @@
         {% if user.profile.mode == 'professional' %}
         <a href="{% url 'forum_list' %}">Subject Forums</a>
         {% endif %}
-        <a href="{% url 'course_forum_view' %}">Course Forum</a>
+        <a href="{% url 'course_forum_list' %}">Course Forums</a>
         {% else %}
         <a href="{% url 'student_directory' %}">Students</a>
         <a href="{% url 'course_forum_list' %}">Course Forums</a>

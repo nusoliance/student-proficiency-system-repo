@@ -1,11 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Course Forums</h2>
-<ul>
-    {% for course in courses %}
-    <li><a href="{% url 'course_forum_view_detail' course.id %}">{{ course.name }}</a></li>
-    {% empty %}
-    <li>No courses yet.</li>
-    {% endfor %}
-</ul>
+<div class="content-frame">
+    <ul class="forum-topic-list">
+        {% for course in courses %}
+        <li>
+            <a href="{% url 'course_forum_view_detail' course.id %}" class="forum-topic-card">
+                <div class="forum-topic-name">{{ course.name }} Forum</div>
+                <div class="forum-topic-desc">Discuss topics, questions, and resources related to {{ course.name }}.
+                </div>
+            </a>
+        </li>
+        {% empty %}
+        <li class="muted-note">No courses yet.</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}

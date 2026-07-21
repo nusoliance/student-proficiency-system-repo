@@ -1,20 +1,38 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>{{ subject.name }} — Forum</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Post Question</button>
-</form>
-<ul>
-    {% for post in posts %}
-    <li>
-        <a href="{% url 'post_detail' post.id %}">{{ post.text|truncatewords:15 }}</a>
-        — {{ post.author.username }}
-        {% if post.id in bookmarked_ids %}★{% endif %}
-    </li>
-    {% empty %}
-    <li>No questions yet.</li>
-    {% endfor %}
-</ul>
+<div class="content-frame">
+
+    <button id="askToggle" class="ask-question-btn">+ Ask a question...</button>
+
+    <div id="askForm" class="ask-question-form">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Post Question</button>
+        </form>
+    </div>
+
+    <ul class="ruled-list">
+        {% for post in posts %}
+        <li>
+            <div>
+                <a href="{% url 'post_detail' post.id %}">{{ post.text|truncatewords:20 }}</a>
+                <div class="muted-note">{{ post.author.username }}</div>
+            </div>
+            {% if post.id in bookmarked_ids %}<span class="stamp stamp-level">★</span>{% endif %}
+        </li>
+        {% empty %}
+        <li>No questions yet.</li>
+        {% endfor %}
+    </ul>
+
+</div>
+<script>
+    const askToggle = document.getElementById('askToggle');
+    const askForm = document.getElementById('askForm');
+    askToggle.addEventListener('click', () => {
+        askForm.classList.toggle('open');
+    });
+</script>
 {% endblock %}
