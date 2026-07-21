@@ -1,15 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Subject Forums</h2>
-<ul class="forum-topic-list">
-    {% for subject in subjects %}
-    <li>
-        <a href="{% url 'forum_view' subject.id %}" class="forum-topic-card">
-            <div class="forum-topic-name">{{ subject.name }} Forum</div>
-        </a>
-    </li>
-    {% empty %}
-    <li class="muted-note">No subject forums available yet.</li>
-    {% endfor %}
-</ul>
+<div class="content-frame">
+    <ul class="forum-topic-list">
+        {% for subject in subjects %}
+        <li>
+            <a href="{% url 'forum_view' subject.id %}" class="forum-topic-card">
+                <div class="forum-topic-name">{{ subject.name }} Forum</div>
+            </a>
+        </li>
+        {% empty %}
+        <li class="muted-note">No subject forums available yet.</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}
