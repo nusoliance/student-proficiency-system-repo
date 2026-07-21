@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.models import User
+import calendar as cal_module
 
 
 @login_required
@@ -40,7 +41,7 @@ def add_subject(request):
 @login_required
 def lesson_plan_view(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
-    topics = subject.lesson_plan.topics.all().order_by('week_number')
+    topics = subject.lesson_plan.topics.all().order_by('start_date')
     return render(request, 'tracker/lesson_plan.html', {'subject': subject, 'topics': topics})
 
 
@@ -326,3 +327,73 @@ def complete_personal_task(request, task_id):
 def personal_task_detail(request, task_id):
     task = get_object_or_404(PersonalTask, id=task_id, student=request.user)
     return render(request, 'tracker/personal_task_detail.html', {'task': task})
+
+
+@login_required
+def calendar_view(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    today = timezone.now().date()
+    c = cal_module.Calendar(firstweekday=0)
+    month_weeks = c.monthdatescalendar(today.year, today.month)
+
+    topics = subject.lesson_plan.topics.all()
+    projects = subject.projects.filter(deadline__isnull=False)
+
+    weeks_data = []
+    for week in month_weeks:
+        week_start, week_end = week[0], week[-1]
+        bars = []
+        row = 1
+
+        for topic in topics:
+            if topic.end_date < week_start or topic.start_date > week_end:
+                continue
+            bar_start = max(topic.start_date, week_start)
+            bar_end = min(topic.end_date, week_end)
+            bars.append({
+                'label': topic.title,
+                'css_class': 'cal-topic-bar',
+                'col_start': (bar_start - week_start).days + 1,
+                'col_span': (bar_end - bar_start).days + 1,
+                'row': row,
+                'url_name': 'lesson_plan_view', 'obj_id': subject.id,
+            })
+            row += 1
+
+            for activity in topic.activities.all():
+                a_start, a_end = activity.created_at.date(), activity.deadline
+                if a_end < week_start or a_start > week_end:
+                    continue
+                ib_start = max(a_start, week_start)
+                ib_end = min(a_end, week_end)
+                bars.append({
+                    'label': activity.title,
+                    'css_class': 'cal-item-bar cal-activity-bar',
+                    'col_start': (ib_start - week_start).days + 1,
+                    'col_span': (ib_end - ib_start).days + 1,
+                    'row': row,
+                    'url_name': 'activity_detail', 'obj_id': activity.id,
+                })
+                row += 1
+
+        for project in projects:
+            p_start, p_end = project.created_at.date(), project.deadline
+            if p_end < week_start or p_start > week_end:
+                continue
+            ib_start = max(p_start, week_start)
+            ib_end = min(p_end, week_end)
+            bars.append({
+                'label': f"Project: {project.title}",
+                'css_class': 'cal-item-bar cal-project-bar',
+                'col_start': (ib_start - week_start).days + 1,
+                'col_span': (ib_end - ib_start).days + 1,
+                'row': row,
+                'url_name': 'project_detail', 'obj_id': project.id,
+            })
+            row += 1
+
+        weeks_data.append({'days': week, 'bars': bars, 'row_count': row})
+
+    return render(request, 'tracker/calendar_view.html', {
+        'subject': subject, 'weeks_data': weeks_data, 'month_name': today.strftime('%B %Y'), 'today': today
+    })

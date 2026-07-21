@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ subject.name }} — {{ month_name }}</h2>
+
+<div class="cal-grid">
+    <div class="cal-weekday-labels">
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+    </div>
+
+    {% for week in weeks_data %}
+    <div class="cal-week" style="grid-template-rows: repeat({{ week.row_count }}, auto);">
+        {% for day in week.days %}
+        <div class="cal-day-cell {% if day == today %}cal-today{% endif %}"
+            style="grid-column:{{ forloop.counter }}; grid-row:1;">
+            {{ day.day }}
+        </div>
+        {% endfor %}
+
+        {% for bar in week.bars %}
+        <a href="{% url bar.url_name bar.obj_id %}" class="cal-bar {{ bar.css_class }}"
+            style="grid-column:{{ bar.col_start }} / span {{ bar.col_span }}; grid-row:{{ bar.row|add:1 }};">
+            {{ bar.label }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
