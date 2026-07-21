@@ -35,8 +35,8 @@
 {% endif %}
 {% if user.profile.is_manager %}
 <a href="{% url 'add_topic' subject.id %}">+ Add Topic</a>
+{% if user.profile.mode != 'personal' %}
 <a href="{% url 'manage_students' subject.id %}">Manage Students</a>
-
-
+{% endif %}
 {% endif %}
 {% endblock %}
