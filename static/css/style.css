@@ -473,14 +473,16 @@ textarea:focus-visible {
     list-style: none;
     padding: 0;
     margin: 0 0 1.5rem;
+    max-width: 620px;
 }
 
 .ruled-list li {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 0.9rem 1rem;
-    margin-bottom: 0.6rem;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    padding: 1rem 0.25rem;
+    margin-bottom: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -1173,4 +1175,81 @@ input[type="submit"]:hover {
     border: 1px solid var(--line);
     border-radius: 6px;
     background: #fff;
+}
+
+/* for forum -kian */
+.content-frame {
+    max-width: 620px;
+    margin: 0 auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.75rem;
+    background: none;
+}
+
+.forum-topic-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+    max-width: 620px;
+}
+
+.forum-topic-card {
+    display: block;
+    padding: 1.1rem 0.25rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+}
+
+.forum-topic-card:hover {
+    color: var(--blue-dark);
+}
+
+.forum-topic-name {
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+
+.forum-topic-desc {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 0.3rem;
+}
+
+
+.ask-question-btn {
+    display: block;
+    width: 100%;
+    max-width: 620px;
+    text-align: left;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 0.7rem 1.1rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+    font-family: inherit;
+}
+
+.ask-question-btn:hover {
+    border-color: var(--blue);
+    color: var(--blue-dark);
+}
+
+.ask-question-form {
+    display: none;
+    margin-bottom: 1.5rem;
+    max-width: 620px;
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.ask-question-form.open {
+    display: block;
 }
