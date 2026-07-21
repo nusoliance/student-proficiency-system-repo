@@ -55,6 +55,12 @@ class ActivitySkillPointsForm(forms.ModelForm):
     class Meta:
         model = ActivitySkillPoints
         fields = ['skill', 'points']
+        widgets = {'skill': forms.RadioSelect()}
+
+    def __init__(self, *args, **kwargs):
+        skill_queryset = kwargs.pop('skill_queryset')
+        super().__init__(*args, **kwargs)
+        self.fields['skill'].queryset = skill_queryset
 
 
 class ProjectForm(forms.ModelForm):

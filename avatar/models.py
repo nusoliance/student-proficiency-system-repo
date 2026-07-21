@@ -39,5 +39,13 @@ class StudentSkill(models.Model):
     def level(self):
         return self.points // 100
 
+    @property
+    def points_into_level(self):
+        return self.points % 100
+
+    @property
+    def points_needed_for_level(self):
+        return 100
+
     def __str__(self):
         return f"{self.student.username} - {self.skill.name} (Lv{self.level})"
