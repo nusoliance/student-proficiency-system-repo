@@ -199,7 +199,7 @@ textarea:focus-visible {
     margin-top: 0.15rem;
 }
 
-/*this is for the reminder of deadline soon activities */
+/*this is for the reminder of deadline soon activities - Kian */
 .reminder-bar {
     background: rgba(185, 112, 10, 0.08);
     border-bottom: 1px solid var(--amber);
@@ -494,4 +494,54 @@ input[type="submit"]:hover {
 .cal-item-bar:hover {
     opacity: 1;
     color: #fff;
+}
+
+.subject-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+}
+
+.subject-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 0.6rem;
+    color: var(--text);
+}
+
+.subject-card:hover {
+    border-color: var(--blue);
+    color: var(--text);
+}
+
+.subject-card-name {
+    font-family: 'Sora', sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.subject-card-teacher {
+    color: var(--muted);
+    font-size: 0.82rem;
+    margin-top: 0.15rem;
+}
+
+.subject-card-badge {
+    background: var(--amber);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.35rem;
+    flex-shrink: 0;
 }

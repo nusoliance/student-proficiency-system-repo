@@ -17,7 +17,24 @@ def subject_list(request):
         owned = Subject.objects.none()
     enrolled = request.user.subjects_enrolled.all()
     subjects = (owned | enrolled).distinct()
-    return render(request, 'tracker/subject_list.html', {'subjects': subjects})
+
+    subject_data = []
+    for subject in subjects:
+        due_count = 0
+        for topic in subject.lesson_plan.topics.all():
+            for activity in topic.activities.all():
+                completed = ActivityCompletion.objects.filter(
+                    activity=activity, student=request.user).exists()
+                if activity.due_soon and not completed:
+                    due_count += 1
+        for project in subject.projects.filter(deadline__isnull=False):
+            submitted = ProjectSubmission.objects.filter(
+                project=project, student=request.user).exists()
+            if 0 <= (project.deadline - timezone.now().date()).days <= 3 and not submitted:
+                due_count += 1
+        subject_data.append({'subject': subject, 'due_count': due_count})
+
+    return render(request, 'tracker/subject_list.html', {'subject_data': subject_data})
 
 
 @login_required
