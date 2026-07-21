@@ -9,7 +9,7 @@
     --muted-light: #9AA6C3;
     --blue: #2F6FED;
     --blue-dark: #1F54C4;
-    --amber: #B9700A;
+    --amber: #CE2029;
     --green: #0E8F6C;
     --rose: #C13A50;
 }
@@ -201,7 +201,7 @@ textarea:focus-visible {
 
 /*this is for the reminder of deadline soon activities - Kian */
 .reminder-bar {
-    background: rgba(185, 112, 10, 0.08);
+    background: rgba(193, 68, 60, 0.06);
     border-bottom: 1px solid var(--amber);
 }
 
@@ -271,7 +271,10 @@ textarea:focus-visible {
 
 .stamp-due {
     color: var(--amber);
-    background: rgba(185, 112, 10, 0.1);
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-weight: 600;
 }
 
 .stamp-done {
