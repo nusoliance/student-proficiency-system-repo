@@ -22,7 +22,7 @@ def subject_list(request):
 @login_required
 def add_subject(request):
     if request.method == 'POST':
-        form = SubjectForm(request.POST)
+        form = SubjectForm(request.POST, user=request.user)
         if form.is_valid():
             subject = form.save(commit=False)
             subject.teacher = request.user
@@ -33,7 +33,7 @@ def add_subject(request):
             LessonPlan.objects.create(subject=subject)
             return redirect('subject_list')
     else:
-        form = SubjectForm()
+        form = SubjectForm(user=request.user)
     return render(request, 'tracker/add_subject.html', {'form': form})
 
 
@@ -190,6 +190,9 @@ def finish_evaluation(request, submission_id):
 @login_required
 def manage_students(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
+    if subject.teacher.profile.mode == 'personal':
+        return redirect('lesson_plan_view', subject_id=subject.id)
+
     query = request.GET.get('q', '')
     results = []
     if query:

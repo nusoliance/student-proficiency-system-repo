@@ -10,9 +10,13 @@ class SubjectForm(forms.ModelForm):
         fields = ['name', 'students']
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
-        self.fields['students'].queryset = User.objects.filter(
-            profile__role='student')
+        if user.profile.mode == 'personal':
+            del self.fields['students']
+        else:
+            self.fields['students'].queryset = User.objects.filter(
+                profile__role='student', profile__mode='professional')
 
 
 class TopicForm(forms.ModelForm):
@@ -73,9 +77,10 @@ class ManageStudentsForm(forms.ModelForm):
         fields = ['students']
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         self.fields['students'].queryset = User.objects.filter(
-            profile__role='student')
+            profile__role='student', profile__mode='professional')
 
 
 class TaskActivityForm(forms.ModelForm):
