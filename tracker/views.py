@@ -11,22 +11,11 @@ from django.db.models import Q, Case, When, Value, IntegerField
 from avatar.models import Skill
 
 
-def get_relevant_skills(subject):
-    course_ids = set()
-    if subject.teacher.profile.course_id:
-        course_ids.add(subject.teacher.profile.course_id)
-    for student in subject.students.all():
-        if student.profile.course_id:
-            course_ids.add(student.profile.course_id)
-
-    return Skill.objects.filter(
-        Q(category='general') | Q(category='broad') | Q(
-            category='course', course_id__in=course_ids)
-    ).annotate(
+def get_relevant_skills():
+    return Skill.objects.exclude(category='broad').annotate(
         category_order=Case(
             When(category='general', then=Value(0)),
             When(category='course', then=Value(1)),
-            When(category='broad', then=Value(2)),
             output_field=IntegerField(),
         )
     ).order_by('category_order', 'course__name', 'name')
@@ -127,7 +116,7 @@ def add_activity(request, topic_id):
 def add_activity_skill(request, activity_id):
     activity = get_object_or_404(Activity, id=activity_id)
     subject = activity.topic.lesson_plan.subject
-    relevant_skills = get_relevant_skills(subject)
+    relevant_skills = get_relevant_skills()
     if request.method == 'POST':
         form = ActivitySkillPointsForm(
             request.POST, skill_queryset=relevant_skills)

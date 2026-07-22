@@ -13,4 +13,6 @@ urlpatterns = [
     path('course/<int:course_id>/', views.course_forum_view,
          name='course_forum_view_detail'),
     path('post/<int:post_id>/delete/', views.delete_post, name='delete_post'),
+    path('answer/<int:answer_id>/delete/',
+         views.delete_answer, name='delete_answer'),
 ]
