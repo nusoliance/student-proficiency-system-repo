@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ activity.title }} — Submissions</h2>
+<div class="content-frame">
+    <ul class="ruled-list">
+        {% for completion in completions %}
+        <li>
+            <div>
+                <span class="forum-topic-name" style="font-size:0.95rem;">{{ completion.student.username }}</span>
+                <div class="muted-note">Completed {{ completion.completed_at|date:"M d, Y" }}</div>
+                {% if completion.image %}<div><a href="{{ completion.image.url }}">View image</a></div>{% endif %}
+                {% if completion.document %}<div><a href="{{ completion.document.url }}">View document</a></div>
+                {% endif%}
+                {% if not completion.image and not completion.document %}<div class="muted-note">No files attached.
+                </div>{% endif %}
+            </div>
+        </li>
+        {% empty %}
+        <li class="muted-note">No submissions yet.</li>
+        {% endfor %}
+    </ul>
+
+    <div style="margin-top:1.5rem; display:flex; gap:1rem;">
+        <a href="{% url 'add_activity_skill' activity.id %}" class="btn-secondary">Manage Skill Points</a>
+        <a href="{% url 'delete_activity' activity.id %}" class="btn-secondary"
+            style="color:#991B1B; border-color:#991B1B;">Delete Activity</a>
+    </div>
+</div>
+{% endblock %}

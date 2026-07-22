@@ -10,6 +10,8 @@
             {% if user.profile.mode != 'personal' %}
             <a href="{% url 'manage_students' subject.id %}" class="btn-secondary">Manage Students</a>
             {% endif %}
+            <a href="{% url 'delete_subject' subject.id %}" class="btn-secondary"
+                style="color:#991B1B; border-color:#991B1B;">Delete Subject</a>
             {% endif %}
         </div>
     </div>
@@ -39,10 +41,6 @@
                     {% elif activity.due_soon %}
                     <span class="badge badge-warning">Due Soon</span>
                     {% endif %}
-                    {% if user.profile.is_manager %}
-                    <a href="{% url 'delete_activity' activity.id %}" class="btn-sm"
-                        style="color:#991B1B; border-color:#991B1B;">Delete</a>
-                    {% endif %}
                 </div>
             </li>
             {% empty %}
@@ -65,10 +63,6 @@
             {% for project in subject.projects.all %}
             <li class="project-item">
                 <a href="{% url 'project_detail' project.id %}">{{ project.title }}</a>
-                {% if user.profile.is_manager %}
-                <a href="{% url 'delete_project' project.id %}" class="btn-sm"
-                    style="color:#991B1B; border-color:#991B1B; margin-left:10px;">Delete</a>
-                {% endif %}
             </li>
             {% empty %}
             <li class="empty-state-sm">No projects yet.</li>

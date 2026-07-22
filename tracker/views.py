@@ -135,6 +135,13 @@ def add_activity_skill(request, activity_id):
 @login_required
 def activity_detail(request, activity_id):
     activity = get_object_or_404(Activity, id=activity_id)
+    subject = activity.topic.lesson_plan.subject
+    is_owner = subject.teacher == request.user
+
+    if is_owner:
+        completions = activity.completions.select_related('student').all()
+        return render(request, 'tracker/activity_detail_teacher.html', {'activity': activity, 'completions': completions})
+
     completion = ActivityCompletion.objects.filter(
         activity=activity, student=request.user).first()
     if request.method == 'POST' and not completion:
