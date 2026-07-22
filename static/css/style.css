@@ -426,6 +426,12 @@ textarea:focus-visible {
     border-color: #0F172A;
 }
 
+.task-due-date {
+    color: var(--amber);
+    font-size: 12px;
+    font-weight: 600;
+}
+
 .activity-list,
 .project-list {
     list-style: none;

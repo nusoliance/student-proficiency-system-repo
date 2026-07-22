@@ -21,7 +21,7 @@
             <li class="activity-item">
                 <a href="{% url item.url_name item.obj_id %}" class="activity-title">{{ item.type }}:
                     {{ item.title}}</a>
-                <span class="activity-deadline">Due {{ item.deadline }}</span>
+                <span class="task-due-date">Due {{ activity.deadline }}</span>
             </li>
             {% endfor %}
         </ul>

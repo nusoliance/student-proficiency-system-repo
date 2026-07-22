@@ -1,28 +1,39 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Evaluate: {{ submission.student.username }}</h2>
-<p>{% if submission.image %}
-<p><img src="{{ submission.image.url }}" style="max-width:100%; border-radius:8px;"></p>{% endif %}
-{% if submission.document %}<p><a href="{{ submission.document.url }}">View submitted document</a></p>{% endif %}
-{% if not submission.image and not submission.document %}<p style="color:var(--muted);">No files attached.</p>{% endif
-%}</p>
+<div class="content-frame">
 
-<h3>Skill Points Awarded So Far</h3>
-<ul>
-    {% for award in submission.skill_awards.all %}
-    <li>{{ award.skill.name }}: +{{ award.points }}</li>
-    {% empty %}
-    <li>None yet.</li>
-    {% endfor %}
-</ul>
+    {% if submission.image %}
+    <p><img src="{{ submission.image.url }}" class="submission-img"></p>
+    {% endif %}
+    {% if submission.document %}
+    <p><a href="{{ submission.document.url }}">View submitted document</a></p>
+    {% endif %}
+    {% if not submission.image and not submission.document %}
+    <p class="muted-note">No files attached.</p>
+    {% endif %}
 
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Add Skill Points</button>
-</form>
+    <h3 class="dossier-section-title">Skill Points Awarded</h3>
+    <ul class="ruled-list">
+        {% for award in submission.skill_awards.all %}
+        <li>{{ award.skill.name }} <span class="dossier-eval-score">+{{ award.points }}</span></li>
+        {% empty %}
+        <li class="muted-note">None yet.</li>
+        {% endfor %}
+    </ul>
 
-{% if not submission.evaluated %}
-<a href="{% url 'finish_evaluation' submission.id %}">Mark as Fully Evaluated</a>
-{% endif %}
+    <form method="post" class="custom-form" style="margin-top:1.5rem;">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Add Skill Points</button>
+        </div>
+    </form>
+
+    {% if not submission.evaluated %}
+    <p style="margin-top:1rem;"><a href="{% url 'finish_evaluation' submission.id %}" class="btn-secondary">Mark as
+            Fully Evaluated</a></p>
+    {% endif %}
+
+</div>
 {% endblock %}

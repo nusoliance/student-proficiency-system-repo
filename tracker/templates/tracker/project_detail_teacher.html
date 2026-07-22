@@ -1,15 +1,23 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>{{ project.title }} — Submissions</h2>
-<ul>
-    {% for submission in submissions %}
-    <li>
-        {{ submission.student.username }} —
-        {% if submission.evaluated %}Evaluated{% else %}Pending{% endif %}
-        <a href="{% url 'evaluate_submission' submission.id %}">View / Evaluate</a>
-    </li>
-    {% empty %}
-    <li>No submissions yet.</li>
-    {% endfor %}
-</ul>
+<div class="content-frame">
+    <ul class="ruled-list">
+        {% for submission in submissions %}
+        <li>
+            <div>
+                <span class="forum-topic-name" style="font-size:0.95rem;">{{ submission.student.username }}</span>
+                <div class="muted-note">{% if submission.evaluated %}Evaluated{% else %}Pending{% endif %}</div>
+            </div>
+            <a href="{% url 'evaluate_submission' submission.id %}" class="btn-secondary">View / Evaluate</a>
+        </li>
+        {% empty %}
+        <li class="muted-note">No submissions yet.</li>
+        {% endfor %}
+    </ul>
+    <div style="margin-top:1.5rem;">
+        <a href="{% url 'delete_project' project.id %}" class="btn-secondary"
+            style="color:#991B1B; border-color:#991B1B;">Delete Project</a>
+    </div>
+</div>
 {% endblock %}
