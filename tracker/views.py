@@ -457,3 +457,54 @@ def calendar_view(request, subject_id):
     return render(request, 'tracker/calendar_view.html', {
         'subject': subject, 'weeks_data': weeks_data, 'month_name': today.strftime('%B %Y'), 'today': today
     })
+
+
+@login_required
+def delete_subject(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
+    if request.method == 'POST':
+        subject.delete()
+        return redirect('subject_list')
+    return render(request, 'tracker/confirm_delete.html', {'object_name': subject.name, 'cancel_url': 'subject_list'})
+
+
+@login_required
+def delete_topic(request, topic_id):
+    topic = get_object_or_404(
+        Topic, id=topic_id, lesson_plan__subject__teacher=request.user)
+    subject_id = topic.lesson_plan.subject.id
+    if request.method == 'POST':
+        topic.delete()
+        return redirect('lesson_plan_view', subject_id=subject_id)
+    return render(request, 'tracker/confirm_delete.html', {'object_name': topic.title, 'cancel_url': 'lesson_plan_view', 'cancel_arg': subject_id})
+
+
+@login_required
+def delete_activity(request, activity_id):
+    activity = get_object_or_404(
+        Activity, id=activity_id, topic__lesson_plan__subject__teacher=request.user)
+    subject_id = activity.topic.lesson_plan.subject.id
+    if request.method == 'POST':
+        activity.delete()
+        return redirect('lesson_plan_view', subject_id=subject_id)
+    return render(request, 'tracker/confirm_delete.html', {'object_name': activity.title, 'cancel_url': 'lesson_plan_view', 'cancel_arg': subject_id})
+
+
+@login_required
+def delete_project(request, project_id):
+    project = get_object_or_404(
+        Project, id=project_id, subject__teacher=request.user)
+    subject_id = project.subject.id
+    if request.method == 'POST':
+        project.delete()
+        return redirect('lesson_plan_view', subject_id=subject_id)
+    return render(request, 'tracker/confirm_delete.html', {'object_name': project.title, 'cancel_url': 'lesson_plan_view', 'cancel_arg': subject_id})
+
+
+@login_required
+def delete_personal_task(request, task_id):
+    task = get_object_or_404(PersonalTask, id=task_id, student=request.user)
+    if request.method == 'POST':
+        task.delete()
+        return redirect('personal_task_list')
+    return render(request, 'tracker/confirm_delete.html', {'object_name': task.title, 'cancel_url': 'personal_task_list'})

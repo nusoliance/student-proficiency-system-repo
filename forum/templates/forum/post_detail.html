@@ -7,10 +7,13 @@
         <div class="post-actions">
             <form method="post" action="{% url 'toggle_bookmark' post.id %}" style="display:inline;">
                 {% csrf_token %}
-                <button type="submit" class="post-action-link">{% if is_bookmarked %}Bookmarked{% else %}
-                    Bookmark{%endif %}</button>
+                <button type="submit" class="post-action-link">{% if is_bookmarked %}Bookmarked{% else %}Bookmark
+                    {%endif %}</button>
             </form>
             <a href="{% url 'report_post' post.id %}" class="post-action-link post-action-report">Report</a>
+            {% if post.author == user %}
+            <a href="{% url 'delete_post' post.id %}" class="post-action-link post-action-report">Delete</a>
+            {% endif %}
         </div>
     </div>
 

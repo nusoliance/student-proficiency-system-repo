@@ -12,4 +12,5 @@ urlpatterns = [
     path('course/list/', views.course_forum_list, name='course_forum_list'),
     path('course/<int:course_id>/', views.course_forum_view,
          name='course_forum_view_detail'),
+    path('post/<int:post_id>/delete/', views.delete_post, name='delete_post'),
 ]

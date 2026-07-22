@@ -126,3 +126,19 @@ def forum_list(request):
     else:
         subjects = Subject.objects.none()
     return render(request, 'forum/forum_list.html', {'subjects': subjects})
+
+
+@login_required
+def delete_post(request, post_id):
+    post = get_object_or_404(ForumPost, id=post_id, author=request.user)
+    if request.method == 'POST':
+        if post.subject_id:
+            redirect_target = redirect(
+                'forum_view', subject_id=post.subject_id)
+        else:
+            redirect_target = redirect(
+                'course_forum_view_detail', course_id=post.course_id)
+        post.delete()
+        return redirect_target
+    preview = post.text[:60] if post.text else 'this post'
+    return render(request, 'forum/confirm_delete.html', {'object_name': preview})

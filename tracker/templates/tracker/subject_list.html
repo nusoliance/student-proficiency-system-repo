@@ -13,6 +13,10 @@
             <span class="subject-card-badge">{{ item.due_count }}</span>
             {% endif %}
         </a>
+        {% if item.subject.teacher == user %}
+        <a href="{% url 'delete_subject' item.subject.id %}" class="btn-sm"
+            style="color:#991B1B; border-color:#991B1B;">Delete</a>
+        {% endif %}
     </li>
     {% empty %}
     <li class="muted-note">No subjects yet.</li>
