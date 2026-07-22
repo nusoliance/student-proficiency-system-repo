@@ -25,6 +25,8 @@
                     {% else %}
                     <span class="activity-deadline">Due {{ task.deadline }}</span>
                     {% endif %}
+                    <a href="{% url 'delete_personal_task' task.id %}" class="btn-sm"
+                        style="color:#991B1B; border-color:#991B1B;">Delete</a>
                 </div>
             </li>
             {% empty %}

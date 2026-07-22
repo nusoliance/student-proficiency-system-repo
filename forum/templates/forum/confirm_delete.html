@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-card">
+    <h2>Delete this post?</h2>
+    <p class="empty-state-sm">"{{ object_name }}"</p>
+    <p class="empty-state-sm">This cannot be undone, including all its answers.</p>
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary" style="background-color:#991B1B; border-color:#7F1D1D;">Yes,
+                Delete</button>
+            <a href="javascript:history.back()" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

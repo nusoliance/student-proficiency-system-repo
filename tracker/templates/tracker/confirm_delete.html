@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-card">
+    <h2>Delete "{{ object_name }}"?</h2>
+    <p class="empty-state-sm">This cannot be undone.</p>
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary" style="background-color:#991B1B; border-color:#7F1D1D;">Yes,
+                Delete</button>
+            <a href="{% if cancel_arg %}{% url cancel_url cancel_arg %}{% else %}{% url cancel_url %}{% endif %}"
+                class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
