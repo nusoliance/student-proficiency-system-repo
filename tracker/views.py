@@ -137,6 +137,27 @@ def activity_detail(request, activity_id):
     activity = get_object_or_404(Activity, id=activity_id)
     subject = activity.topic.lesson_plan.subject
     is_owner = subject.teacher == request.user
+    is_personal = request.user.profile.mode == 'personal'
+
+    if is_owner and is_personal:
+        completion = ActivityCompletion.objects.filter(
+            activity=activity, student=request.user).first()
+        if request.method == 'POST' and not completion:
+            form = ActivityCompletionForm(request.POST, request.FILES)
+            if form.is_valid():
+                completion = form.save(commit=False)
+                completion.activity = activity
+                completion.student = request.user
+                completion.save()
+                for sp in activity.skill_points.all():
+                    student_skill, created = request.user.skills.get_or_create(
+                        skill=sp.skill)
+                    student_skill.points += sp.points
+                    student_skill.save()
+                return redirect('activity_detail', activity_id=activity.id)
+        else:
+            form = ActivityCompletionForm()
+        return render(request, 'tracker/activity_detail_personal.html', {'activity': activity, 'completion': completion, 'form': form})
 
     if is_owner:
         completions = activity.completions.select_related('student').all()

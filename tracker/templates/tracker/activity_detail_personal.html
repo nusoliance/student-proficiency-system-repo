@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ activity.title }} (Personal)</h2>
+<div class="content-frame">
+
+    {% if activity.instructions %}
+    <p>{{ activity.instructions|linebreaks }}</p>
+    {% endif %}
+    <p class="muted-note">Due {{ activity.deadline }}</p>
+
+    {% if completion %}
+    <p><span class="badge badge-success">Completed</span> on {{ completion.completed_at|date:"M d, Y" }}</p>
+    {% if completion.image %}<p><img src="{{ completion.image.url }}" class="submission-img"></p>{% endif %}
+    {% if completion.document %}<p><a href="{{ completion.document.url }}">View submitted document</a></p>{% endif %}
+    {% if not completion.image and not completion.document %}<p class="muted-note">No files attached.</p>{% endif %}
+    {% else %}
+    <form method="post" enctype="multipart/form-data" class="custom-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Mark Complete</button>
+        </div>
+    </form>
+    {% endif %}
+
+    <div style="margin-top:1.5rem; display:flex; gap:1rem;">
+        <a href="{% url 'add_activity_skill' activity.id %}" class="btn-secondary">Manage Skill Points</a>
+        <a href="{% url 'delete_activity' activity.id %}" class="btn-secondary"
+            style="color:#991B1B; border-color:#991B1B;">Delete Activity</a>
+    </div>
+</div>
+{% endblock %}
