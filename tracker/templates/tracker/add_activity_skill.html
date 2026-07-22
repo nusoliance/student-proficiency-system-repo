@@ -18,40 +18,30 @@
         <input type="text" id="skillSearch" placeholder="Search skills..."
             style="margin-bottom:15px; padding:10px 12px; border:2px solid #334155; border-radius:5px; width:100%; box-sizing:border-box;">
 
-        <div id="skillOptions">
-            {% regroup skills by category as skill_categories %}
-            {% for cat in skill_categories %}
+        <h4 class="skill-group-heading">General Education</h4>
+        {% for skill in skills %}
+        {% if skill.category == 'general' %}
+        <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
+            <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
+        </label>
+        {% endif %}
+        {% endfor %}
 
-            {% if cat.grouper == 'general' %}
-            <h4 class="skill-group-heading">General Education</h4>
-            {% for skill in cat.list %}
-            <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
-                <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
-            </label>
-            {% endfor %}
-            {% endif %}
+        <button type="button" id="viewAllToggle" class="btn-secondary" style="margin:12px 0;">View All Skills</button>
 
-            {% if cat.grouper == 'course' %}
-            {% regroup cat.list by course.name as course_groups %}
+        <div id="allSkillsSection" style="display:none;">
+            {% regroup skills by course.name as course_groups %}
             {% for cg in course_groups %}
+            {% if cg.grouper %}
             <h4 class="skill-group-heading">{{ cg.grouper }}</h4>
             {% for skill in cg.list %}
+            {% if skill.category == 'course' %}
             <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
                 <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
             </label>
-            {% endfor %}
+            {% endif %}
             {% endfor %}
             {% endif %}
-
-            {% if cat.grouper == 'broad' %}
-            <h4 class="skill-group-heading">General Proficiency</h4>
-            {% for skill in cat.list %}
-            <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
-                <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
-            </label>
-            {% endfor %}
-            {% endif %}
-
             {% endfor %}
         </div>
 
@@ -65,12 +55,22 @@
 </div>
 
 <script>
+    const viewAllToggle = document.getElementById('viewAllToggle');
+    const allSkillsSection = document.getElementById('allSkillsSection');
+    viewAllToggle.addEventListener('click', () => {
+        const isHidden = allSkillsSection.style.display === 'none';
+        allSkillsSection.style.display = isHidden ? 'block' : 'none';
+        viewAllToggle.textContent = isHidden ? 'Hide' : 'View All Skills';
+    });
+
     const skillSearch = document.getElementById('skillSearch');
     skillSearch.addEventListener('input', () => {
         const q = skillSearch.value.toLowerCase();
+        const anyMatch = q.length > 0;
         document.querySelectorAll('.skill-radio-option').forEach(label => {
             label.style.display = label.dataset.search.includes(q) ? '' : 'none';
         });
+        if (anyMatch) allSkillsSection.style.display = 'block';
     });
 </script>
 {% endblock %}

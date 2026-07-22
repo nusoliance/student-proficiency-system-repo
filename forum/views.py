@@ -142,3 +142,12 @@ def delete_post(request, post_id):
         return redirect_target
     preview = post.text[:60] if post.text else 'this post'
     return render(request, 'forum/confirm_delete.html', {'object_name': preview})
+
+
+@login_required
+def delete_answer(request, answer_id):
+    answer = get_object_or_404(Answer, id=answer_id, author=request.user)
+    post_id = answer.post_id
+    if request.method == 'POST':
+        answer.delete()
+    return redirect('post_detail', post_id=post_id)

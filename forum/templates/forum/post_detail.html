@@ -33,6 +33,14 @@
             <div class="comment-meta">
                 <span class="comment-author">{{ answer.author.username }}</span>
                 <span class="comment-date">{{ answer.created_at|date:"M d" }}</span>
+                {% if answer.author == user %}
+                <form method="post" action="{% url 'delete_answer' answer.id %}"
+                    style="display:inline; margin-left:auto;">
+                    {% csrf_token %}
+                    <button type="submit" class="post-action-link post-action-report"
+                        style="font-size:0.78rem;">Delete</button>
+                </form>
+                {% endif %}
             </div>
             <p class="comment-text">{{ answer.text }}</p>
         </div>
