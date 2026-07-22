@@ -1,63 +1,68 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Assign Skill Points — {{ activity.title }}</h2>
+<div class="form-card">
+    <h2>Assign Skill Points — {{ activity.title }}</h2>
 
-<h3>Currently Assigned</h3>
-<ul class="ruled-list">
-    {% for sp in activity.skill_points.all %}
-    <li>{{ sp.skill.name }}: {{ sp.points }} pts</li>
-    {% empty %}
-    <li>None yet.</li>
-    {% endfor %}
-</ul>
-
-<form method="post">
-    {% csrf_token %}
-
-    <input type="text" id="skillSearch" placeholder="Search skills..." style="margin-bottom:0.8rem;">
-
-    <div id="skillOptions">
-        {% regroup skills by category as skill_categories %}
-        {% for cat in skill_categories %}
-
-        {% if cat.grouper == 'general' %}
-        <h4 class="skill-group-heading">General Education</h4>
-        {% for skill in cat.list %}
-        <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
-            <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
-        </label>
+    <h3 style="color:#1E3A8A;">Currently Assigned</h3>
+    <ul class="activity-list" style="margin-bottom:20px;">
+        {% for sp in activity.skill_points.all %}
+        <li class="activity-item">{{ sp.skill.name }}: {{ sp.points }} pts</li>
+        {% empty %}
+        <li class="empty-state-sm">None yet.</li>
         {% endfor %}
-        {% endif %}
+    </ul>
 
-        {% if cat.grouper == 'course' %}
-        {% regroup cat.list by course.name as course_groups %}
-        {% for cg in course_groups %}
-        <h4 class="skill-group-heading">{{ cg.grouper }}</h4>
-        {% for skill in cg.list %}
-        <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
-            <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
-        </label>
-        {% endfor %}
-        {% endfor %}
-        {% endif %}
+    <form method="post" class="custom-form">
+        {% csrf_token %}
 
-        {% if cat.grouper == 'broad' %}
-        <h4 class="skill-group-heading">General Proficiency</h4>
-        {% for skill in cat.list %}
-        <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
-            <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
-        </label>
-        {% endfor %}
-        {% endif %}
+        <input type="text" id="skillSearch" placeholder="Search skills..."
+            style="margin-bottom:15px; padding:10px 12px; border:2px solid #334155; border-radius:5px; width:100%; box-sizing:border-box;">
 
-        {% endfor %}
-    </div>
+        <div id="skillOptions">
+            {% regroup skills by category as skill_categories %}
+            {% for cat in skill_categories %}
 
-    <p style="margin-top:1rem;">{{ form.points.label_tag }} {{ form.points }}</p>
-    <button type="submit">Add Skill</button>
-</form>
+            {% if cat.grouper == 'general' %}
+            <h4 class="skill-group-heading">General Education</h4>
+            {% for skill in cat.list %}
+            <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
+                <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
+            </label>
+            {% endfor %}
+            {% endif %}
 
-<a href="{% url 'lesson_plan_view' activity.topic.lesson_plan.subject.id %}">Done — Back to Lesson Plan</a>
+            {% if cat.grouper == 'course' %}
+            {% regroup cat.list by course.name as course_groups %}
+            {% for cg in course_groups %}
+            <h4 class="skill-group-heading">{{ cg.grouper }}</h4>
+            {% for skill in cg.list %}
+            <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
+                <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
+            </label>
+            {% endfor %}
+            {% endfor %}
+            {% endif %}
+
+            {% if cat.grouper == 'broad' %}
+            <h4 class="skill-group-heading">General Proficiency</h4>
+            {% for skill in cat.list %}
+            <label class="skill-radio-option" data-search="{{ skill.name|lower }}">
+                <input type="radio" name="skill" value="{{ skill.id }}"> {{ skill.name }}
+            </label>
+            {% endfor %}
+            {% endif %}
+
+            {% endfor %}
+        </div>
+
+        <p style="margin-top:15px;">{{ form.points.label_tag }} {{ form.points }}</p>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Add Skill</button>
+            <a href="{% url 'lesson_plan_view' activity.topic.lesson_plan.subject.id %}" class="btn-cancel">Done</a>
+        </div>
+    </form>
+</div>
 
 <script>
     const skillSearch = document.getElementById('skillSearch');

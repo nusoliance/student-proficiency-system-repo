@@ -1,19 +1,39 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Course Forums</h2>
-<div class="content-frame">
-    <ul class="forum-topic-list">
-        {% for course in courses %}
-        <li>
-            <a href="{% url 'course_forum_view_detail' course.id %}" class="forum-topic-card">
-                <div class="forum-topic-name">{{ course.name }} Forum</div>
-                <div class="forum-topic-desc">Discuss topics, questions, and resources related to {{ course.name }}.
-                </div>
-            </a>
-        </li>
-        {% empty %}
-        <li class="muted-note">No courses yet.</li>
-        {% endfor %}
-    </ul>
+<div class="forum-columns">
+
+    <div class="content-frame">
+        <ul class="forum-topic-list">
+            {% for course in courses %}
+            <li>
+                <a href="{% url 'course_forum_view_detail' course.id %}" class="forum-topic-card">
+                    <div class="forum-topic-name">{{ course.name }} Forum</div>
+                    <div class="forum-topic-desc">Discuss topics, questions, and resources related to {{ course.name }}.
+                    </div>
+                </a>
+            </li>
+            {% empty %}
+            <li class="muted-note">No courses yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="content-frame">
+        <h3 class="dossier-section-title">Bookmarked Questions</h3>
+        <ul class="forum-topic-list">
+            {% for bookmark in bookmarks %}
+            <li>
+                <a href="{% url 'post_detail' bookmark.post.id %}" class="forum-topic-card">
+                    <div class="forum-topic-name">{{ bookmark.post.text|truncatewords:12 }}</div>
+                    <div class="forum-topic-desc">{{ bookmark.post.author.username }}</div>
+                </a>
+            </li>
+            {% empty %}
+            <li class="muted-note">No bookmarks yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
 </div>
 {% endblock %}

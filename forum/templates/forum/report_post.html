@@ -1,10 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Report Question</h2>
-<p>{{ post.text }}</p>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit Report</button>
-</form>
+<div class="report-container">
+    <div class="report-header">
+        <h2>Report Question</h2>
+    </div>
+    <div class="report-post-preview">
+        <p class="report-preview-label">Reported Content</p>
+        <p class="report-post-text">{{ post.text }}</p>
+    </div>
+    <div class="report-form-box">
+        <form method="post" class="custom-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Submit Report</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

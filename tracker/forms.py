@@ -115,7 +115,8 @@ class TaskActivityForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['topic'].queryset = Topic.objects.filter(
             lesson_plan__subject__teacher=user)
-        self.fields['topic'].label_from_instance = lambda obj: f"{obj.lesson_plan.subject.name} — Week {obj.week_number}: {obj.title}"
+        self.fields[
+            'topic'].label_from_instance = lambda obj: f"{obj.lesson_plan.subject.name} — {obj.title} ({obj.start_date} to {obj.end_date})"
 
 
 class TaskProjectForm(forms.ModelForm):
