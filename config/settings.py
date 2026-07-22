@@ -28,7 +28,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['.onrender.com']
+ALLOWED_HOSTS = ['PAQS.pythonanywhere.com']
 
 
 # Application definition
