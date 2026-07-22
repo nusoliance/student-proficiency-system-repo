@@ -112,7 +112,9 @@ def course_forum_view(request, course_id=None):
 @login_required
 def course_forum_list(request):
     courses = Course.objects.all()
-    return render(request, 'forum/course_forum_list.html', {'courses': courses})
+    bookmarks = Bookmark.objects.filter(
+        user=request.user).select_related('post', 'post__author')
+    return render(request, 'forum/course_forum_list.html', {'courses': courses, 'bookmarks': bookmarks})
 
 
 @login_required

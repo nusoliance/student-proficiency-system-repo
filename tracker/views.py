@@ -82,7 +82,15 @@ def add_subject(request):
 def lesson_plan_view(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
     topics = subject.lesson_plan.topics.all().order_by('start_date')
-    return render(request, 'tracker/lesson_plan.html', {'subject': subject, 'topics': topics})
+    activity_ids = Activity.objects.filter(
+        topic__lesson_plan__subject=subject).values_list('id', flat=True)
+    completed_activity_ids = set(
+        ActivityCompletion.objects.filter(
+            student=request.user, activity_id__in=activity_ids).values_list('activity_id', flat=True)
+    )
+    return render(request, 'tracker/lesson_plan.html', {
+        'subject': subject, 'topics': topics, 'completed_activity_ids': completed_activity_ids
+    })
 
 
 @login_required

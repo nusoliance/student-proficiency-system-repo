@@ -1,17 +1,19 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Students</h2>
-<form method="get" class="card">
-    <input type="text" name="q" value="{{ query }}" placeholder="Search by username">
-    <button type="submit">Search</button>
-</form>
-<ul class="ruled-list">
-    {% for student in students %}
-    <li>
-        <a href="{% url 'view_student_skills' student.id %}">{{ student.username }}</a>
-    </li>
-    {% empty %}
-    <li>No students found.</li>
-    {% endfor %}
-</ul>
+<div class="content-frame">
+    <h2>Students</h2>
+    <form method="get" class="card">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by username">
+        <button type="submit">Search</button>
+    </form>
+    <ul class="ruled-list">
+        {% for student in students %}
+        <li>
+            <a href="{% url 'view_student_skills' student.id %}">{{ student.username }}</a>
+        </li>
+        {% empty %}
+        <li>No students found.</li>
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}

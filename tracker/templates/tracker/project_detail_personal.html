@@ -1,29 +1,36 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>{{ project.title }} (Personal)</h2>
-<p>{{ project.description }}</p>
+<div class="submission-container">
+    <div class="submission-header">
+        <h2>{{ project.title }} (Personal)</h2>
+    </div>
+    <div class="submission-status-box">
+        <p>{{ project.description }}</p>
+        {% if project.deadline %}<p>Deadline: {{ project.deadline }}</p>{% endif %}
 
-{% if project.deadline %}
-<p>Deadline: {{ project.deadline }}</p>
-{% endif %}
 
-{% if submission %}
-<p>Status: {% if submission.evaluated %}Evaluated{% else %}Submitted, not yet evaluated{% endif %}</p>
+        {% if submission %}
 
-{% if submission.image %}
-<p><img src="{{ submission.image.url }}" class="submission-img"></p>
-{% endif %}
-
-{% if submission.document %}
-<p><a href="{{ submission.document.url }}">View submitted document</a></p>
-{% endif %}
-
-<a href="{% url 'evaluate_submission' submission.id %}">Evaluate</a>
-{% else %}
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit</button>
-</form>
-{% endif %}
+        {% if submission.evaluated %}
+        <span class="badge badge-success">Evaluated</span>
+        {% else %}
+        <span class="badge badge-warning">Submitted, not yet evaluated</span>
+        {% endif %}
+        {% if submission.image %}<img src="{{ submission.image.url }}">{% endif %}
+        {% if submission.document %}<p><a href="{{ submission.document.url }}">View submitted document</a></p>
+        {% endif %}
+        <p><a href="{% url 'evaluate_submission' submission.id %}" class="btn-sm">Evaluate</a></p>
+    </div>
+    {% else %}
+    <div class="form-card">
+        <form method="post" enctype="multipart/form-data" class="custom-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

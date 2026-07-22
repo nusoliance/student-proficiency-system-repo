@@ -1,49 +1,49 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="lesson-plan-container">
-    <div class="lesson-header">
+<div class="tasks-container">
+    <div class="tasks-header">
         <h2>Tasks</h2>
-        {% if reminder_items %}
-        <div class="card">
-            <h3>Due Soon</h3>
-            <ul class="ruled-list">
-                {% for item in reminder_items %}
-                <li>
-                    <a href="{% url item.url_name item.obj_id %}">{{ item.type }}: {{ item.title }}</a>
-                    <span class="muted-note">due {{ item.deadline }}</span>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        {% endif %}
-        {% if user.profile.mode == 'personal' %}
-        <div class="manager-actions">
-            <a href="{% url 'add_task_activity' %}">+ Add Activity</a>
-            <a href="{% url 'add_task_project' %}">+ Add Project</a>
-            <a href="{% url 'personal_task_list' %}">View Personal Tasks</a>
-        </div>
-        {% endif %}
     </div>
 
+    {% if user.profile.mode == 'personal' %}
+    <div class="manager-actions" style="margin-bottom:20px;">
+        <a href="{% url 'add_task_activity' %}" class="btn-secondary">+ Add Activity</a>
+        <a href="{% url 'add_task_project' %}" class="btn-secondary">+ Add Project</a>
+        <a href="{% url 'personal_task_list' %}" class="btn-secondary">View Personal Tasks</a>
+    </div>
+    {% endif %}
+
+    {% if reminder_items %}
     <div class="topic-card">
-        <div class="topic-header">
-            <h3>Activities</h3>
-        </div>
+        <h3 style="color:#1E3A8A; margin-top:0;">Due Soon</h3>
+        <ul class="activity-list">
+            {% for item in reminder_items %}
+            <li class="activity-item">
+                <a href="{% url item.url_name item.obj_id %}" class="activity-title">{{ item.type }}:
+                    {{ item.title}}</a>
+                <span class="activity-deadline">Due {{ item.deadline }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <div class="topic-card">
+        <h3 style="color:#1E3A8A; margin-top:0;">Activities</h3>
         <ul class="activity-list">
             {% for activity in activities %}
             <li class="activity-item">
                 <div class="activity-details">
-                    <a href="{% url 'activity_detail' activity.id %}" class="activity-title">{{activity.title}}</a>
-                    <span class="muted-note">({{ activity.topic.lesson_plan.subject.name }})</span>
+                    <a href="{% url 'activity_detail' activity.id %}" class="activity-title">{{ activity.title }}</a>
+                    <span class="activity-deadline">{{ activity.topic.lesson_plan.subject.name }}</span>
                 </div>
                 <div class="activity-status">
                     {% if activity.id in completed_activity_ids %}
-                    <span class="stamp stamp-done">Done</span>
+                    <span class="badge badge-success">Done</span>
                     {% elif activity.due_soon %}
-                    <span class="stamp stamp-due">Due {{ activity.deadline }}</span>
+                    <span class="badge badge-warning">Due {{ activity.deadline }}</span>
                     {% else %}
-                    <span class="stamp stamp-level">Due {{ activity.deadline }}</span>
+                    <span class="activity-deadline">Due {{ activity.deadline }}</span>
                     {% endif %}
                 </div>
             </li>
@@ -53,34 +53,30 @@
         </ul>
     </div>
 
-
     <div class="topic-card">
-        <div class="topic-header">
-            <h3>Projects</h3>
-        </div>
+        <h3 style="color:#1E3A8A; margin-top:0;">Projects</h3>
         <ul class="activity-list">
             {% for item in project_data %}
             <li class="activity-item">
                 <div class="activity-details">
-                    <a href="{% url 'project_detail' item.project.id %}"
-                        class="activity-title">{{item.project.title}}</a>
-                    <span class="muted-note">({{ item.project.subject.name }})</span>
+                    <a href="{% url 'project_detail' item.project.id %}" class="activity-title">
+                        {{ item.project.title}}</a>
+                    <span class="activity-deadline">{{ item.project.subject.name }}</span>
                 </div>
                 <div class="activity-status">
                     {% if item.submission.evaluated %}
-                    <span class="stamp stamp-done">Evaluated</span>
+                    <span class="badge badge-success">Evaluated</span>
                     {% elif item.submission %}
-                    <span class="stamp stamp-level">Submitted</span>
+                    <span class="badge badge-warning">Submitted</span>
                     {% else %}
-                    <span class="stamp stamp-due">Not Submitted</span>
+                    <span class="badge badge-warning">Not Submitted</span>
                     {% endif %}
                 </div>
             </li>
             {% empty %}
-            <li>No projects assigned yet.</li>
+            <li class="empty-state-sm">No projects assigned yet.</li>
             {% endfor %}
         </ul>
     </div>
-
 </div>
 {% endblock %}

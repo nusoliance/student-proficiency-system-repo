@@ -1,37 +1,42 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Add Personal Task</h2>
-<form method="post">
-    {% csrf_token %}
-    <p>{{ form.title.label_tag }} {{ form.title }}</p>
-    <p>{{ form.difficulty.label_tag }} {{ form.difficulty }}</p>
-    <p>{{ form.importance.label_tag }} {{ form.importance }}</p>
-    <p>{{ form.skill_main.label_tag }} {{ form.skill_main }}</p>
-    <p>{{ form.skill_secondary.label_tag }} {{ form.skill_secondary }}</p>
-    <p>{{ form.skill_tertiary.label_tag }} {{ form.skill_tertiary }}</p>
+<div class="form-card">
+    <h2>Add Personal Task</h2>
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        <p>{{ form.title.label_tag }} {{ form.title }}</p>
+        <p>{{ form.difficulty.label_tag }} {{ form.difficulty }}</p>
+        <p>{{ form.importance.label_tag }} {{ form.importance }}</p>
+        <p>{{ form.skill_main.label_tag }} {{ form.skill_main }}</p>
+        <p>{{ form.skill_secondary.label_tag }} {{ form.skill_secondary }}</p>
+        <p>{{ form.skill_tertiary.label_tag }} {{ form.skill_tertiary }}</p>
 
-    <p><label>{{ form.no_deadline }} {{ form.no_deadline.label }}</label></p>
-    <div id="deadlineWrapper">
-        <p>{{ form.deadline.label_tag }} {{ form.deadline }}</p>
-    </div>
-
-    <p>{{ form.repeat.label_tag }} {{ form.repeat }}</p>
-    <div id="weeklyDaysWrapper">
-        <p>{{ form.weekly_days.label_tag }}</p>
-        <div style="display:flex; gap:0.9rem; flex-wrap:wrap; margin-bottom:1rem;">
-            {% for checkbox in form.weekly_days %}
-            <label
-                style="display:flex; flex-direction:column; align-items:center; gap:0.3rem; font-size:0.78rem; color:var(--muted); cursor:pointer;">
-                {{ checkbox.tag }}
-                <span>{{ checkbox.choice_label }}</span>
-            </label>
-            {% endfor %}
+        <p><label>{{ form.no_deadline }} {{ form.no_deadline.label }}</label></p>
+        <div id="deadlineWrapper">
+            <p>{{ form.deadline.label_tag }} {{ form.deadline }}</p>
         </div>
-    </div>
 
-    <p><label>{{ form.notify }} {{ form.notify.label }}</label></p>
-    <button type="submit">Create</button>
-</form>
+        <p>{{ form.repeat.label_tag }} {{ form.repeat }}</p>
+        <div id="weeklyDaysWrapper">
+            <p>{{ form.weekly_days.label_tag }}</p>
+            <div class="weekday-picker">
+                {% for checkbox in form.weekly_days %}
+                <label class="weekday-toggle">
+                    {{ checkbox.tag }}
+                    <span>{{ checkbox.choice_label }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <p><label>{{ form.notify }} {{ form.notify.label }}</label></p>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Create</button>
+            <a href="{% url 'personal_task_list' %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
 
 <script>
     const noDeadlineField = document.getElementById('id_no_deadline');

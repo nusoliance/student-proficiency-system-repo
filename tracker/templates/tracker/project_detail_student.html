@@ -1,47 +1,43 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>{{ project.title }}</h2>
-<p>{{ project.description }}</p>
+<div class="submission-container">
+    <div class="submission-header">
+        <h2>{{ project.title }}</h2>
+    </div>
+    <div class="submission-status-box">
+        <p>{{ project.description }}</p>
+        {% if project.deadline %}<p>Deadline: {{ project.deadline }}</p>{% endif %}
 
-{% if project.deadline %}
-<p>Deadline: {{ project.deadline }}</p>
-{% endif %}
 
-{% if submission %}
+        {% if submission %}
 
-{% if submission.evaluated %}
-<p><span class="stamp stamp-done">Evaluated</span></p>
-{% else %}
-<p><span class="stamp stamp-level">Submitted, waiting for evaluation</span></p>
-{% endif %}
-
-{% if submission.feedback %}
-<p>Feedback: {{ submission.feedback }}</p>
-{% endif %}
-
-<ul>
-    {% for award in submission.skill_awards.all %}
-    <li>{{ award.skill.name }}: +{{ award.points }} points</li>
-    {% endfor %}
-</ul>
-
-{% if submission.image %}
-<p><img src="{{ submission.image.url }}" class="submission-img"></p>
-{% endif %}
-
-{% if submission.document %}
-<p><a href="{{ submission.document.url }}">View submitted document</a></p>
-{% endif %}
-
-{% if not submission.image and not submission.document %}
-<p class="muted-note">No files attached.</p>
-{% endif %}
-
-{% else %}
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Submit</button>
-</form>
-{% endif %}
+        {% if submission.evaluated %}
+        <span class="badge badge-success">Evaluated</span>
+        {% else %}
+        <span class="badge badge-warning">Waiting for evaluation</span>
+        {% endif %}
+        {% if submission.feedback %}<p>Feedback: {{ submission.feedback }}</p>{% endif %}
+        <ul class="activity-list">
+            {% for award in submission.skill_awards.all %}
+            <li class="activity-item">{{ award.skill.name }}: +{{ award.points }} points</li>
+            {% endfor %}
+        </ul>
+        {% if submission.image %}<img src="{{ submission.image.url }}">{% endif %}
+        {% if submission.document %}<p><a href="{{ submission.document.url }}">View submitted document</a></p>
+        {% endif%}
+        {% if not submission.image and not submission.document %}<p class="empty-state-sm">No files attached.</p>
+        {%endif %}
+    </div>
+    {% else %}
+    <div class="form-card">
+        <form method="post" enctype="multipart/form-data" class="custom-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Submit</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

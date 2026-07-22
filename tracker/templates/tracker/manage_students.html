@@ -1,40 +1,46 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Manage Students — {{ subject.name }}</h2>
+<div class="manage-students-container">
+    <div class="lesson-header">
+        <h2>Manage Students — {{ subject.name }}</h2>
+    </div>
 
-<h3>Currently Enrolled</h3>
-<ul>
-    {% for student in subject.students.all %}
-    <li>
-        {{ student.username }}
-        <form method="post" action="{% url 'remove_student_from_subject' subject.id student.id %}"
-            style="display:inline;">
-            {% csrf_token %}
-            <button type="submit">Remove</button>
+    <div class="topic-card">
+        <h3 style="color:#1E3A8A; margin-top:0;">Currently Enrolled</h3>
+        <ul class="activity-list">
+            {% for student in subject.students.all %}
+            <li class="activity-item">
+                <span class="activity-title">{{ student.username }}</span>
+                <form method="post" action="{% url 'remove_student_from_subject' subject.id student.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-sm">Remove</button>
+                </form>
+            </li>
+            {% empty %}
+            <li class="empty-state-sm">No students enrolled yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="form-card" style="max-width:none; margin-top:20px;">
+        <form method="get" class="custom-form" style="flex-direction:row; gap:10px;">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search by username">
+            <button type="submit" class="btn-primary" style="flex:none;">Search</button>
         </form>
-    </li>
-    {% empty %}
-    <li>No students enrolled yet.</li>
-    {% endfor %}
-</ul>
+    </div>
 
-<h3>Add a Student</h3>
-<form method="get">
-    <input type="text" name="q" value="{{ query }}" placeholder="Search by username">
-    <button type="submit">Search</button>
-</form>
-
-<ul>
-    {% for student in results %}
-    <li>
-        {{ student.username }}
-        <form method="post" action="{% url 'add_student_to_subject' subject.id student.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit">Add</button>
-        </form>
-    </li>
-    {% empty %}
-    {% if query %}<li>No matching students found.</li>{% endif %}
-    {% endfor %}
-</ul>
+    <ul class="activity-list" style="margin-top:10px;">
+        {% for student in results %}
+        <li class="activity-item">
+            <span class="activity-title">{{ student.username }}</span>
+            <form method="post" action="{% url 'add_student_to_subject' subject.id student.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-sm">Add</button>
+            </form>
+        </li>
+        {% empty %}
+        {% if query %}<li class="empty-state-sm">No matching students found.</li>{% endif %}
+        {% endfor %}
+    </ul>
+</div>
 {% endblock %}

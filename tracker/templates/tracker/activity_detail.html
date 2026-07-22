@@ -1,27 +1,35 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>{{ activity.title }}</h2>
-<p>Due: {{ activity.deadline }}</p>
-{% if activity.instructions %}
-<p>{{ activity.instructions|linebreaks }}</p>
-{% endif %}
+<div class="submission-container">
+    <div class="submission-header">
+        <h2>{{ activity.title }}</h2>
+    </div>
+    <div class="submission-status-box">
+        <p>Due: {{ activity.deadline }}</p>
+        {% if activity.instructions %}
+        <p>{{ activity.instructions|linebreaks }}</p>
+        {% endif %}
 
-{% if completion %}
-<p><span class="stamp stamp-done">Completed</span> on {{ completion.completed_at|date:"M d, Y" }}</p>
-{% if completion.image %}
-<p><img src="{{ completion.image.url }}" class="submission-img"></p>
-{% endif %}
-{% if completion.document %}
-<p><a href="{{ completion.document.url }}">View submitted document</a></p>
-{% endif %}
-{% if not completion.image and not completion.document %}
-<p class="muted-note">No files attached.</p>
-{% endif %}
-{% else %}
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Mark Complete</button>
-</form>
-{% endif %}
+
+        {% if completion %}
+
+        <span class="badge badge-success">Completed</span> on {{ completion.completed_at|date:"M d, Y" }}
+        {% if completion.image %}<img src="{{ completion.image.url }}">{% endif %}
+        {% if completion.document %}<p><a href="{{ completion.document.url }}">View submitted document</a></p>
+        {% endif%}
+        {% if not completion.image and not completion.document %}<p class="empty-state-sm">No files attached.</p>
+        {%endif %}
+    </div>
+    {% else %}
+    <div class="form-card">
+        <form method="post" enctype="multipart/form-data" class="custom-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Mark Complete</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

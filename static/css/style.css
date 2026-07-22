@@ -1,6 +1,6 @@
 :root {
-    --bg-dark: #0B1220;
-    --bg-light: #d6d7dc;
+    --bg-dark: #0d1b39;
+    --bg-light: #e9eaee;
     --panel: #FFFFFF;
     --line: #E2E6EC;
     --text: #101828;
@@ -12,6 +12,17 @@
     --amber: #CE2029;
     --green: #0E8F6C;
     --rose: #C13A50;
+}
+
+.lesson-plan-container,
+.form-card,
+.report-container,
+.calendar-container,
+.submission-container,
+.manage-students-container,
+.tasks-container {
+    margin-left: auto;
+    margin-right: auto;
 }
 
 * {
@@ -325,7 +336,6 @@ textarea:focus-visible {
     border-radius: 8px;
     padding: 0.5rem;
     min-width: 180px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     z-index: 10;
 }
 
@@ -462,18 +472,20 @@ textarea:focus-visible {
 
 .card {
     background: var(--panel);
+    width: 490px;
     border: 1px solid var(--line);
     border-radius: 10px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    border-color: var(--amber);
+    border-color: black;
+
 }
 
 .ruled-list {
     list-style: none;
     padding: 0;
     margin: 0 0 1.5rem;
-    max-width: 620px;
+
 }
 
 .ruled-list li {
@@ -490,11 +502,13 @@ textarea:focus-visible {
     gap: 0.5rem;
 }
 
+
+
 .stamp {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    font-family: 'IBM Plex Mono', monospace;
+
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -1181,9 +1195,9 @@ input[type="submit"]:hover {
 .content-frame {
     max-width: 620px;
     margin: 0 auto;
-    border: 1px solid var(--line);
+    border: 3px solid rgb(201, 201, 204);
     border-radius: 10px;
-    padding: 1.75rem;
+    padding: 3.75rem;
     background: none;
 }
 
@@ -1197,8 +1211,8 @@ input[type="submit"]:hover {
 .forum-topic-card {
     display: block;
     padding: 1.1rem 0.25rem;
-    border-bottom: 1px solid var(--line);
-    color: var(--text);
+    border-bottom: 1px solid gray;
+    color: black;
 }
 
 .forum-topic-card:hover {
@@ -1225,7 +1239,7 @@ input[type="submit"]:hover {
     max-width: 620px;
     text-align: left;
     background: none;
-    border: 1px solid var(--line);
+    border: 1px solid gray;
     border-radius: 999px;
     padding: 0.7rem 1.1rem;
     color: var(--muted);
@@ -1237,7 +1251,7 @@ input[type="submit"]:hover {
 
 .ask-question-btn:hover {
     border-color: var(--blue);
-    color: var(--blue-dark);
+
 }
 
 .ask-question-form {
@@ -1357,4 +1371,488 @@ input[type="submit"]:hover {
     font-size: 0.9rem;
     color: var(--text);
     margin: 0;
+}
+
+/* add acts. or projs - Jade */
+.form-card {
+    max-width: 450px;
+}
+
+.custom-form p {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.custom-form label {
+    margin-bottom: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #0F172A;
+}
+
+.custom-form input[type="text"],
+.custom-form input[type="number"],
+.custom-form input[type="date"],
+.custom-form textarea,
+.custom-form select {
+    width: 100%;
+    padding: 10px 12px;
+    background-color: #FFFFFF;
+    border: 2px solid #334155;
+    color: #0F172A;
+    border-radius: 5px;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: border-color 0.2s ease;
+}
+
+.custom-form input:focus,
+.custom-form textarea:focus,
+.custom-form select:focus {
+    outline: none;
+    border-color: #1E3A8A;
+}
+
+.custom-form .helptext {
+    font-size: 11px;
+    color: #334155;
+    margin-top: 4px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-primary {
+    background-color: #1E3A8A;
+    color: #FFFFFF;
+    border: 2px solid #0F172A;
+    margin-top: 5px;
+    padding: 9px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    flex: 1;
+}
+
+.btn-primary:hover {
+    background-color: #162D72;
+}
+
+.btn-cancel {
+    background-color: transparent;
+    color: #334155;
+    border: 2px solid #334155;
+    padding: 12px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 15px;
+    text-align: center;
+    transition: all 0.2s ease;
+    flex: 1;
+}
+
+.btn-cancel:hover {
+    border-color: #0F172A;
+    color: #0F172A;
+}
+
+/* everything in lesson plan - Jade */
+.lesson-plan-container {
+    max-width: 850px;
+}
+
+.lesson-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #1E293B;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.lesson-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #0F172A;
+    border: none;
+    padding: 0;
+}
+
+.manager-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    color: #334155;
+    border: 2px solid #334155;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+    border-color: #1E3A8A;
+    color: #1E3A8A;
+}
+
+.topic-card {
+    background-color: #FFFFFF;
+    border: 2px solid #1E293B;
+    border-radius: 6px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.topic-header,
+.projects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #E2E8F0;
+    padding-bottom: 10px;
+}
+
+.topic-header h3,
+.projects-header h3 {
+    margin: 0;
+    color: #1E3A8A;
+    font-size: 18px;
+}
+
+.btn-sm {
+    background-color: transparent;
+    color: #334155;
+    border: 2px solid #334155;
+    padding: 4px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-sm:hover {
+    color: #0F172A;
+    border-color: #0F172A;
+}
+
+.activity-list,
+.project-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #CBD5E1;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.activity-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.activity-title {
+    color: #0F172A;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+}
+
+.activity-title:hover {
+    color: #1E3A8A;
+}
+
+.activity-deadline {
+    color: #334155;
+    font-size: 12px;
+}
+
+.activity-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+.badge-warning {
+    color: #000000;
+    border: 1.5px solid #d70d0a;
+}
+
+.badge-success {
+    background-color: #000000;
+    color: #FFFFFF;
+    border: 1.5px solid #0F172A;
+}
+
+.projects-section {
+    margin-top: 40px;
+    background-color: #FFFFFF;
+    border: 2px solid #1E293B;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+.project-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #CBD5E1;
+}
+
+.project-item:last-child {
+    border-bottom: none;
+}
+
+.project-item a {
+    color: #0F172A;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.project-item a:hover {
+    color: #1E3A8A;
+    text-decoration: underline;
+}
+
+.empty-state-sm {
+    color: #334155;
+    font-size: 13px;
+    font-style: italic;
+    padding: 10px 0;
+}
+
+/* for reporting - Jade */
+.report-container {
+    max-width: 650px;
+}
+
+.report-header {
+    border-bottom: 2px solid #1E293B;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.report-header h2 {
+    margin: 0;
+    color: #0F172A;
+}
+
+.report-post-preview {
+    background-color: #fbfafa;
+    border: 2px solid #f50404;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 25px;
+}
+
+.report-preview-label {
+    color: #991B1B;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+.report-post-text {
+    color: #0F172A;
+    font-size: 15px;
+    font-style: italic;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.report-form-box {
+    background-color: #F8FAFF;
+    border: 2px solid #1E293B;
+    border-radius: 6px;
+    padding: 20px;
+}
+
+/* For calendar - Jade */
+.calendar-container {
+    max-width: 850px;
+}
+
+.calendar-header {
+    border-bottom: 2px solid #1E293B;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.calendar-header h2 {
+    margin: 0;
+    color: #0F172A;
+    border: none;
+    padding: 0;
+}
+
+.cal-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+    background-color: #FFFFFF;
+    border: 2px solid #1E293B;
+    border-radius: 6px;
+    padding: 8px;
+}
+
+.cal-day-cell {
+    font-size: 12px;
+    color: #334155;
+    font-weight: 700;
+    padding: 2px 4px;
+}
+
+.cal-today {
+    color: #1E3A8A;
+}
+
+.cal-bar {
+    display: block;
+    border-radius: 4px;
+    padding: 3px 6px;
+    font-size: 11px;
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
+.cal-topic-bar {
+    background-color: #1E3A8A;
+    color: #FFFFFF;
+
+}
+
+.cal-item-bar {
+    opacity: 0.85;
+}
+
+.cal-activity-bar {
+    background-color: #DBEAFE;
+    color: #1E3A8A;
+
+}
+
+.cal-project-bar {
+    background-color: #FEF3C7;
+    color: #92400E;
+
+}
+
+/* for submitting act.s or projs, - Jade */
+.submission-container {
+    max-width: 700px;
+}
+
+.submission-header {
+    border-bottom: 2px solid #1E293B;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.submission-header h2 {
+    margin: 0;
+    color: #0F172A;
+}
+
+.submission-status-box {
+    background-color: #F8FAFF;
+    border: 2px solid #1E293B;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+
+
+.submission-status-box img {
+
+    max-width: 100%;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* manage students button - Jade */
+.manage-students-container {
+    max-width: 700px;
+}
+
+/* Tasks - Jade */
+.tasks-container {
+    max-width: 850px;
+}
+
+.tasks-header {
+    border-bottom: 2px solid #1E293B;
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+}
+
+.tasks-header h2 {
+    margin: 0;
+    color: #0F172A;
+    border: none;
+    padding: 0;
+}
+
+/*for special section for bookmarks -kian*/
+.forum-columns {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.forum-columns .content-frame {
+    flex: 1;
+    min-width: 280px;
+    margin-left: 0;
+    margin-right: 15;
+}
+
+.custom-form input[type="file"] {
+    width: 100%;
+    padding: 8px 0;
+    text-align: left;
 }

@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<h2>Add Topic to {{ subject.name }}</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Add</button>
-</form>
+<div class="form-card">
+    <h2>Add Topic to {{ subject.name }}</h2>
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Add</button>
+            <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
 {% endblock %}
