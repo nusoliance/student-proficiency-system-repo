@@ -1,49 +1,31 @@
 {% extends 'base.html' %}
-
 {% block content %}
 <div class="login-section">
     <div class="sgnup-part">
         <h2>Sign Up</h2>
-
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-
             <div class="btn-lgn">
                 <button type="submit">Sign Up</button>
             </div>
         </form>
-
-        <p class="frgt">
-            Already have an account?
-            <a href="{% url 'login' %}" class="sgnup">Log in</a>
-        </p>
+        <p class="frgt">Already have an account? <a href="{% url 'login' %}" class="sgnup">Log in</a></p>
     </div>
 </div>
 
 <script>
     const roleField = document.getElementById('id_role');
-    const modeField = document.getElementById('id_mode');
-    const courseField = document.getElementById('id_course');
+    const modeRow = document.getElementById('id_mode').closest('p');
+    const courseRow = document.getElementById('id_course').closest('p');
 
     function toggleStudentFields() {
-        if (!roleField) return;
         const isStudent = roleField.value === 'student';
-
-        if (modeField) {
-            const modeRow = modeField.closest('p');
-            if (modeRow) modeRow.style.display = isStudent ? '' : 'none';
-        }
-
-        if (courseField) {
-            const courseRow = courseField.closest('p');
-            if (courseRow) courseRow.style.display = isStudent ? '' : 'none';
-        }
+        modeRow.style.display = isStudent ? '' : 'none';
+        courseRow.style.display = isStudent ? '' : 'none';
     }
 
-    if (roleField) {
-        roleField.addEventListener('change', toggleStudentFields);
-        toggleStudentFields();
-    }
+    roleField.addEventListener('change', toggleStudentFields);
+    toggleStudentFields();
 </script>
 {% endblock %}

@@ -8,6 +8,20 @@
     {% endif %}
     <p class="muted-note">Due {{ activity.deadline }}</p>
 
+    {% if activity.skill_points.all %}
+    <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
+    <p
+        style="margin:0 0 0.6rem; font-size:0.95rem; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.03em;">
+        Skills You Can Earn</p>
+    <ul class="activity-list">
+        {% for sp in activity.skill_points.all %}
+        <li class="activity-item">{{ sp.skill.name }} <span class="badge badge-warning">+{{ sp.points }} pts</span></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
+
     {% if completion %}
     <p><span class="badge badge-success">Completed</span> on {{ completion.completed_at|date:"M d, Y" }}</p>
     {% if completion.image %}<p><img src="{{ completion.image.url }}" class="submission-img"></p>{% endif %}
