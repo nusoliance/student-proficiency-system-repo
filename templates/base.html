@@ -24,8 +24,14 @@
                 <button type="submit" class="link-style">Log Out</button>
             </form>
         </div>
+        {% else %}
+        <div class="navbar-right">
+            <a href="{% url 'login' %}" class="btn-auth">Log In</a>
+            <a href="{% url 'signup' %}" class="btn-signup">Sign Up</a>
+        </div>
         {% endif %}
     </nav>
+
     {% if user.is_authenticated and user.profile.role == 'student' %}
     <div class="profile-banner">
         <div class="profile-banner-inner">
@@ -41,8 +47,8 @@
             </div>
         </div>
     </div>
-    </div>
     {% endif %}
+
     {% if reminder_count %}
     <div class="reminder-bar">
         <a href="{% url 'task_list' %}" class="reminder-btn">⚠ {{ reminder_count }} item{{ reminder_count|pluralize }}
@@ -64,11 +70,6 @@
         <a href="{% url 'student_directory' %}">Students</a>
         <a href="{% url 'course_forum_list' %}">Course Forums</a>
         {% endif %}
-    </div>
-    {% else %}
-    <div class="navbar-right" style="padding: 0.9rem 1.5rem;">
-        <a href="{% url 'login' %}">Log In</a>
-        <a href="{% url 'signup' %}">Sign Up</a>
     </div>
     {% endif %}
 

@@ -18,7 +18,7 @@ class SignUpForm(UserCreationForm):
                              label="Personal or Professional (students only)")
     course = forms.ModelChoiceField(
         queryset=Course.objects.all(), required=False,
-        empty_label="Not in College / No Course", label="Course (students only)"
+        empty_label="Not in College / No Course", label="Programs (students only)"
     )
 
     class Meta:

@@ -8,8 +8,8 @@
         <p>{{ project.description }}</p>
         {% if project.deadline %}<p>Deadline: {{ project.deadline }}</p>{% endif %}
 
-
         {% if submission %}
+        <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
 
         {% if submission.evaluated %}
         <span class="badge badge-success">Evaluated</span>
@@ -17,11 +17,17 @@
         <span class="badge badge-warning">Waiting for evaluation</span>
         {% endif %}
         {% if submission.feedback %}<p>Feedback: {{ submission.feedback }}</p>{% endif %}
+
+        {% if submission.skill_awards.all %}
+        <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
         <ul class="activity-list">
             {% for award in submission.skill_awards.all %}
             <li class="activity-item">{{ award.skill.name }}: +{{ award.points }} points</li>
             {% endfor %}
         </ul>
+        {% endif %}
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
         {% if submission.image %}<img src="{{ submission.image.url }}">{% endif %}
         {% if submission.document %}<p><a href="{{ submission.document.url }}">View submitted document</a></p>
         {% endif%}

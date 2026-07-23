@@ -64,7 +64,7 @@ textarea:focus-visible {
     outline-offset: 2px;
 }
 
-/*login section - jade */
+/* ===== LOGIN SECTION - Jade ===== */
 .login-section {
     display: flex;
     justify-content: center;
@@ -101,7 +101,6 @@ textarea:focus-visible {
     font-weight: 600;
     font-size: 15px;
     cursor: pointer;
-
 }
 
 .lgn-part .frgt {
@@ -111,16 +110,12 @@ textarea:focus-visible {
     color: #334155;
 }
 
-
-
 .lgn-part .sgnup {
     text-decoration: none;
     color: #1E3A8A;
     font-weight: 600;
     transition: color 0.2s ease;
 }
-
-
 
 .lgn-part form p {
     margin-bottom: 20px;
@@ -135,8 +130,6 @@ textarea:focus-visible {
     font-size: 14px;
 }
 
-
-
 .lgn-part form input:focus {
     border-color: #1E3A8A;
     outline: none;
@@ -147,7 +140,7 @@ textarea:focus-visible {
     -webkit-text-fill-color: #0F172A !important;
 }
 
-/*for signup - jade*/
+/* sign up - Jade */
 .sgnup-part {
     border: 2px solid #1E293B;
     padding: 20px 25px;
@@ -186,8 +179,6 @@ textarea:focus-visible {
     font-weight: 600;
     color: #0F172A;
 }
-
-
 
 .sgnup-part form select option {
     background-color: #FFFFFF;
@@ -306,6 +297,37 @@ textarea:focus-visible {
     color: #fff;
 }
 
+/* Log In / Sign Up nav buttons */
+.navbar-right a.btn-auth {
+    background: #FFFFFF;
+    color: #0F172A;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.navbar-right a.btn-auth:hover {
+    background: #F1F5F9;
+    color: #0F172A;
+}
+
+.navbar-right a.btn-signup {
+    background: #1E3A8A;
+    color: #FFFFFF;
+    border: none;
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.navbar-right a.btn-signup:hover {
+    background: #162D72;
+    color: #FFFFFF;
+}
+
 .user-tag {
     color: var(--muted-light);
     font-size: 0.85rem;
@@ -355,8 +377,6 @@ textarea:focus-visible {
     color: var(--blue);
 }
 
-
-
 /*pang remind sa activities - Kian */
 .reminder-bar {
     background: rgba(193, 68, 60, 0.06);
@@ -383,7 +403,7 @@ textarea:focus-visible {
     padding: 2rem 1.5rem 4rem;
 }
 
-/*tasks -kian*/
+/*tasks or lesson plan lists - Jade*/
 .topic-card {
     background-color: #FFFFFF;
     border: 2px solid #1E293B;
@@ -462,12 +482,17 @@ textarea:focus-visible {
 .activity-title {
     color: #0F172A;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 15px;
+    text-decoration: none;
+}
+
+.activity-title:hover {
+    color: #1E3A8A;
 }
 
 .activity-deadline {
     color: #334155;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .activity-status {
@@ -484,14 +509,12 @@ textarea:focus-visible {
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     border-color: black;
-
 }
 
 .ruled-list {
     list-style: none;
     padding: 0;
     margin: 0 0 1.5rem;
-
 }
 
 .ruled-list li {
@@ -508,21 +531,16 @@ textarea:focus-visible {
     gap: 0.5rem;
 }
 
-
-
 .stamp {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-
     font-size: 0.72rem;
     font-weight: 600;
     letter-spacing: 0.02em;
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
 }
-
-
 
 .stamp-due {
     color: var(--amber);
@@ -645,7 +663,6 @@ input[type="submit"]:hover {
     .navbar-right {
         gap: 0.6rem;
     }
-
 }
 
 .subjects-header {
@@ -811,56 +828,35 @@ input[type="submit"]:hover {
     list-style: none;
     padding: 0;
     margin: 0 0 2.5rem;
-
     display: grid;
     grid-template-columns: repeat(2, minmax(360px, 1fr));
-    gap: 1.5rem;
+    gap: 3rem;
 }
 
 .skill-card {
     position: relative;
-
     background: white;
-
     border-radius: 14px;
-
     padding: 1.8rem;
-
     min-height: 200px;
-
     display: flex;
     flex-direction: column;
-
     border: 1px solid #e8edf8;
-
     overflow: hidden;
-
-    box-shadow:
-        0 10px 24px rgba(15, 23, 42, .06);
-
-    transition:
-        transform .25s ease,
-        box-shadow .25s ease;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
+    transition: transform .25s ease, box-shadow .25s ease;
 }
 
 .skill-card::before {
-
     content: "";
-
     position: absolute;
-
     left: 0;
     top: 0;
-
     width: 100%;
     height: 5px;
-
     transition: .25s;
-
     background: #3B82F6;
 }
-
-
 
 .skill-card.blue::before {
     background: #3B82F6;
@@ -886,47 +882,29 @@ input[type="submit"]:hover {
     background: #EC4899;
 }
 
-
-
 .skill-card-top {
     display: flex;
-
     justify-content: space-between;
-
     align-items: flex-start;
-
     gap: 1rem;
-
     margin-bottom: 1rem;
-
 }
 
 .skill-card-name {
     font-family: 'Sora', sans-serif;
-
     font-size: 1.28rem;
-
     font-weight: 700;
-
     color: #0f172a;
-
     line-height: 1.35;
-
     letter-spacing: -.02em;
-
     max-width: 75%;
 }
 
 .skill-description {
-
     min-height: 54px;
-
     color: #64748b;
-
     font-size: .95rem;
-
     line-height: 1.6;
-
     margin-bottom: 1.4rem;
 }
 
@@ -934,57 +912,37 @@ input[type="submit"]:hover {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
     padding: .5rem 1rem;
-
     border-radius: 999px;
-
     background: rgba(255, 255, 255, .75);
-
     border: 1px solid rgba(59, 130, 246, .18);
-
     color: #2563eb;
-
     font-family: 'IBM Plex Mono', monospace;
     font-weight: 700;
     font-size: .82rem;
-
     letter-spacing: .08em;
 }
 
 .skill-bar-track {
     margin-top: auto;
-
     height: 12px;
-
     border-radius: 999px;
-
     background: #edf2f7;
-
     overflow: hidden;
 }
 
 .skill-bar-fill {
     height: 100%;
-
     border-radius: 999px;
-
-    background: linear-gradient(90deg,
-            #60a5fa,
-            #2563eb);
-
+    background: linear-gradient(90deg, #60a5fa, #2563eb);
     transition: width .9s ease;
 }
 
 .skill-card-points {
     margin-top: .9rem;
-
     text-align: right;
-
     color: #64748b;
-
     font-size: .82rem;
-
     font-family: 'IBM Plex Mono', monospace;
 }
 
@@ -1231,13 +1189,11 @@ input[type="submit"]:hover {
     font-size: 1rem;
 }
 
-
 .forum-topic-desc {
     color: var(--muted);
     font-size: 0.85rem;
     margin-top: 0.3rem;
 }
-
 
 .ask-question-btn {
     display: block;
@@ -1257,7 +1213,6 @@ input[type="submit"]:hover {
 
 .ask-question-btn:hover {
     border-color: var(--blue);
-
 }
 
 .ask-question-form {
@@ -1517,96 +1472,6 @@ input[type="submit"]:hover {
     color: #1E3A8A;
 }
 
-.topic-card {
-    background-color: #FFFFFF;
-    border: 2px solid #1E293B;
-    border-radius: 6px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
-
-.topic-header,
-.projects-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #E2E8F0;
-    padding-bottom: 10px;
-}
-
-.topic-header h3,
-.projects-header h3 {
-    margin: 0;
-    color: #1E3A8A;
-    font-size: 18px;
-}
-
-.btn-sm {
-    background-color: transparent;
-    color: #334155;
-    border: 2px solid #334155;
-    padding: 4px 10px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-}
-
-.btn-sm:hover {
-    color: #0F172A;
-    border-color: #0F172A;
-}
-
-.activity-list,
-.project-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.activity-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-bottom: 1px solid #CBD5E1;
-}
-
-.activity-item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.activity-details {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.activity-title {
-    color: #0F172A;
-    font-weight: 600;
-    font-size: 15px;
-    text-decoration: none;
-}
-
-.activity-title:hover {
-    color: #1E3A8A;
-}
-
-.activity-deadline {
-    color: #334155;
-    font-size: 12px;
-}
-
-.activity-status {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
 .badge {
     padding: 4px 8px;
     border-radius: 5px;
@@ -1616,8 +1481,9 @@ input[type="submit"]:hover {
 }
 
 .badge-warning {
-    color: #000000;
-    border: 1.5px solid #d70d0a;
+    color: #1E3A8A;
+    background: #EEF2FF;
+    border: none;
 }
 
 .badge-success {
@@ -1712,7 +1578,7 @@ input[type="submit"]:hover {
     padding: 20px;
 }
 
-/* For calendar - Jade */
+/* For calendar - Jade (this block wins in the cascade over the earlier Kian block; left as-is for a separate careful pass) */
 .calendar-container {
     max-width: 850px;
 }
@@ -1767,7 +1633,6 @@ input[type="submit"]:hover {
 .cal-topic-bar {
     background-color: #1E3A8A;
     color: #FFFFFF;
-
 }
 
 .cal-item-bar {
@@ -1777,13 +1642,11 @@ input[type="submit"]:hover {
 .cal-activity-bar {
     background-color: #DBEAFE;
     color: #1E3A8A;
-
 }
 
 .cal-project-bar {
     background-color: #FEF3C7;
     color: #92400E;
-
 }
 
 /* for submitting act.s or projs, - Jade */
@@ -1810,10 +1673,7 @@ input[type="submit"]:hover {
     margin-bottom: 20px;
 }
 
-
-
 .submission-status-box img {
-
     max-width: 100%;
     border-radius: 4px;
     margin-top: 10px;
@@ -1860,5 +1720,60 @@ input[type="submit"]:hover {
 .custom-form input[type="file"] {
     width: 100%;
     padding: 8px 0;
-    text-align: left;
+    text-align:
+        left;
+}
+
+/*perosnal task details - Jade */
+.task-detail-container {
+    max-width: 900px;
+    margin: 20px auto 40px auto;
+    padding: 0 20px;
+}
+
+.task-detail-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #0F172A;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #E2E8F0;
+    padding-bottom: 12px;
+}
+
+.task-detail-card {
+    background-color: #FFFFFF;
+    border: 1px solid #0F172A;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.task-detail-row {
+    margin: 0;
+    padding: 14px 20px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #0F172A;
+    border-bottom: 1.5px solid #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.task-detail-row:last-child {
+    border-bottom: none;
+}
+
+/* Header Row (Difficulty & Importance) */
+.task-detail-meta {
+    background-color: #F8FAFF;
+    color: #1E3A8A;
+    font-weight: 700;
+}
+
+/* mark complete btn */
+.task-detail-actions {
+    width: 100%;
 }
