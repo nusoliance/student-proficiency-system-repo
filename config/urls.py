@@ -8,7 +8,13 @@ from django.conf.urls.static import static
 
 @login_required
 def home_view(request):
-    return render(request, 'home.html')
+    context = {}
+    if request.user.profile.role == 'student':
+        student_skills = request.user.skills.select_related(
+            'skill').order_by('-points')
+        context['top_skills'] = student_skills[:5]
+        context['skill_count'] = student_skills.count()
+    return render(request, 'home.html', context)
 
 
 urlpatterns = [

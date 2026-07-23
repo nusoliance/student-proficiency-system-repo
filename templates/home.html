@@ -1,18 +1,36 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<div class="dashboard-card">
-    <h2>Welcome, {{ user.username }}!</h2>
+<div class="content-frame">
+    <div class="dashboard-card">
+        <h2>Welcome, {{ user.username }}!</h2>
 
-    <div class="profile-info">
-        <p>
-            <strong>Role:</strong>
-            <span>{{ user.profile.role }}</span>
-        </p>
-        <p>
-            <strong>Mode:</strong>
-            <span>{{ user.profile.mode|default:"N/A" }}</span>
-        </p>
+        <div class="profile-info">
+            <p><strong>Role:</strong> <span>{{ user.profile.role }}</span></p>
+            {% if user.profile.role == 'student' %}
+            <p><strong>Mode:</strong> <span>{{ user.profile.mode|default:"N/A" }}</span></p>
+            <p><strong>Course:</strong> <span>{% if user.profile.course %}{{ user.profile.course.name }}{% else %}Not in
+                    College{% endif %}</span></p>
+            {% endif %}
+        </div>
+
+        {% if user.profile.role == 'student' %}
+        <h3 class="dossier-section-title" style="margin-top:1.5rem;">Skill Summary</h3>
+        {% if top_skills %}
+        <ul class="ruled-list">
+            {% for student_skill in top_skills %}
+            <li>
+                <span>{{ student_skill.skill.name }}</span>
+                <span class="stamp stamp-level">Lv {{ student_skill.level|stringformat:"02d" }} ·
+                    {{student_skill.points_into_level }}/100</span>
+            </li>
+            {% endfor %}
+        </ul>
+        <p class="muted-note">{{ skill_count }} skill{{ skill_count|pluralize }} total — <a
+                href="{% url 'my_skills' %}">view all on your Avatar page</a></p>
+        {% else %}
+        <p class="muted-note">No skills yet. Complete an activity or project to start earning points.</p>
+        {% endif %}
+        {% endif %}
     </div>
 </div>
 {% endblock %}
