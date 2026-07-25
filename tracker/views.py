@@ -266,6 +266,77 @@ def finish_evaluation(request, submission_id):
 
 
 @login_required
+def gradesheet_view(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
+    students = subject.students.all().order_by('username')
+    activities = Activity.objects.filter(
+        topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
+    projects = subject.projects.all().order_by('deadline')
+
+    activity_points = {
+        activity.id: sum(sp.points for sp in activity.skill_points.all())
+        for activity in activities
+    }
+
+    completed_pairs = set(
+        ActivityCompletion.objects.filter(activity__in=activities)
+        .values_list('student_id', 'activity_id')
+    )
+
+    submissions = ProjectSubmission.objects.filter(
+        project__in=projects).prefetch_related('skill_awards')
+    submission_map = {
+        (sub.student_id, sub.project_id): sub for sub in submissions}
+
+    rows = []
+    for student in students:
+        cells = []
+        total_points = 0
+
+        for activity in activities:
+            if (student.id, activity.id) in completed_pairs:
+                points = activity_points.get(activity.id, 0)
+                total_points += points
+                cells.append({
+                    'status': 'completed', 'points': points,
+                    'url_name': 'activity_detail', 'obj_id': activity.id,
+                })
+            else:
+                cells.append({
+                    'status': 'not_submitted', 'points': None,
+                    'url_name': 'activity_detail', 'obj_id': activity.id,
+                })
+
+        for project in projects:
+            submission = submission_map.get((student.id, project.id))
+            if submission is None:
+                cells.append({
+                    'status': 'not_submitted', 'points': None,
+                    'url_name': 'project_detail', 'obj_id': project.id,
+                })
+            elif not submission.evaluated:
+                cells.append({
+                    'status': 'pending', 'points': None,
+                    'url_name': 'evaluate_submission', 'obj_id': submission.id,
+                })
+            else:
+                points = sum(sa.points for sa in submission.skill_awards.all())
+                total_points += points
+                cells.append({
+                    'status': 'evaluated', 'points': points,
+                    'url_name': 'evaluate_submission', 'obj_id': submission.id,
+                })
+
+        rows.append({'student': student, 'cells': cells,
+                     'total_points': total_points})
+
+    return render(request, 'tracker/gradesheet.html', {
+        'subject': subject, 'activities': activities, 'projects': projects,
+        'rows': rows, 'column_count': activities.count() + projects.count(),
+    })
+
+
+@login_required
 def manage_students(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
     if subject.teacher.profile.mode == 'personal':
