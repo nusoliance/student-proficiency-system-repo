@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="gradesheet-container">
+    <div class="lesson-header">
+        <h2>{{ subject.name }} — Gradesheet</h2>
+        <div class="manager-actions">
+            <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-secondary">Back to Lesson Plan</a>
+        </div>
+    </div>
+
+    {% if column_count == 0 %}
+    <p class="empty-state-sm">No activities or projects have been added to this subject yet.</p>
+    {% elif not rows %}
+    <p class="empty-state-sm">No students enrolled yet.</p>
+    {% else %}
+    <div class="gradesheet-scroll">
+        <table class="gradesheet-table">
+            <thead>
+                <tr>
+                    <th class="gradesheet-student-col">Student</th>
+                    {% for activity in activities %}
+                    <th>
+                        <a href="{% url 'activity_detail' activity.id %}">{{ activity.title }}</a>
+                        <span class="gradesheet-col-type">Activity</span>
+                    </th>
+                    {% endfor %}
+                    {% for project in projects %}
+                    <th>
+                        <a href="{% url 'project_detail' project.id %}">{{ project.title }}</a>
+                        <span class="gradesheet-col-type">Project</span>
+                    </th>
+                    {% endfor %}
+                    <th class="gradesheet-total-col">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td class="gradesheet-student-col">{{ row.student.username }}</td>
+                    {% for cell in row.cells %}
+                    <td class="gradesheet-cell">
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done">{{ cell.points }} pts</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    <td class="gradesheet-total-col">{{ row.total_points }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="content-frame">
+    <h2>Welcome back, {{ user.username }}</h2>
+    <p class="muted-note">Overview.</p>
+
+    <div class="teacher-dashboard-stats">
+        <div class="teacher-stat-card">
+            <span class="teacher-stat-number">{{ subject_count }}</span>
+            <span class="teacher-stat-label">Subject{{ subject_count|pluralize }} taught</span>
+        </div>
+        <div class="teacher-stat-card">
+            <span class="teacher-stat-number">{{ pending_total }}</span>
+            <span class="teacher-stat-label">Submission{{ pending_total|pluralize }} awaiting evaluation</span>
+        </div>
+    </div>
+
+    <h3 class="dossier-section-title">Your Subjects</h3>
+    {% if subject_data %}
+    <ul class="ruled-list">
+        {% for item in subject_data %}
+        <li>
+            <div class="teacher-subject-row">
+                <div>
+                    <span class="forum-topic-name" style="font-size:0.95rem;">{{ item.subject.name }}</span>
+                    <div class="muted-note">{{ item.student_count }} student{{ item.student_count|pluralize }}
+                        {% if item.pending_count %}· <span class="badge badge-warning">{{ item.pending_count }}
+                            pending</span>{% endif %}
+                    </div>
+                </div>
+                <div class="teacher-subject-links">
+                    <a href="{% url 'gradesheet_view' item.subject.id %}" class="btn-sm">Gradesheet</a>
+                    <a href="{% url 'lesson_plan_view' item.subject.id %}" class="btn-sm">Lesson Plan</a>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="muted-note">You haven't created any subjects yet. <a href="{% url 'add_subject' %}">Add one to get
+            started.</a></p>
+    {% endif %}
+</div>
+{% endblock %}

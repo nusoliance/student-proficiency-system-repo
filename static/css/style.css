@@ -1776,3 +1776,138 @@ input[type="submit"]:hover {
 .task-detail-actions {
     width: 100%;
 }
+
+/* cor gradesheet -kian*/
+.gradesheet-container {
+    max-width: none;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.gradesheet-scroll {
+    overflow-x: auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.gradesheet-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 640px;
+    font-size: 0.9rem;
+}
+
+.gradesheet-table th,
+.gradesheet-table td {
+    border: 1px solid var(--line);
+    padding: 0.6rem 0.8rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.gradesheet-table thead th {
+    background: #F8FAFF;
+    font-family: 'Sora', sans-serif;
+    color: #1E3A8A;
+    vertical-align: bottom;
+}
+
+.gradesheet-col-type {
+    display: block;
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.gradesheet-student-col {
+    position: sticky;
+    left: 0;
+    background: var(--panel);
+    text-align: left;
+    font-weight: 700;
+    z-index: 1;
+}
+
+.gradesheet-table thead .gradesheet-student-col {
+    background: #F8FAFF;
+    z-index: 2;
+}
+
+.gradesheet-total-col {
+    font-weight: 700;
+    background: #F8FAFF;
+}
+
+.gradesheet-cell a {
+    display: block;
+}
+
+.gradesheet-status {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+
+.gradesheet-status-empty {
+    color: var(--muted);
+    background: #F1F2F4;
+}
+
+.gradesheet-status-pending {
+    color: #92400E;
+    background: #FEF3C7;
+}
+
+.gradesheet-status-done {
+    color: #065F46;
+    background: #D1FAE5;
+}
+
+/* for editing tchr dashbrd -kian */
+.teacher-dashboard-stats {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1.25rem 0;
+}
+
+.teacher-stat-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    min-width: 160px;
+    flex: 1;
+}
+
+.teacher-stat-number {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1.9rem;
+    font-weight: 600;
+    color: var(--blue-dark);
+    display: block;
+}
+
+.teacher-stat-label {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.teacher-subject-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.teacher-subject-links {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}

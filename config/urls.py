@@ -4,10 +4,32 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.conf import settings
 from django.conf.urls.static import static
+from tracker.models import Subject, ProjectSubmission
 
 
 @login_required
 def home_view(request):
+    if request.user.profile.role == 'teacher':
+        subjects = Subject.objects.filter(
+            teacher=request.user).order_by('name')
+        subject_data = []
+        pending_total = 0
+        for subject in subjects:
+            pending = ProjectSubmission.objects.filter(
+                project__subject=subject, evaluated=False).count()
+            pending_total += pending
+            subject_data.append({
+                'subject': subject,
+                'pending_count': pending,
+                'student_count': subject.students.count(),
+            })
+        context = {
+            'subject_data': subject_data,
+            'subject_count': subjects.count(),
+            'pending_total': pending_total,
+        }
+        return render(request, 'teacher_dashboard.html', context)
+
     context = {}
     if request.user.profile.role == 'student':
         student_skills = request.user.skills.select_related(
