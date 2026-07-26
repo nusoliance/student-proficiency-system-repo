@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from avatar.models import Course
 
@@ -43,3 +43,23 @@ class Profile(models.Model):
 def create_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance, role='student')
+
+
+@receiver(post_delete, sender=Profile)
+def clear_stale_evaluation_flag(sender, instance, **kwargs):
+    """
+    When a profile is deleted (e.g. a duplicate/fake school-ID account is
+    removed), re-check whether any remaining account sharing that school ID
+    is still ambiguous. If only one account is left holding the ID, it's no
+    longer a conflict, so clear its 'under_evaluation' flag.
+
+    This runs on ANY Profile deletion path - admin panel default delete,
+    the custom delete-and-notify action, cascading deletes from removing a
+    User, or manage.py shell - so the warning never gets left stale again.
+    """
+    school_id = instance.school_id
+    if instance.school != 'citu' or not school_id:
+        return
+    remaining = Profile.objects.filter(school='citu', school_id=school_id)
+    if remaining.count() <= 1:
+        remaining.update(under_evaluation=False)
