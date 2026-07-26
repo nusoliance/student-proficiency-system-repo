@@ -19,6 +19,8 @@ urlpatterns = [
          views.finish_evaluation, name='finish_evaluation'),
     path('<int:subject_id>/manage-students/',
          views.manage_students, name='manage_students'),
+     path('<int:subject_id>/manage-students/skills-summary/',
+         views.class_skill_summary, name='class_skill_summary'),
     path('<int:subject_id>/gradesheet/',
          views.gradesheet_view, name='gradesheet_view'),
     path('activity-completion/<int:completion_id>/grade/',
@@ -51,4 +53,5 @@ urlpatterns = [
           views.gradesheet_view, name='gradesheet_view'),
      path('<int:subject_id>/gradesheet/weights/',
           views.update_grade_weights, name='update_grade_weights'),
+     path('<int:subject_id>/analytics/', views.subject_analytics, name='subject_analytics'),
 ]

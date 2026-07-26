@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> Analytics
+{% endblock %}
+{% block content %}
+<div class="content-frame">
+<h2>{{ subject.name }} — Analytics</h2>
+
+<h3 class="dossier-section-title">Completion Rate per Activity/Project</h3>
+{% if has_completion_data %}
+<canvas id="completionChart" height="120"></canvas>
+{% else %}
+<p class="muted-note">No activities or projects yet.</p>
+{% endif %}
+
+<h3 class="dossier-section-title" style="margin-top:2rem;">Class Score Trend (Activities &amp; Projects)</h3>
+{% if has_score_data %}
+<canvas id="scoreChart" height="120"></canvas>
+<p class="muted-note">Each point is the class average score (%) for that assignment, in deadline order.</p>
+{% else %}
+<p class="muted-note">No graded activities or projects yet.</p>
+{% endif %}
+</div>
+
+{{ completion_chart_data|json_script:"completion-data" }}
+{{ score_chart_data|json_script:"score-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+{% if has_completion_data %}
+const completionData = JSON.parse(document.getElementById('completion-data').textContent);
+new Chart(document.getElementById('completionChart'), {
+    type: 'bar',
+    data: {
+        labels: completionData.labels,
+        datasets: [{ label: 'Completion Rate (%)', data: completionData.rates, backgroundColor: '#2F6FED' }]
+    },
+    options: { scales: { y: { beginAtZero: true, max: 100 } }, plugins: { legend: { display: false } } }
+});
+{% endif %}
+
+{% if has_score_data %}
+const scoreData = JSON.parse(document.getElementById('score-data').textContent);
+new Chart(document.getElementById('scoreChart'), {
+    type: 'line',
+    data: {
+        labels: scoreData.labels,
+        datasets: [{ label: 'Average Score (%)', data: scoreData.averages, borderColor: '#0E8F6C', backgroundColor: 'rgba(14,143,108,0.15)', tension: 0.2, fill: true }]
+    },
+    options: { scales: { y: { beginAtZero: true, max: 100 } } }
+});
+{% endif %}
+</script>
+{% endblock %}

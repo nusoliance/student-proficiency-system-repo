@@ -30,6 +30,7 @@
                 </div>
                 <div class="teacher-subject-links">
                     <a href="{% url 'gradesheet_view' item.subject.id %}" class="btn-sm">Gradesheet</a>
+                    <a href="{% url 'subject_analytics' item.subject.id %}" class="btn-sm">Analytics</a>
                     <a href="{% url 'lesson_plan_view' item.subject.id %}" class="btn-sm">Lesson Plan</a>
                 </div>
             </div>
