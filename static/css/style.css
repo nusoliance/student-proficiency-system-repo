@@ -2046,3 +2046,46 @@ input[type="submit"]:hover {
     margin: 0 0.4rem;
     color: var(--muted);
 }
+/* page-level messages */
+.page-message {
+    max-width: none;
+    margin: 0 1rem 1rem;
+    padding: 0.6rem 0.9rem;
+    border-radius: 6px;
+    background: #F1F2F4;
+    border: 1px solid var(--line);
+    font-family: 'Public Sans', sans-serif;
+}
+.page-message-error {
+    background: #FDECEC;
+    border-color: #F3B9B9;
+    color: #A32020;
+}
+.page-message-success {
+    background: #EAF7EE;
+    border-color: #B7E1C2;
+    color: #1F6B37;
+}
+
+/* gradesheet customize weights -kian */
+.weights-toggle {
+    display: none;
+}
+.weights-panel {
+    display: none;
+    margin-bottom: 1rem;
+}
+.weights-toggle:checked ~ .weights-panel {
+    display: block;
+}
+.weights-panel-inner {
+    max-width: 320px;
+}
+.weights-panel-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+.weights-panel-row .custom-form p {
+    margin: 0;
+}

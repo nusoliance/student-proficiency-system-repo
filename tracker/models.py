@@ -11,6 +11,8 @@ class Subject(models.Model):
         User, on_delete=models.CASCADE, related_name='subjects_taught')
     students = models.ManyToManyField(
         User, related_name='subjects_enrolled', blank=True)
+    activity_weight = models.PositiveIntegerField(default=50)
+    project_weight = models.PositiveIntegerField(default=50)
 
     def __str__(self):
         return self.name

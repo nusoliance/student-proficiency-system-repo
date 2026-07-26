@@ -10,6 +10,22 @@
         <h2>{{ subject.name }} — Gradesheet</h2>
         <div class="manager-actions">
             <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-secondary">Back to Lesson Plan</a>
+            <label for="weights-toggle" class="btn-secondary">Customize Weights</label>
+        </div>
+    </div>
+
+    <input type="checkbox" id="weights-toggle" class="weights-toggle">
+    <div class="weights-panel">
+        <div class="form-card weights-panel-inner">
+            <form method="post" action="{% url 'update_grade_weights' subject.id %}" class="custom-form">
+                {% csrf_token %}
+                <p class="helptext">Set how much each category counts toward the General Average. Must add up to 100.</p>
+                <div class="weights-panel-row">
+                    <p>{{ weights_form.activity_weight.label_tag }} {{ weights_form.activity_weight }} %</p>
+                    <p>{{ weights_form.project_weight.label_tag }} {{ weights_form.project_weight }} %</p>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -22,6 +38,7 @@
         <table class="gradesheet-table">
             <thead>
                 <tr>
+                    <th class="gradesheet-student-col">ID</th>
                     <th class="gradesheet-student-col">Student</th>
                     {% for activity in activities %}
                     <th>
@@ -29,20 +46,23 @@
                         <span class="gradesheet-col-type">Activity</span>
                     </th>
                     {% endfor %}
+                    <th class="gradesheet-total-col">Activity Average</th>
                     {% for project in projects %}
                     <th>
                         <a href="{% url 'project_detail' project.id %}">{{ project.title }}</a>
                         <span class="gradesheet-col-type">Project</span>
                     </th>
                     {% endfor %}
-                    <th class="gradesheet-total-col">Total</th>
+                    <th class="gradesheet-total-col">General Average</th>
+                    <th class="gradesheet-total-col">Ranking</th>
                 </tr>
             </thead>
             <tbody>
                 {% for row in rows %}
                 <tr>
+                    <td class="gradesheet-student-col">{{ row.student.profile.school_id|default:"—" }}</td>
                     <td class="gradesheet-student-col">{{ row.student.username }}</td>
-                    {% for cell in row.cells %}
+                    {% for cell in row.activity_cells %}
                     <td class="gradesheet-cell">
                         <a href="{% url cell.url_name cell.obj_id %}">
                             {% if cell.status == 'not_submitted' %}
@@ -50,12 +70,27 @@
                             {% elif cell.status == 'pending' %}
                             <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
                             {% else %}
-                            <span class="gradesheet-status gradesheet-status-done">{{ cell.points }} pts</span>
+                            <span class="gradesheet-status gradesheet-status-done">{{ cell.score }}/{{ cell.max_score }}</span>
                             {% endif %}
                         </a>
                     </td>
                     {% endfor %}
-                    <td class="gradesheet-total-col">{{ row.total_points }}</td>
+                    <td class="gradesheet-total-col">{% if row.activity_average is not None %}{{ row.activity_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% for cell in row.project_cells %}
+                    <td class="gradesheet-cell">
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done">{{ cell.score }}/{{ cell.max_score }}</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    <td class="gradesheet-total-col">{% if row.average is not None %}{{ row.average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    <td class="gradesheet-total-col">{{ row.rank|default:"—" }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

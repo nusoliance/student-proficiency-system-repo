@@ -46,5 +46,9 @@ urlpatterns = [
     path('project/<int:project_id>/delete/',
          views.delete_project, name='delete_project'),
     path('personal-tasks/<int:task_id>/delete/',
-         views.delete_personal_task, name='delete_personal_task'),
+         views.delete_personal_task, name='delete_personal_task'),                   
+     path('<int:subject_id>/gradesheet/',
+          views.gradesheet_view, name='gradesheet_view'),
+     path('<int:subject_id>/gradesheet/weights/',
+          views.update_grade_weights, name='update_grade_weights'),
 ]
