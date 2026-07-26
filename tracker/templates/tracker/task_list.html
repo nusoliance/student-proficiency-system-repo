@@ -25,15 +25,17 @@
             </li>
             {% endfor %}
         </ul>
+        {% if user.profile.under_evaluation %}
+        <div class="content-frame" style="border-color:#CE2029; margin-bottom:1.5rem;">
+            <p style="color:#CE2029; font-weight:600; margin:0;">This account is under evaluation because another user
+                had
+                the same school ID.</p>
+        </div>
+        {% endif %}
     </div>
     {% endif %}
 
-    {% if user.profile.under_evaluation %}
-    <div class="content-frame" style="border-color:#CE2029; margin-bottom:1.5rem;">
-        <p style="color:#CE2029; font-weight:600; margin:0;">This account is under evaluation because another user had
-            the same school ID.</p>
-    </div>
-    {% endif %}
+
 
     <div class="topic-card">
         <h3 style="color:#1E3A8A; margin-top:0;">Activities</h3>
