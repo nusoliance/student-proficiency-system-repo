@@ -1,4 +1,14 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+{% if post.subject %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'forum_list' %}">Subject Forums</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'forum_view' post.subject.id %}">{{ post.subject.name }} Forum</a>
+{% else %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'course_forum_list' %}">Course Forums</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'course_forum_view_detail' post.course.id %}">{{ post.course.name }} Forum</a>
+{% endif %}
+<span class="breadcrumb-sep">›</span> Report
+{% endblock %}
 {% block content %}
 <div class="report-container">
     <div class="report-header">
