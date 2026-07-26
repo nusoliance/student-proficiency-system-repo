@@ -9,8 +9,8 @@
             <div>
                 <span class="forum-topic-name" style="font-size:0.95rem;">{{ completion.student.username }}</span>
                 <div class="muted-note">
-                    {% if completion.graded %}Graded — {{ completion.score }}/{{ activity.max_score }}{% else
-                    %}Pending{% endif %}
+                    {% if completion.graded %}Graded — {{ completion.score }}/{{ activity.max_score }}
+                    {% else%}Pending{% endif %}
                 </div>
             </div>
             <a href="{% url 'grade_activity_completion' completion.id %}" class="btn-secondary">

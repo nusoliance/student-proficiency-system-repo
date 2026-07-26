@@ -1,0 +1,19 @@
+<div class="skill-picker" data-field-id="{{ field.id_for_label }}">
+    <label class="skill-picker-label" for="{{ field.id_for_label }}">{{ label|default:field.label }}</label>
+    <div class="skill-picker-native">{{ field }}</div>
+    <button type="button" class="skill-picker-button">
+        <span class="skill-picker-button-text">{{ placeholder }}</span>
+    </button>
+    <div class="skill-picker-panel" hidden>
+        <div class="skill-picker-controls">
+            <input type="text" class="skill-picker-search" placeholder="Search skill or course…">
+            <button type="button" class="skill-picker-show-all btn-sm">Show All Skills</button>
+        </div>
+        <div class="skill-picker-results"></div>
+    </div>
+    {% if field.errors %}
+    <ul class="errorlist">
+        {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+</div>

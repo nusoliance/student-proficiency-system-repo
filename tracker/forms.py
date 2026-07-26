@@ -79,7 +79,7 @@ class GradeActivityForm(forms.ModelForm):
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'description', 'deadline']
+        fields = ['title', 'description', 'deadline', 'max_score']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
 
@@ -87,6 +87,23 @@ class SubmissionForm(forms.ModelForm):
     class Meta:
         model = ProjectSubmission
         fields = ['image', 'document']
+
+
+class GradeProjectForm(forms.ModelForm):
+    class Meta:
+        model = ProjectSubmission
+        fields = ['score']
+
+    def __init__(self, *args, **kwargs):
+        self.max_score = kwargs.pop('max_score')
+        super().__init__(*args, **kwargs)
+
+    def clean_score(self):
+        score = self.cleaned_data['score']
+        if score > self.max_score:
+            raise forms.ValidationError(
+                f"Score can't exceed the maximum of {self.max_score}.")
+        return score
 
 
 class SkillAwardForm(forms.ModelForm):
@@ -140,7 +157,7 @@ class TaskActivityForm(forms.ModelForm):
 class TaskProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['subject', 'title', 'description', 'deadline']
+        fields = ['subject', 'title', 'description', 'deadline', 'max_score']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
     def __init__(self, *args, **kwargs):
