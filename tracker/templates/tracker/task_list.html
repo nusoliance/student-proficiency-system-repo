@@ -24,68 +24,69 @@
                 <span class="task-due-date">Due {{ activity.deadline }}</span>
             </li>
             {% endfor %}
+            {% if user.profile.under_evaluation %}
+            <div class="content-frame" style="border-color:#CE2029; margin-bottom:1.5rem;">
+                <p style="color:#CE2029; font-weight:600; margin:0;">This account is under evaluation because another
+                    user
+                    had
+                    the same school ID.</p>
         </ul>
-        {% if user.profile.under_evaluation %}
-        <div class="content-frame" style="border-color:#CE2029; margin-bottom:1.5rem;">
-            <p style="color:#CE2029; font-weight:600; margin:0;">This account is under evaluation because another user
-                had
-                the same school ID.</p>
-        </div>
-        {% endif %}
     </div>
     {% endif %}
+</div>
+{% endif %}
 
 
 
-    <div class="topic-card">
-        <h3 style="color:#1E3A8A; margin-top:0;">Activities</h3>
-        <ul class="activity-list">
-            {% for activity in activities %}
-            <li class="activity-item">
-                <div class="activity-details">
-                    <a href="{% url 'activity_detail' activity.id %}" class="activity-title">{{ activity.title }}</a>
-                    <span class="activity-deadline">{{ activity.topic.lesson_plan.subject.name }}</span>
-                </div>
-                <div class="activity-status">
-                    {% if activity.id in completed_activity_ids %}
-                    <span class="badge badge-success">Done</span>
-                    {% elif activity.due_soon %}
-                    <span class="badge badge-warning">Due {{ activity.deadline }}</span>
-                    {% else %}
-                    <span class="activity-deadline">Due {{ activity.deadline }}</span>
-                    {% endif %}
-                </div>
-            </li>
-            {% empty %}
-            <li class="empty-state-sm">No activities assigned yet.</li>
-            {% endfor %}
-        </ul>
-    </div>
+<div class="topic-card">
+    <h3 style="color:#1E3A8A; margin-top:0;">Activities</h3>
+    <ul class="activity-list">
+        {% for activity in activities %}
+        <li class="activity-item">
+            <div class="activity-details">
+                <a href="{% url 'activity_detail' activity.id %}" class="activity-title">{{ activity.title }}</a>
+                <span class="activity-deadline">{{ activity.topic.lesson_plan.subject.name }}</span>
+            </div>
+            <div class="activity-status">
+                {% if activity.id in completed_activity_ids %}
+                <span class="badge badge-success">Done</span>
+                {% elif activity.due_soon %}
+                <span class="badge badge-warning">Due {{ activity.deadline }}</span>
+                {% else %}
+                <span class="activity-deadline">Due {{ activity.deadline }}</span>
+                {% endif %}
+            </div>
+        </li>
+        {% empty %}
+        <li class="empty-state-sm">No activities assigned yet.</li>
+        {% endfor %}
+    </ul>
+</div>
 
-    <div class="topic-card">
-        <h3 style="color:#1E3A8A; margin-top:0;">Projects</h3>
-        <ul class="activity-list">
-            {% for item in project_data %}
-            <li class="activity-item">
-                <div class="activity-details">
-                    <a href="{% url 'project_detail' item.project.id %}" class="activity-title">
-                        {{ item.project.title}}</a>
-                    <span class="activity-deadline">{{ item.project.subject.name }}</span>
-                </div>
-                <div class="activity-status">
-                    {% if item.submission.evaluated %}
-                    <span class="badge badge-success">Evaluated</span>
-                    {% elif item.submission %}
-                    <span class="badge badge-warning">Submitted</span>
-                    {% else %}
-                    <span class="badge badge-warning">Not Submitted</span>
-                    {% endif %}
-                </div>
-            </li>
-            {% empty %}
-            <li class="empty-state-sm">No projects assigned yet.</li>
-            {% endfor %}
-        </ul>
-    </div>
+<div class="topic-card">
+    <h3 style="color:#1E3A8A; margin-top:0;">Projects</h3>
+    <ul class="activity-list">
+        {% for item in project_data %}
+        <li class="activity-item">
+            <div class="activity-details">
+                <a href="{% url 'project_detail' item.project.id %}" class="activity-title">
+                    {{ item.project.title}}</a>
+                <span class="activity-deadline">{{ item.project.subject.name }}</span>
+            </div>
+            <div class="activity-status">
+                {% if item.submission.evaluated %}
+                <span class="badge badge-success">Evaluated</span>
+                {% elif item.submission %}
+                <span class="badge badge-warning">Submitted</span>
+                {% else %}
+                <span class="badge badge-warning">Not Submitted</span>
+                {% endif %}
+            </div>
+        </li>
+        {% empty %}
+        <li class="empty-state-sm">No projects assigned yet.</li>
+        {% endfor %}
+    </ul>
+</div>
 </div>
 {% endblock %}
