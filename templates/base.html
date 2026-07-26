@@ -101,8 +101,15 @@
     </script>
     <hr>
 
-    {% block content %}
-    {% endblock %}
+{% if user.is_authenticated %}
+<div class="breadcrumb-bar">
+    <a href="{% url 'home' %}">Home</a>
+    {% block breadcrumbs %}{% endblock %}
+</div>
+{% endif %}
+
+{% block content %}
+{% endblock %}
 
 </body>
 

@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'student_directory' %}">Students</a>
+<span class="breadcrumb-sep">›</span> {{ student.username }}
+{% endblock %}
 {% block content %}
 <div class="dossier">
     <h2 style="max-width:620px; margin:0 auto 1rem;">{{ student.username }}</h2>

@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'task_list' %}">Tasks</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'personal_task_list' %}">Personal Tasks</a>
+<span class="breadcrumb-sep">›</span> {{ task.title }}
+{% endblock %}
 {% block content %}
 <div class="content-frame">
     <div class="task-detail-container">

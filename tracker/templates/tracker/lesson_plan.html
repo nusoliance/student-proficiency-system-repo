@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> {{ subject.name }}
+{% endblock %}
 {% block content %}
 <div class="lesson-plan-container">
     <div class="lesson-header">

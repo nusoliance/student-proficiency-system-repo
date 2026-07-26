@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' activity.topic.lesson_plan.subject.id %}">{{ activity.topic.lesson_plan.subject.name }}</a>
+<span class="breadcrumb-sep">›</span> {{ activity.title }}
+{% endblock %}
 {% block content %}
 <div class="submission-container">
     <div class="submission-header">

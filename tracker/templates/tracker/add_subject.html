@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> Add Subject
+{% endblock %}
 {% block content %}
 <div class="form-card">
     <h2>Add Subject</h2>

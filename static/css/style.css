@@ -2026,3 +2026,23 @@ input[type="submit"]:hover {
     font-size: 0.85rem;
     color: var(--muted);
 }
+
+/*breadcrumbs -kian */
+.breadcrumb-bar {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0.75rem 1.5rem 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+}
+.breadcrumb-bar a {
+    color: var(--blue-dark);
+    font-weight: 600;
+}
+.breadcrumb-bar a:hover {
+    text-decoration: underline;
+}
+.breadcrumb-sep {
+    margin: 0 0.4rem;
+    color: var(--muted);
+}

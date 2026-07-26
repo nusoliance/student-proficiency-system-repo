@@ -1,4 +1,8 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'forum_list' %}">Subject Forums</a>
+<span class="breadcrumb-sep">›</span> {{ subject.name }} Forum
+{% endblock %}
 {% block content %}
 <h2>{{ subject.name }} — Forum</h2>
 <div class="content-frame">
