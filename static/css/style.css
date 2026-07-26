@@ -1165,6 +1165,14 @@ input[type="submit"]:hover {
     background: none;
 }
 
+.alert-banner {
+    max-width: 620px;
+    border: 2px solid rgb(201, 201, 204);
+    border-radius: 8px;
+    padding: 0.9rem 1.2rem;
+    background: none;
+}
+
 .forum-topic-list {
     list-style: none;
     padding: 0;
