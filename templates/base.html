@@ -48,6 +48,13 @@
                 {% if user.profile.school_id %}
                 <div class="profile-line">ID: {{ user.profile.school_id }}</div>
                 {% endif %}
+                {% if user.profile.under_evaluation %}
+                <div class="content-frame" style="border-color:#CE2029; margin-bottom:1.5rem;">
+                    <p style="color:#CE2029; font-weight:600; margin:0;">This account is under evaluation because
+                        another user had
+                        the same school ID.</p>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
