@@ -9,8 +9,9 @@
     <div class="lesson-header">
         <h2>{{ subject.name }} — Gradesheet</h2>
         <div class="manager-actions">
-            <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-secondary">Back to Lesson Plan</a>
+            <a href="{% url 'subject_analytics' subject.id %}" class="btn-secondary">Analytics</a>
             <label for="weights-toggle" class="btn-secondary">Customize Weights</label>
+            <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-secondary">Back to Lesson Plan</a>
         </div>
     </div>
 

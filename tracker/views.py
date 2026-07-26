@@ -8,8 +8,9 @@ from datetime import timedelta
 from django.contrib.auth.models import User
 import calendar as cal_module
 from django.db.models import Q, Case, When, Value, IntegerField
-from avatar.models import Skill
+from avatar.models import Skill, StudentSkill
 from django.contrib import messages
+from datetime import date
 
 
 def get_relevant_skills():
@@ -414,6 +415,48 @@ def gradesheet_view(request, subject_id):
         'weights_form': SubjectWeightsForm(instance=subject),
     })
 
+@login_required
+def subject_analytics(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
+    student_count = subject.students.count()
+
+    activities = Activity.objects.filter(topic__lesson_plan__subject=subject).order_by('deadline')
+    projects = subject.projects.all().order_by('deadline')
+
+    completion_labels = []
+    completion_rates = []
+    for activity in activities:
+        submitted = ActivityCompletion.objects.filter(activity=activity).count()
+        rate = round(submitted / student_count * 100) if student_count else 0
+        completion_labels.append(activity.title)
+        completion_rates.append(rate)
+    for project in projects:
+        submitted = ProjectSubmission.objects.filter(project=project).count()
+        rate = round(submitted / student_count * 100) if student_count else 0
+        completion_labels.append(project.title)
+        completion_rates.append(rate)
+
+    score_items = []
+    for activity in activities:
+        graded = ActivityCompletion.objects.filter(activity=activity, graded=True)
+        if graded.exists() and activity.max_score:
+            avg_pct = sum(c.score / activity.max_score * 100 for c in graded) / graded.count()
+            score_items.append({'label': activity.title, 'deadline': activity.deadline, 'avg': round(avg_pct, 1)})
+    for project in projects:
+        graded = ProjectSubmission.objects.filter(project=project, evaluated=True, score__isnull=False)
+        if graded.exists() and project.max_score:
+            avg_pct = sum(s.score / project.max_score * 100 for s in graded) / graded.count()
+            score_items.append({'label': project.title, 'deadline': project.deadline, 'avg': round(avg_pct, 1)})
+    score_items.sort(key=lambda x: x['deadline'] or date.max)
+
+    context = {
+        'subject': subject,
+        'completion_chart_data': {'labels': completion_labels, 'rates': completion_rates},
+        'score_chart_data': {'labels': [i['label'] for i in score_items], 'averages': [i['avg'] for i in score_items]},
+        'has_completion_data': bool(completion_labels),
+        'has_score_data': bool(score_items),
+    }
+    return render(request, 'tracker/subject_analytics.html', context)
 
 @login_required
 def update_grade_weights(request, subject_id):
@@ -445,6 +488,51 @@ def manage_students(request, subject_id):
     return render(request, 'tracker/manage_students.html', {
         'subject': subject, 'query': query, 'results': results,
         'no_school': not teacher_school,
+    })
+
+def class_skill_summary(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+
+    students = subject.students.select_related('profile__course').order_by(
+        'profile__course__name', 'username')
+
+    student_skills = StudentSkill.objects.filter(
+        student__in=students, skill__category__in=['course', 'general']
+    ).select_related('skill')
+
+    present_skill_ids = {ss.skill_id for ss in student_skills}
+    skills = [s for s in get_relevant_skills() if s.id in present_skill_ids]
+
+    skill_map = {(ss.student_id, ss.skill_id): ss for ss in student_skills}
+
+    skill_averages = []
+    for skill in skills:
+        levels = [ss.level for (sid, skid), ss in skill_map.items() if skid == skill.id]
+        skill_averages.append(round(sum(levels) / len(levels), 1) if levels else None)
+
+    skill_rows = []
+    for student in students:
+        cells = []
+        for skill, avg in zip(skills, skill_averages):
+            ss = skill_map.get((student.id, skill.id))
+            level = ss.level if ss else None
+            cells.append({
+                'level': level,
+                'behind': level is not None and avg is not None and level <= avg - 1,
+            })
+        skill_rows.append({'student': student, 'cells': cells})
+
+    skill_groups = []
+    for row in skill_rows:
+        course = row['student'].profile.course
+        course_name = course.name if course else 'No Course Assigned'
+        if not skill_groups or skill_groups[-1]['course_name'] != course_name:
+            skill_groups.append({'course_name': course_name, 'rows': []})
+        skill_groups[-1]['rows'].append(row)
+
+    return render(request, 'tracker/class_skill_summary.html', {
+        'subject': subject,
+        'skills': skills, 'skill_groups': skill_groups, 'skill_averages': skill_averages,
     })
 
 

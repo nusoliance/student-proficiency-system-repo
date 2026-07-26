@@ -1466,7 +1466,6 @@ input[type="submit"]:hover {
 .btn-secondary {
     background-color: transparent;
     color: #334155;
-    border: 2px solid #334155;
     padding: 8px 16px;
     border-radius: 5px;
     text-decoration: none;
@@ -2088,4 +2087,102 @@ input[type="submit"]:hover {
 }
 .weights-panel-row .custom-form p {
     margin: 0;
+}
+
+/* classwide skill - jade */
+.skills-summary-container {
+    max-width: none;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.skills-summary-scroll {
+    overflow-x: auto;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.skills-summary-table {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 640px;
+    font-size: 0.85rem;
+}
+
+.skills-summary-table th,
+.skills-summary-table td {
+    border: 1px solid var(--line);
+    padding: 0.5rem 0.65rem;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.skills-summary-table thead th {
+    background: #F8FAFF;
+    font-family: 'Sora', sans-serif;
+    color: #000000;
+    vertical-align: bottom;
+}
+
+.skills-summary-col-type {
+    display: block;
+    font-family: 'Public Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.skills-summary-id-col,
+.skills-summary-name-col {
+    position: sticky;
+    background: var(--panel);
+    font-weight: 700;
+    z-index: 1;
+}
+
+.skills-summary-id-col {
+    left: 0;
+    min-width: 55px;
+}
+
+.skills-summary-name-col {
+    left: 55px;
+    text-align: left;
+    min-width: 140px;
+}
+
+.skills-summary-table thead .skills-summary-id-col,
+.skills-summary-table thead .skills-summary-name-col {
+    background: #F8FAFF;
+    z-index: 2;
+}
+
+.skills-summary-group-row td {
+    background: #EEF2FF;
+    color: #1E3A8A;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.03em;
+    padding: 0.45rem 0.8rem;
+    position: sticky;
+    left: 0;
+}
+
+.skills-summary-avg-row td {
+    font-weight: 700;
+    background: #F8FAFF;
+}
+
+.skills-summary-cell-behind {
+    background: #FDECEC;
+    color: #A32020;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+    display: inline-block;
 }

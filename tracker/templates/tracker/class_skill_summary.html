@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'manage_students' subject.id %}">Manage Students</a>
+<span class="breadcrumb-sep">›</span> Class Skill Summary
+{% endblock %}
+{% block content %}
+<div class="skills-summary-container">
+    <div class="lesson-header">
+        <h2>Class Skill Summary — {{ subject.name }}</h2>
+        <div class="manager-actions">
+            <a href="{% url 'manage_students' subject.id %}" class="btn-secondary">Back to Manage Students</a>
+        </div>
+    </div>
+
+    {% if not skill_groups %}
+    <p class="empty-state-sm">Enroll students to see their skill levels here.</p>
+    {% elif not skills %}
+    <p class="empty-state-sm">None of the enrolled students have tracked skills yet.</p>
+    {% else %}
+    <p class="muted-note">Levels by skill, grouped by course program. Shaded cells are at least 1 level behind the class average for that skill.</p>
+    <div class="skills-summary-scroll">
+        <table class="skills-summary-table">
+            <thead>
+                <tr>
+                    <th class="skills-summary-id-col">ID</th>
+                    <th class="skills-summary-name-col">Student</th>
+                    {% for skill in skills %}
+                    <th>
+                        {{ skill.name }}
+                        <span class="skills-summary-col-type">{% if skill.category == 'general' %}General{% else %}{{ skill.course.name|default:"Course" }}{% endif %}</span>
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in skill_groups %}
+                <tr class="skills-summary-group-row">
+                    <td colspan="{{ skills|length|add:2 }}">{{ group.course_name }}</td>
+                </tr>
+                {% for row in group.rows %}
+                <tr>
+                    <td class="skills-summary-id-col">{{ row.student.profile.school_id|default:"—" }}</td>
+                    <td class="skills-summary-name-col">{{ row.student.username }}</td>
+                    {% for cell in row.cells %}
+                    <td class="skills-summary-cell">
+                        {% if cell.level is not None %}
+                        {% if cell.behind %}
+                        <span class="skills-summary-cell-behind">{{ cell.level }}</span>
+                        {% else %}
+                        {{ cell.level }}
+                        {% endif %}
+                        {% else %}
+                        <span class="muted-note">—</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr class="skills-summary-avg-row">
+                    <td class="skills-summary-id-col"></td>
+                    <td class="skills-summary-name-col">Class Average</td>
+                    {% for avg in skill_averages %}
+                    <td class="skills-summary-cell">{% if avg is not None %}{{ avg }}{% else %}—{% endif %}</td>
+                    {% endfor %}
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
