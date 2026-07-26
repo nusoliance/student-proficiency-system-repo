@@ -95,6 +95,16 @@ def confirm_school_id(request):
     if request.method == 'POST':
         choice = request.POST.get('choice')
         if choice == 'yes':
+            if User.objects.filter(username=pending['username']).exists():
+                del request.session['pending_signup']
+                return render(request, 'accounts/signup_conflict.html', {
+                    'reason': 'username',
+                })
+            if User.objects.filter(email=pending['email']).exists():
+                del request.session['pending_signup']
+                return render(request, 'accounts/signup_conflict.html', {
+                    'reason': 'email',
+                })
             course = Course.objects.filter(
                 id=pending['course_id']).first() if pending['course_id'] else None
             user = _create_user_from_data(
