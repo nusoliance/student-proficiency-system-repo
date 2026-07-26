@@ -1,44 +1,59 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>{{ activity.title }} (Personal)</h2>
-<div class="content-frame">
+<div class="submission-container">
+    <div class="submission-header">
+        <h2>{{ activity.title }}</h2>
+    </div>
+    <div class="submission-status-box">
+        <p>Due: {{ activity.deadline }}</p>
 
-    {% if activity.instructions %}
-    <p>{{ activity.instructions|linebreaks }}</p>
-    {% endif %}
-    <p class="muted-note">Due {{ activity.deadline }}</p>
+        {% if activity.instructions %}
+        <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
+        <p>{{ activity.instructions|linebreaks }}</p>
+        {% endif %}
 
-    {% if activity.skill_points.all %}
-    <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
-    <p
-        style="margin:0 0 0.6rem; font-size:0.95rem; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.03em;">
-        Skills You Can Earn</p>
-    <ul class="activity-list">
-        {% for sp in activity.skill_points.all %}
-        <li class="activity-item">{{ sp.skill.name }} <span class="badge badge-warning">+{{ sp.points }} pts</span></li>
-        {% endfor %}
-    </ul>
-    {% endif %}
+        <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
+        <p
+            style="margin:0 0 0.6rem; font-size:0.95rem; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.03em;">
+            Skills On This Activity</p>
+        <ul class="activity-list">
+            <li class="activity-item">{{ activity.skill_main.name }}</li>
+            {% if activity.skill_secondary %}<li class="activity-item">{{ activity.skill_secondary.name }}</li>
+            {% endif%}
+            {% if activity.skill_tertiary %}<li class="activity-item">{{ activity.skill_tertiary.name }}</li>{% endif %}
+        </ul>
 
-    <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
+        <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
+
+        {% if completion %}
+        {% if completion.graded %}
+        <p><span class="badge badge-success">Graded</span> {{ completion.score }}/{{ activity.max_score }}</p>
+        {% else %}
+        <p><span class="badge badge-warning">Submitted — awaiting grade</span></p>
+        {% endif %}
+        {% if completion.image %}<p><img src="{{ completion.image.url }}" class="submission-img"></p>{% endif %}
+        {% if completion.document %}<p><a href="{{ completion.document.url }}">View submitted document</a></p>
+        {% endif%}
+        {% else %}
+        <form method="post" enctype="multipart/form-data" class="custom-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Mark Complete</button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
 
     {% if completion %}
-    <p><span class="badge badge-success">Completed</span> on {{ completion.completed_at|date:"M d, Y" }}</p>
-    {% if completion.image %}<p><img src="{{ completion.image.url }}" class="submission-img"></p>{% endif %}
-    {% if completion.document %}<p><a href="{{ completion.document.url }}">View submitted document</a></p>{% endif %}
-    {% if not completion.image and not completion.document %}<p class="muted-note">No files attached.</p>{% endif %}
-    {% else %}
-    <form method="post" enctype="multipart/form-data" class="custom-form">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="form-actions">
-            <button type="submit" class="btn-primary">Mark Complete</button>
-        </div>
-    </form>
+    <div style="margin-top:1.5rem;">
+        <a href="{% url 'grade_activity_completion' completion.id %}" class="btn-secondary">
+            {% if completion.graded %}View Grade{% else %}Grade Yourself{% endif %}
+        </a>
+    </div>
     {% endif %}
 
-    <div style="margin-top:1.5rem; display:flex; gap:1rem;">
-        <a href="{% url 'add_activity_skill' activity.id %}" class="btn-secondary">Manage Skill Points</a>
+    <div style="margin-top:1.5rem;">
         <a href="{% url 'delete_activity' activity.id %}" class="btn-secondary"
             style="color:#991B1B; border-color:#991B1B;">Delete Activity</a>
     </div>

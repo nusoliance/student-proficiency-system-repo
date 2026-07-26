@@ -16,16 +16,27 @@
 
 <script>
     const roleField = document.getElementById('id_role');
-    const modeRow = document.getElementById('id_mode').closest('p');
+    const modeField = document.getElementById('id_mode');
+    const schoolField = document.getElementById('id_school');
+    const modeRow = modeField.closest('p');
     const courseRow = document.getElementById('id_course').closest('p');
+    const schoolRow = schoolField.closest('p');
+    const schoolIdRow = document.getElementById('id_school_id').closest('p');
 
-    function toggleStudentFields() {
+    function toggleFields() {
         const isStudent = roleField.value === 'student';
+        const isProfessionalStudent = isStudent && modeField.value === 'professional';
+        const isCituProfessionalStudent = isProfessionalStudent && schoolField.value === 'citu';
+
         modeRow.style.display = isStudent ? '' : 'none';
         courseRow.style.display = isStudent ? '' : 'none';
+        schoolRow.style.display = (roleField.value === 'teacher' || isProfessionalStudent) ? '' : 'none';
+        schoolIdRow.style.display = isCituProfessionalStudent ? '' : 'none';
     }
 
-    roleField.addEventListener('change', toggleStudentFields);
-    toggleStudentFields();
+    roleField.addEventListener('change', toggleFields);
+    modeField.addEventListener('change', toggleFields);
+    schoolField.addEventListener('change', toggleFields);
+    toggleFields();
 </script>
 {% endblock %}

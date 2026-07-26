@@ -1,17 +1,26 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="dossier">
+    <h2 style="max-width:620px; margin:0 auto 1rem;">{{ student.username }}</h2>
     <div class="dossier-header">
         <div class="dossier-header-fields">
-            <div class="dossier-field">
-                <span class="dossier-label">Name</span>
-                <span class="dossier-value">{{ student.username }}</span>
-            </div>
             <div class="dossier-field">
                 <span class="dossier-label">Class</span>
                 <span class="dossier-value">{% if student.profile.course %}{{ student.profile.course.name }}
                     {% else%}—{% endif %}</span>
             </div>
+            {% if student.profile.school %}
+            <div class="dossier-field">
+                <span class="dossier-label">School</span>
+                <span class="dossier-value">{{ student.profile.get_school_display }}</span>
+            </div>
+            {% endif %}
+            {% if student.profile.school_id %}
+            <div class="dossier-field">
+                <span class="dossier-label">ID</span>
+                <span class="dossier-value">{{ student.profile.school_id }}</span>
+            </div>
+            {% endif %}
         </div>
         <div class="dossier-photo"></div>
     </div>

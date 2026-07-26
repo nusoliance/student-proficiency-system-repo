@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from avatar.models import Skill
-from .models import Subject, Topic, Activity, Project, ProjectSubmission, SkillAward, ActivitySkillPoints, ActivityCompletion, PersonalTask
+from .models import Subject, Topic, LessonPlan, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask
 
 
 class SubjectForm(forms.ModelForm):
@@ -41,8 +41,16 @@ class TopicForm(forms.ModelForm):
 class ActivityForm(forms.ModelForm):
     class Meta:
         model = Activity
-        fields = ['title', 'instructions', 'deadline']
+        fields = ['title', 'instructions', 'deadline', 'max_score',
+                  'skill_main', 'skill_secondary', 'skill_tertiary']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        relevant_skills = kwargs.pop('relevant_skills')
+        super().__init__(*args, **kwargs)
+        self.fields['skill_main'].queryset = relevant_skills
+        self.fields['skill_secondary'].queryset = relevant_skills
+        self.fields['skill_tertiary'].queryset = relevant_skills
 
 
 class ActivityCompletionForm(forms.ModelForm):
@@ -51,16 +59,21 @@ class ActivityCompletionForm(forms.ModelForm):
         fields = ['image', 'document']
 
 
-class ActivitySkillPointsForm(forms.ModelForm):
+class GradeActivityForm(forms.ModelForm):
     class Meta:
-        model = ActivitySkillPoints
-        fields = ['skill', 'points']
-        widgets = {'skill': forms.RadioSelect()}
+        model = ActivityCompletion
+        fields = ['score']
 
     def __init__(self, *args, **kwargs):
-        skill_queryset = kwargs.pop('skill_queryset')
+        self.max_score = kwargs.pop('max_score')
         super().__init__(*args, **kwargs)
-        self.fields['skill'].queryset = skill_queryset
+
+    def clean_score(self):
+        score = self.cleaned_data['score']
+        if score > self.max_score:
+            raise forms.ValidationError(
+                f"Score can't exceed the maximum of {self.max_score}.")
+        return score
 
 
 class ProjectForm(forms.ModelForm):
@@ -107,16 +120,21 @@ class TaskActivityForm(forms.ModelForm):
 
     class Meta:
         model = Activity
-        fields = ['topic', 'title', 'instructions', 'deadline']
+        fields = ['topic', 'title', 'instructions', 'deadline',
+                  'max_score', 'skill_main', 'skill_secondary', 'skill_tertiary']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
+        relevant_skills = kwargs.pop('relevant_skills')
         super().__init__(*args, **kwargs)
         self.fields['topic'].queryset = Topic.objects.filter(
             lesson_plan__subject__teacher=user)
         self.fields[
             'topic'].label_from_instance = lambda obj: f"{obj.lesson_plan.subject.name} — {obj.title} ({obj.start_date} to {obj.end_date})"
+        self.fields['skill_main'].queryset = relevant_skills
+        self.fields['skill_secondary'].queryset = relevant_skills
+        self.fields['skill_tertiary'].queryset = relevant_skills
 
 
 class TaskProjectForm(forms.ModelForm):

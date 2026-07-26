@@ -30,6 +30,9 @@
     </div>
 
     <ul class="activity-list" style="margin-top:10px;">
+        {% if no_school %}
+        <li class="empty-state-sm">Set your school on your profile to search for students to add.</li>
+        {% else %}
         {% for student in results %}
         <li class="activity-item">
             <span class="activity-title">{{ student.username }}</span>
@@ -41,6 +44,7 @@
         {% empty %}
         {% if query %}<li class="empty-state-sm">No matching students found.</li>{% endif %}
         {% endfor %}
+        {% endif %}
     </ul>
 </div>
 {% endblock %}

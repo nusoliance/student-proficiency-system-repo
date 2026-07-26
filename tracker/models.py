@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from avatar.models import Skill
 from django.utils import timezone
+from avatar.models import Skill
 from datetime import timedelta
 
 
@@ -42,6 +42,14 @@ class Activity(models.Model):
     instructions = models.TextField(blank=True)
     deadline = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+    max_score = models.PositiveIntegerField(default=100)
+
+    skill_main = models.ForeignKey(
+        Skill, on_delete=models.SET_NULL, null=True, related_name='activities_main')
+    skill_secondary = models.ForeignKey(
+        Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities_secondary')
+    skill_tertiary = models.ForeignKey(
+        Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities_tertiary')
 
     @property
     def due_soon(self):
@@ -61,25 +69,33 @@ class ActivityCompletion(models.Model):
     document = models.FileField(
         upload_to='activity_submissions/documents/', null=True, blank=True)
     completed_at = models.DateTimeField(auto_now_add=True)
+    score = models.PositiveIntegerField(null=True, blank=True)
+    graded = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('activity', 'student')
 
+    @property
+    def total_points(self):
+        if self.score is None or not self.activity.max_score:
+            return 0
+        pool = self.activity.max_score // 2
+        return pool * self.score // self.activity.max_score
+
+    @property
+    def main_points(self):
+        return self.total_points * 5 // 10
+
+    @property
+    def secondary_points(self):
+        return self.total_points * 3 // 10
+
+    @property
+    def tertiary_points(self):
+        return self.total_points * 2 // 10
+
     def __str__(self):
         return f"{self.student.username} completed {self.activity.title}"
-
-
-class ActivitySkillPoints(models.Model):
-    activity = models.ForeignKey(
-        Activity, on_delete=models.CASCADE, related_name='skill_points')
-    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    points = models.PositiveIntegerField(default=10)
-
-    class Meta:
-        unique_together = ('activity', 'skill')
-
-    def __str__(self):
-        return f"{self.skill.name}: {self.points} pts"
 
 
 class Project(models.Model):

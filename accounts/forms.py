@@ -3,13 +3,17 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from avatar.models import Course
 from django.forms.models import construct_instance
+from django.core.validators import RegexValidator
+from .models import Profile
+
+
+school_id_validator = RegexValidator(
+    regex=r'^\d{2}-\d{4}-\d{3}$', message="Format must be 11-1111-111")
 
 
 class SignUpForm(UserCreationForm):
     username = forms.CharField(
-        max_length=150,
-        help_text="Your full name or preferred display name.",
-    )
+        max_length=150, help_text="Your full name or preferred display name.")
     ROLE_CHOICES = [
         ('student', 'Student'),
         ('teacher', 'Teacher'),
@@ -26,17 +30,47 @@ class SignUpForm(UserCreationForm):
         empty_label="Not in College / No Course", label="Course (students only)"
     )
 
+    school = forms.ChoiceField(
+        choices=[('', '---------')] + Profile.SCHOOL_CHOICES,
+        required=False, label="School (teachers & professional students only)"
+    )
+    school_id = forms.CharField(
+        required=False, validators=[school_id_validator],
+        label="School ID (format: 11-1111-111)"
+    )
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1',
-                  'password2', 'role', 'mode', 'course']
+        fields = ['username', 'email', 'password1', 'password2',
+                  'role', 'mode', 'course', 'school', 'school_id']
+
+    def clean(self):
+        cleaned = super().clean()
+        role = cleaned.get('role')
+        mode = cleaned.get('mode')
+        school = cleaned.get('school')
+        school_id = cleaned.get('school_id')
+
+        is_professional_student = role == 'student' and mode == 'professional'
+        is_citu_professional_student = is_professional_student and school == 'citu'
+        can_pick_school = role == 'teacher' or is_professional_student
+
+        if not can_pick_school:
+            cleaned['school'] = ''
+        if not is_citu_professional_student:
+            cleaned['school_id'] = ''
+
+        if is_professional_student:
+            if not school:
+                self.add_error('school', 'Please select your school.')
+            elif school == 'citu' and not school_id:
+                self.add_error('school_id', 'Please enter your school ID.')
+
+        return cleaned
 
     def _post_clean(self):
-        opts = self._meta
         exclude = self._get_validation_exclusions()
         exclude.add('username')
-        self.instance = construct_instance(
-            self, self.instance, opts.fields, opts.exclude)
         try:
             self.instance.full_clean(exclude=exclude, validate_unique=False)
         except forms.ValidationError as e:

@@ -12,17 +12,28 @@ def is_teacher(user):
 @user_passes_test(is_teacher)
 def student_directory(request):
     query = request.GET.get('q', '')
+    teacher_school = request.user.profile.school
+
+    if not teacher_school:
+        return render(request, 'avatar/student_directory.html', {
+            'students': User.objects.none(), 'query': query, 'no_school': True
+        })
+
     students = User.objects.filter(
-        profile__role='student', profile__mode='professional')
+        profile__role='student', profile__mode='professional', profile__school=teacher_school)
     if query:
         students = students.filter(username__icontains=query)
-    return render(request, 'avatar/student_directory.html', {'students': students, 'query': query})
+    return render(request, 'avatar/student_directory.html', {
+        'students': students, 'query': query, 'no_school': False
+    })
 
 
 @login_required
 @user_passes_test(is_teacher)
 def view_student_skills(request, student_id):
-    student = get_object_or_404(User, id=student_id, profile__role='student')
+    student = get_object_or_404(
+        User, id=student_id, profile__role='student',
+        profile__school=request.user.profile.school)
     student_skills = student.skills.filter(
         skill__category__in=['course', 'general']).select_related('skill')
     course_skills = student_skills.filter(skill__category='course')

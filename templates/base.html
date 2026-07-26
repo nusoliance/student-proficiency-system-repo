@@ -42,8 +42,12 @@
                     course{% endif %}</div>
                 <div class="profile-line">{% if top_skill %}Top skill: {{ top_skill.skill.name }}
                     (Lv {{top_skill.level}}){% else %}No skills yet{% endif %}</div>
-                <div class="profile-line">{% if user.profile.mode == 'personal' %}Personal Account{% else %}Professional
-                    Account{% endif %}</div>
+                {% if user.profile.school %}
+                <div class="profile-line">{{ user.profile.get_school_display }}</div>
+                {% endif %}
+                {% if user.profile.school_id %}
+                <div class="profile-line">ID: {{ user.profile.school_id }}</div>
+                {% endif %}
             </div>
         </div>
     </div>

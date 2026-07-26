@@ -2,19 +2,6 @@ from django.core.management.base import BaseCommand
 from avatar.models import Course, Skill
 
 COURSES_DATA = {
-    "Bachelor of Elementary Education": [
-        ("Communication skills",
-         "Explaining concepts clearly and adjusting language to a young learner's level"),
-        ("Classroom management",
-         "Keeping a room of children focused, orderly, and on task"),
-        ("Lesson planning",
-         "Structuring lessons with clear objectives, activities, and pacing"),
-        ("Differentiated instruction",
-         "Adjusting teaching methods to fit different learning speeds and styles"),
-        ("Creativity", "Designing engaging visual aids, games, and activities to hold attention"),
-        ("Assessment skills",
-         "Creating and interpreting tests/quizzes that fairly measure learning"),
-    ],
     "BS Civil Engineering": [
         ("Mathematical skills",
          "Applying calculus and structural formulas to analyze loads and designs"),
@@ -26,26 +13,54 @@ COURSES_DATA = {
         ("Attention to detail",
          "Ensuring measurements and specifications are precise, since small errors are costly"),
     ],
-    "BS Nursing": [
-        ("Clinical judgment", "Reading patient symptoms and making sound care decisions"),
-        ("Communication", "Relaying information clearly between patients, families, and medical staff"),
-        ("Documentation and charting",
-         "Accurately recording patient data and treatment history"),
-        ("Attention to detail",
-         "Administering correct dosages and following exact procedures"),
-        ("Time management", "Prioritizing and handling multiple patients efficiently"),
-        ("Manual dexterity",
-         "Performing hands-on procedures like IVs, injections, and wound care"),
-    ],
     "BS Computer Engineering": [
         ("Programming", "Writing and debugging code in languages like C and Python, including embedded systems"),
         ("Analytical thinking",
          "Breaking down complex technical problems into solvable parts"),
-        ("Circuit design", "Building and testing hardware like microcontrollers and PCBs"),
+        ("Circuit design",
+         "Building and testing hardware like microcontrollers and PCBs"),
         ("Digital logic design",
          "applying boolean algebra and logic gates to build and analyze digital systems"),
-        ("Troubleshooting", "Isolating and fixing issues across both hardware and software"),
+        ("Troubleshooting",
+         "Isolating and fixing issues across both hardware and software"),
         ("Algorithm design", "Structuring efficient step-by-step solutions and understanding data structures for problem-solving"),
+    ],
+    "BS Electrical Engineering": [
+        ("Electrical circuit analysis",
+         "Computing voltage, current, and power across circuits"),
+        ("Power systems design",
+         "Designing generation, transmission, and distribution systems"),
+        ("Electrical code compliance",
+         "Applying the Philippine Electrical Code (PEC) standards"),
+        ("Instrumentation and control",
+         "Working with sensors, relays, and control systems"),
+        ("Technical drafting", "Creating electrical schematics and wiring diagrams"),
+        ("Load calculation",
+         "Determining power requirements and sizing for electrical systems"),
+    ],
+    "BS Electronics Engineering": [
+        ("Analog circuit design",
+         "Designing amplifiers, filters, and analog signal circuits"),
+        ("Signal processing", "Analyzing and manipulating audio, RF, or digital signals"),
+        ("Microcontroller programming",
+         "Writing embedded code for microprocessors and microcontrollers"),
+        ("Communications systems design",
+         "Designing systems for transmitting and receiving signals"),
+        ("PCB design", "Laying out and prototyping printed circuit boards"),
+        ("Systems testing",
+         "Verifying that electronic systems function within required specs"),
+    ],
+    "BS Mechanical Engineering": [
+        ("Thermodynamics application",
+         "Applying heat and energy principles to mechanical systems"),
+        ("Machine design", "Designing mechanical components and assemblies"),
+        ("Materials science",
+         "Understanding material properties and behavior for engineering use"),
+        ("Manufacturing processes",
+         "Understanding machining, welding, casting, and fabrication methods"),
+        ("Fluid mechanics",
+         "Analyzing the behavior of liquids and gases in mechanical systems"),
+        ("Kinematics analysis", "Analyzing motion, forces, and mechanisms in machines"),
     ],
 }
 
@@ -80,11 +95,4 @@ class Command(BaseCommand):
             )
         self.stdout.write(self.style.SUCCESS(
             "Seeded general education skills"))
-
-        Skill.objects.get_or_create(
-            name="General Proficiency", course=None, category='broad',
-            defaults={
-                'description': 'A broad skill for students not enrolled in a specific college course'}
-        )
-        self.stdout.write(self.style.SUCCESS("Seeded broad skill"))
         self.stdout.write(self.style.SUCCESS("Done seeding skills!"))

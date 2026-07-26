@@ -7,6 +7,9 @@
         <button type="submit">Search</button>
     </form>
     <ul class="ruled-list">
+        {% if no_school %}
+        <li class="muted-note">Set your school on your profile to see students from your institution.</li>
+        {% else %}
         {% for student in students %}
         <li>
             <a href="{% url 'view_student_skills' student.id %}">{{ student.username }}</a>
@@ -14,6 +17,7 @@
         {% empty %}
         <li>No students found.</li>
         {% endfor %}
+        {% endif %}
     </ul>
 </div>
 {% endblock %}

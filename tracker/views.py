@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, ActivitySkillPoints, Project, ProjectSubmission, SkillAward, PersonalTask
-from .forms import SubjectForm, TopicForm, ActivityForm, ActivitySkillPointsForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm
+from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask
+from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -100,36 +100,17 @@ def add_topic(request, subject_id):
 @login_required
 def add_activity(request, topic_id):
     topic = get_object_or_404(Topic, id=topic_id)
+    relevant_skills = get_relevant_skills()
     if request.method == 'POST':
-        form = ActivityForm(request.POST)
+        form = ActivityForm(request.POST, relevant_skills=relevant_skills)
         if form.is_valid():
             activity = form.save(commit=False)
             activity.topic = topic
             activity.save()
-            return redirect('add_activity_skill', activity_id=activity.id)
+            return redirect('lesson_plan_view', subject_id=topic.lesson_plan.subject.id)
     else:
-        form = ActivityForm()
+        form = ActivityForm(relevant_skills=relevant_skills)
     return render(request, 'tracker/add_activity.html', {'form': form, 'topic': topic})
-
-
-@login_required
-def add_activity_skill(request, activity_id):
-    activity = get_object_or_404(Activity, id=activity_id)
-    subject = activity.topic.lesson_plan.subject
-    relevant_skills = get_relevant_skills()
-    if request.method == 'POST':
-        form = ActivitySkillPointsForm(
-            request.POST, skill_queryset=relevant_skills)
-        if form.is_valid():
-            skill_points = form.save(commit=False)
-            skill_points.activity = activity
-            skill_points.save()
-            return redirect('add_activity_skill', activity_id=activity.id)
-    else:
-        form = ActivitySkillPointsForm(skill_queryset=relevant_skills)
-    return render(request, 'tracker/add_activity_skill.html', {
-        'activity': activity, 'form': form, 'skills': relevant_skills
-    })
 
 
 @login_required
@@ -149,11 +130,6 @@ def activity_detail(request, activity_id):
                 completion.activity = activity
                 completion.student = request.user
                 completion.save()
-                for sp in activity.skill_points.all():
-                    student_skill, created = request.user.skills.get_or_create(
-                        skill=sp.skill)
-                    student_skill.points += sp.points
-                    student_skill.save()
                 return redirect('activity_detail', activity_id=activity.id)
         else:
             form = ActivityCompletionForm()
@@ -172,15 +148,44 @@ def activity_detail(request, activity_id):
             completion.activity = activity
             completion.student = request.user
             completion.save()
-            for sp in activity.skill_points.all():
-                student_skill, created = request.user.skills.get_or_create(
-                    skill=sp.skill)
-                student_skill.points += sp.points
-                student_skill.save()
             return redirect('activity_detail', activity_id=activity.id)
     else:
         form = ActivityCompletionForm()
     return render(request, 'tracker/activity_detail.html', {'activity': activity, 'completion': completion, 'form': form})
+
+
+@login_required
+def grade_activity_completion(request, completion_id):
+    completion = get_object_or_404(ActivityCompletion, id=completion_id)
+    activity = completion.activity
+    if activity.topic.lesson_plan.subject.teacher != request.user:
+        return redirect('home')
+
+    if request.method == 'POST' and not completion.graded:
+        form = GradeActivityForm(
+            request.POST, instance=completion, max_score=activity.max_score)
+        if form.is_valid():
+            completion = form.save(commit=False)
+            completion.graded = True
+            completion.save()
+
+            awards = [(activity.skill_main, completion.main_points)]
+            if activity.skill_secondary:
+                awards.append((activity.skill_secondary,
+                              completion.secondary_points))
+            if activity.skill_tertiary:
+                awards.append((activity.skill_tertiary,
+                              completion.tertiary_points))
+            for skill, points in awards:
+                student_skill, created = completion.student.skills.get_or_create(
+                    skill=skill)
+                student_skill.points += points
+                student_skill.save()
+            return redirect('grade_activity_completion', completion_id=completion.id)
+    else:
+        form = GradeActivityForm(
+            instance=completion, max_score=activity.max_score)
+    return render(request, 'tracker/grade_activity_completion.html', {'completion': completion, 'activity': activity, 'form': form})
 
 
 @login_required
@@ -273,15 +278,10 @@ def gradesheet_view(request, subject_id):
         topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
     projects = subject.projects.all().order_by('deadline')
 
-    activity_points = {
-        activity.id: sum(sp.points for sp in activity.skill_points.all())
-        for activity in activities
-    }
-
-    completed_pairs = set(
-        ActivityCompletion.objects.filter(activity__in=activities)
-        .values_list('student_id', 'activity_id')
-    )
+    activity_completions = ActivityCompletion.objects.filter(
+        activity__in=activities)
+    completion_map = {
+        (c.student_id, c.activity_id): c for c in activity_completions}
 
     submissions = ProjectSubmission.objects.filter(
         project__in=projects).prefetch_related('skill_awards')
@@ -294,16 +294,21 @@ def gradesheet_view(request, subject_id):
         total_points = 0
 
         for activity in activities:
-            if (student.id, activity.id) in completed_pairs:
-                points = activity_points.get(activity.id, 0)
-                total_points += points
+            completion = completion_map.get((student.id, activity.id))
+            if completion is None:
                 cells.append({
-                    'status': 'completed', 'points': points,
+                    'status': 'not_submitted', 'points': None,
+                    'url_name': 'activity_detail', 'obj_id': activity.id,
+                })
+            elif not completion.graded:
+                cells.append({
+                    'status': 'pending', 'points': None,
                     'url_name': 'activity_detail', 'obj_id': activity.id,
                 })
             else:
+                total_points += completion.total_points
                 cells.append({
-                    'status': 'not_submitted', 'points': None,
+                    'status': 'evaluated', 'points': completion.total_points,
                     'url_name': 'activity_detail', 'obj_id': activity.id,
                 })
 
@@ -336,28 +341,32 @@ def gradesheet_view(request, subject_id):
     })
 
 
-@login_required
 def manage_students(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
     if subject.teacher.profile.mode == 'personal':
         return redirect('lesson_plan_view', subject_id=subject.id)
 
+    teacher_school = subject.teacher.profile.school
     query = request.GET.get('q', '')
     results = []
-    if query:
+    if query and teacher_school:
         results = User.objects.filter(
-            profile__role='student', profile__mode='professional', username__icontains=query
+            profile__role='student', profile__mode='professional',
+            profile__school=teacher_school, username__icontains=query
         ).exclude(id__in=subject.students.values_list('id', flat=True))
     return render(request, 'tracker/manage_students.html', {
-        'subject': subject, 'query': query, 'results': results
+        'subject': subject, 'query': query, 'results': results,
+        'no_school': not teacher_school,
     })
 
 
 @login_required
 def add_student_to_subject(request, subject_id, student_id):
     subject = get_object_or_404(Subject, id=subject_id)
-    student = get_object_or_404(User, id=student_id)
-    subject.students.add(student)
+    student = get_object_or_404(
+        User, id=student_id, profile__role='student', profile__mode='professional')
+    if subject.teacher.profile.school and student.profile.school == subject.teacher.profile.school:
+        subject.students.add(student)
     return redirect('manage_students', subject_id=subject.id)
 
 
@@ -402,13 +411,16 @@ def task_list(request):
 def add_task_activity(request):
     if not (request.user.profile.role == 'student' and request.user.profile.mode == 'personal'):
         return redirect('task_list')
+    relevant_skills = get_relevant_skills()
     if request.method == 'POST':
-        form = TaskActivityForm(request.POST, user=request.user)
+        form = TaskActivityForm(
+            request.POST, user=request.user, relevant_skills=relevant_skills)
         if form.is_valid():
             form.save()
             return redirect('task_list')
     else:
-        form = TaskActivityForm(user=request.user)
+        form = TaskActivityForm(
+            user=request.user, relevant_skills=relevant_skills)
     return render(request, 'tracker/add_task_activity.html', {'form': form})
 
 
