@@ -14,6 +14,10 @@ class Profile(models.Model):
         ('personal', 'Personal'),
         ('professional', 'Professional'),
     ]
+    SCHOOL_CHOICES = [
+        ('citu', 'Cebu Institute of Technology-University'),
+        ('other', 'Other'),
+    ]
 
     user = models.OneToOneField(
         User, on_delete=models.CASCADE, related_name='profile')
@@ -22,6 +26,10 @@ class Profile(models.Model):
         max_length=15, choices=MODE_CHOICES, blank=True, null=True)
     course = models.ForeignKey(
         Course, on_delete=models.SET_NULL, null=True, blank=True)
+    school = models.CharField(
+        max_length=10, choices=SCHOOL_CHOICES, blank=True)
+    school_id = models.CharField(max_length=12, blank=True)
+    under_evaluation = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"

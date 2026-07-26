@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="login-section">
+    <div class="lgn-part">
+        <h2>Confirm Your School ID</h2>
+        <p>A student already has the ID <strong>{{ school_id }}</strong>. Are you sure this is your ID?</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="btn-lgn">
+                <button type="submit" name="choice" value="yes">Yes, this is my ID</button>
+            </div>
+        </form>
+        <form method="post">
+            {% csrf_token %}
+            <div class="btn-lgn">
+                <button type="submit" name="choice" value="no" style="background-color:#334155;">No, let me
+                    re-enter</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

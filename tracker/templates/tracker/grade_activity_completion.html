@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Grade: {{ completion.student.username }}</h2>
+<div class="content-frame">
+    {% if completion.image %}<p><img src="{{ completion.image.url }}" class="submission-img"></p>{% endif %}
+    {% if completion.document %}<p><a href="{{ completion.document.url }}">View submitted document</a></p>{% endif %}
+    {% if not completion.image and not completion.document %}<p class="muted-note">No files attached.</p>{% endif %}
+
+    <h3 class="dossier-section-title">Score</h3>
+
+    {% if completion.graded %}
+    <p>{{ completion.score }} / {{ activity.max_score }}</p>
+    <ul class="ruled-list">
+        <li>{{ activity.skill_main.name }} <span class="dossier-eval-score">+{{ completion.main_points }}</span></li>
+        {% if activity.skill_secondary %}<li>{{ activity.skill_secondary.name }} <span class="dossier-eval-score">+{{
+                completion.secondary_points }}</span></li>{% endif %}
+        {% if activity.skill_tertiary %}<li>{{ activity.skill_tertiary.name }} <span class="dossier-eval-score">+{{
+                completion.tertiary_points }}</span></li>{% endif %}
+    </ul>
+    {% else %}
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Submit Grade</button>
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

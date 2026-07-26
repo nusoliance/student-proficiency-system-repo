@@ -12,23 +12,25 @@
         <p>{{ activity.instructions|linebreaks }}</p>
         {% endif %}
 
-        {% if activity.skill_points.all %}
         <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
         <p
             style="margin:0 0 0.6rem; font-size:0.95rem; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.03em;">
-            Skills You Can Earn</p>
+            Skills On This Activity</p>
         <ul class="activity-list">
-            {% for sp in activity.skill_points.all %}
-            <li class="activity-item">{{ sp.skill.name }} <span class="badge badge-warning">+{{ sp.points }} pts</span>
-            </li>
-            {% endfor %}
+            <li class="activity-item">{{ activity.skill_main.name }}</li>
+            {% if activity.skill_secondary %}<li class="activity-item">{{ activity.skill_secondary.name }}</li>{% endif
+            %}
+            {% if activity.skill_tertiary %}<li class="activity-item">{{ activity.skill_tertiary.name }}</li>{% endif %}
         </ul>
-        {% endif %}
 
         {% if completion %}
         <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
 
-        <span class="badge badge-success">Completed</span> on {{ completion.completed_at|date:"M d, Y" }}
+        {% if completion.graded %}
+        <p><span class="badge badge-success">Graded</span> {{ completion.score }}/{{ activity.max_score }}</p>
+        {% else %}
+        <p><span class="badge badge-warning">Submitted — awaiting grade</span></p>
+        {% endif %}
         {% if completion.image %}<img src="{{ completion.image.url }}">{% endif %}
         {% if completion.document %}<p><a href="{{ completion.document.url }}">View submitted document</a></p>
         {% endif%}
