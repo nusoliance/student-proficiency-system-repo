@@ -17,10 +17,17 @@
             style="margin:0 0 0.6rem; font-size:0.95rem; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.03em;">
             Skills On This Activity</p>
         <ul class="activity-list">
-            <li class="activity-item">{{ activity.skill_main.name }}</li>
-            {% if activity.skill_secondary %}<li class="activity-item">{{ activity.skill_secondary.name }}</li>
+            <li class="activity-item">{{ activity.skill_main.name }}{% if completion.graded %} <span
+                    class="badge badge-success">+{{ completion.main_points }} pts</span>{% endif %}</li>
+            {% if activity.skill_secondary %}<li class="activity-item">{{ activity.skill_secondary.name }}
+                {% if completion.graded %} <span class="badge badge-success">+{{ completion.secondary_points }}
+                    pts</span>
+                {%endif %}</li>
             {% endif%}
-            {% if activity.skill_tertiary %}<li class="activity-item">{{ activity.skill_tertiary.name }}</li>{% endif %}
+            {% if activity.skill_tertiary %}<li class="activity-item">{{ activity.skill_tertiary.name }}
+                {% if completion.graded %} <span class="badge badge-success">+{{ completion.tertiary_points }}
+                    pts</span>
+                {%endif %}</li>{% endif %}
         </ul>
 
         {% if completion %}

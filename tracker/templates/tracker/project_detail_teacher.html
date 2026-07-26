@@ -2,6 +2,7 @@
 {% block content %}
 <h2>{{ project.title }} — Submissions</h2>
 <div class="content-frame">
+    <p class="muted-note">Max score: {{ project.max_score }}</p>
     <ul class="ruled-list">
         {% for submission in submissions %}
         <li>

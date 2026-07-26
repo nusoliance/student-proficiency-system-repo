@@ -1817,7 +1817,7 @@ input[type="submit"]:hover {
 .gradesheet-table thead th {
     background: #F8FAFF;
     font-family: 'Sora', sans-serif;
-    color: #1E3A8A;
+    color: #000000;
     vertical-align: bottom;
 }
 
@@ -1868,13 +1868,13 @@ input[type="submit"]:hover {
 }
 
 .gradesheet-status-pending {
-    color: #92400E;
-    background: #FEF3C7;
+    color: #000000;
+
 }
 
 .gradesheet-status-done {
-    color: #065F46;
-    background: #D1FAE5;
+    color: #000000;
+
 }
 
 /* for editing tchr dashbrd -kian */
@@ -1918,4 +1918,111 @@ input[type="submit"]:hover {
     display: flex;
     gap: 0.6rem;
     flex-wrap: wrap;
+}
+
+/* skill picker for teachers when adding activities -kian*/
+.skill-picker {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.skill-picker-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+}
+
+.skill-picker-native {
+    display: none;
+}
+
+.skill-picker-button {
+    width: 100%;
+    text-align: left;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.9rem;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.skill-picker-button:hover {
+    border-color: var(--blue-dark);
+}
+
+.skill-picker-panel {
+    position: absolute;
+    z-index: 20;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, 0.15);
+    padding: 0.75rem;
+}
+
+.skill-picker-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+}
+
+.skill-picker-search {
+    flex: 1;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+.skill-picker-show-all {
+    white-space: nowrap;
+}
+
+.skill-picker-results {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.skill-picker-group {
+    margin-bottom: 0.5rem;
+}
+
+.skill-picker-group-heading {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    padding: 0.3rem 0.4rem 0.2rem;
+}
+
+.skill-picker-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0.4rem 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.skill-picker-item:hover {
+    background: var(--bg-light);
+    color: var(--blue-dark);
+}
+
+.skill-picker-empty {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.85rem;
+    color: var(--muted);
 }

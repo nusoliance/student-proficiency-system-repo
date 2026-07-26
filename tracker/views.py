@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask
-from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm
+from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -19,6 +19,20 @@ def get_relevant_skills():
             output_field=IntegerField(),
         )
     ).order_by('category_order', 'course__name', 'name')
+
+
+def skill_groups_for_picker(skills):
+    groups = []
+    group_by_name = {}
+    for skill in skills.select_related('course'):
+        group_name = 'General Education' if skill.category == 'general' else (
+            skill.course.name if skill.course else 'Other')
+        if group_name not in group_by_name:
+            group_by_name[group_name] = {'course': group_name, 'skills': []}
+            groups.append(group_by_name[group_name])
+        group_by_name[group_name]['skills'].append(
+            {'id': skill.id, 'name': skill.name})
+    return groups
 
 
 @login_required
@@ -110,7 +124,10 @@ def add_activity(request, topic_id):
             return redirect('lesson_plan_view', subject_id=topic.lesson_plan.subject.id)
     else:
         form = ActivityForm(relevant_skills=relevant_skills)
-    return render(request, 'tracker/add_activity.html', {'form': form, 'topic': topic})
+    return render(request, 'tracker/add_activity.html', {
+        'form': form, 'topic': topic,
+        'skill_groups': skill_groups_for_picker(relevant_skills),
+    })
 
 
 @login_required
@@ -246,20 +263,35 @@ def project_detail(request, project_id):
 @login_required
 def evaluate_submission(request, submission_id):
     submission = get_object_or_404(ProjectSubmission, id=submission_id)
+    project = submission.project
     if request.method == 'POST':
-        form = SkillAwardForm(request.POST, student=submission.student)
-        if form.is_valid():
-            award = form.save(commit=False)
-            award.submission = submission
-            award.save()
-            student_skill, created = submission.student.skills.get_or_create(
-                skill=award.skill)
-            student_skill.points += award.points
-            student_skill.save()
-            return redirect('evaluate_submission', submission_id=submission.id)
+        if 'submit_score' in request.POST:
+            score_form = GradeProjectForm(
+                request.POST, instance=submission, max_score=project.max_score)
+            if score_form.is_valid():
+                score_form.save()
+                return redirect('evaluate_submission', submission_id=submission.id)
+            form = SkillAwardForm(student=submission.student)
+        else:
+            form = SkillAwardForm(request.POST, student=submission.student)
+            if form.is_valid():
+                award = form.save(commit=False)
+                award.submission = submission
+                award.save()
+                student_skill, created = submission.student.skills.get_or_create(
+                    skill=award.skill)
+                student_skill.points += award.points
+                student_skill.save()
+                return redirect('evaluate_submission', submission_id=submission.id)
+            score_form = GradeProjectForm(
+                instance=submission, max_score=project.max_score)
     else:
         form = SkillAwardForm(student=submission.student)
-    return render(request, 'tracker/evaluate_submission.html', {'submission': submission, 'form': form})
+        score_form = GradeProjectForm(
+            instance=submission, max_score=project.max_score)
+    return render(request, 'tracker/evaluate_submission.html', {
+        'submission': submission, 'form': form, 'score_form': score_form,
+    })
 
 
 @login_required
@@ -421,7 +453,9 @@ def add_task_activity(request):
     else:
         form = TaskActivityForm(
             user=request.user, relevant_skills=relevant_skills)
-    return render(request, 'tracker/add_task_activity.html', {'form': form})
+    return render(request, 'tracker/add_task_activity.html', {
+        'form': form, 'skill_groups': skill_groups_for_picker(relevant_skills),
+    })
 
 
 @login_required

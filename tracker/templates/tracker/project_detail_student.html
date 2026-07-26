@@ -16,6 +16,9 @@
         {% else %}
         <span class="badge badge-warning">Waiting for evaluation</span>
         {% endif %}
+        {% if submission.score is not None %}
+        <p><span class="badge badge-success">Scored</span> {{ submission.score }}/{{ project.max_score }}</p>
+        {% endif %}
         {% if submission.feedback %}<p>Feedback: {{ submission.feedback }}</p>{% endif %}
 
         {% if submission.skill_awards.all %}

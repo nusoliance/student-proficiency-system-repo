@@ -13,6 +13,21 @@
     <p class="muted-note">No files attached.</p>
     {% endif %}
 
+    <h3 class="dossier-section-title">Score</h3>
+    <p class="muted-note">Max score: {{ submission.project.max_score }}</p>
+    {% if submission.score is not None %}
+    <p><span class="badge badge-success">Scored</span> {{ submission.score }}/{{ submission.project.max_score }}</p>
+    {% else %}
+    <p class="muted-note">Not scored yet.</p>
+    {% endif %}
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        {{ score_form.as_p }}
+        <div class="form-actions">
+            <button type="submit" name="submit_score" class="btn-primary">Save Score</button>
+        </div>
+    </form>
+
     <h3 class="dossier-section-title">Skill Points Awarded</h3>
     <ul class="ruled-list">
         {% for award in submission.skill_awards.all %}
@@ -26,7 +41,7 @@
         {% csrf_token %}
         {{ form.as_p }}
         <div class="form-actions">
-            <button type="submit" class="btn-primary">Add Skill Points</button>
+            <button type="submit" name="submit_award" class="btn-primary">Add Skill Points</button>
         </div>
     </form>
 

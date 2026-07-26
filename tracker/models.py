@@ -83,16 +83,30 @@ class ActivityCompletion(models.Model):
         return pool * self.score // self.activity.max_score
 
     @property
+    def _skill_weights(self):
+        weights = [5]
+        weights.append(3 if self.activity.skill_secondary else 0)
+        weights.append(2 if self.activity.skill_tertiary else 0)
+        return weights
+
+    @property
     def main_points(self):
-        return self.total_points * 5 // 10
+        weights = self._skill_weights
+        return self.total_points * weights[0] // sum(weights)
 
     @property
     def secondary_points(self):
-        return self.total_points * 3 // 10
+        if not self.activity.skill_secondary:
+            return 0
+        weights = self._skill_weights
+        return self.total_points * weights[1] // sum(weights)
 
     @property
     def tertiary_points(self):
-        return self.total_points * 2 // 10
+        if not self.activity.skill_tertiary:
+            return 0
+        weights = self._skill_weights
+        return self.total_points * weights[2] // sum(weights)
 
     def __str__(self):
         return f"{self.student.username} completed {self.activity.title}"
@@ -105,6 +119,7 @@ class Project(models.Model):
     description = models.TextField(blank=True)
     deadline = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    max_score = models.PositiveIntegerField(default=100)
 
     def __str__(self):
         return self.title
@@ -122,6 +137,7 @@ class ProjectSubmission(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     evaluated = models.BooleanField(default=False)
     feedback = models.TextField(blank=True)
+    score = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         unique_together = ('project', 'student')

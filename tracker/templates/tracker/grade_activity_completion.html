@@ -7,7 +7,7 @@
     {% if not completion.image and not completion.document %}<p class="muted-note">No files attached.</p>{% endif %}
 
     <h3 class="dossier-section-title">Score</h3>
-
+    <p class="muted-note">Max score: {{ activity.max_score }}</p>
     {% if completion.graded %}
     <p>{{ completion.score }} / {{ activity.max_score }}</p>
     <ul class="ruled-list">
