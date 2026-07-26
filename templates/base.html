@@ -107,7 +107,13 @@
     {% block breadcrumbs %}{% endblock %}
 </div>
 {% endif %}
-
+{% if messages %}
+<div class="page-messages">
+    {% for message in messages %}
+    <p class="page-message{% if message.tags %} page-message-{{ message.tags }}{% endif %}">{{ message }}</p>
+    {% endfor %}
+</div>
+{% endif %}
 {% block content %}
 {% endblock %}
 

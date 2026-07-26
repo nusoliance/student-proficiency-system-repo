@@ -215,3 +215,22 @@ class PersonalTaskForm(forms.ModelForm):
         if commit:
             instance.save()
         return instance
+
+class SubjectWeightsForm(forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = ['activity_weight', 'project_weight']
+        widgets = {
+            'activity_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+            'project_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        activity_weight = cleaned_data.get('activity_weight')
+        project_weight = cleaned_data.get('project_weight')
+        if activity_weight is not None and project_weight is not None:
+            if activity_weight + project_weight != 100:
+                raise forms.ValidationError(
+                    'Activities % and Projects % must add up to 100.')
+        return cleaned_data

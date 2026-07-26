@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask
-from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm
+from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill
+from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 import calendar as cal_module
 from django.db.models import Q, Case, When, Value, IntegerField
 from avatar.models import Skill
+from django.contrib import messages
 
 
 def get_relevant_skills():
@@ -194,6 +195,8 @@ def grade_activity_completion(request, completion_id):
                 awards.append((activity.skill_tertiary,
                               completion.tertiary_points))
             for skill, points in awards:
+                if not skill_applies_to_student(skill, completion.student):
+                    continue
                 student_skill, created = completion.student.skills.get_or_create(
                     skill=skill)
                 student_skill.points += points
@@ -315,62 +318,115 @@ def gradesheet_view(request, subject_id):
     completion_map = {
         (c.student_id, c.activity_id): c for c in activity_completions}
 
-    submissions = ProjectSubmission.objects.filter(
-        project__in=projects).prefetch_related('skill_awards')
+    submissions = ProjectSubmission.objects.filter(project__in=projects)
     submission_map = {
         (sub.student_id, sub.project_id): sub for sub in submissions}
 
     rows = []
     for student in students:
-        cells = []
-        total_points = 0
+        activity_cells = []
+        project_cells = []
+        activity_percentages = []
+        project_percentages = []
 
         for activity in activities:
             completion = completion_map.get((student.id, activity.id))
             if completion is None:
-                cells.append({
-                    'status': 'not_submitted', 'points': None,
+                activity_cells.append({
+                    'status': 'not_submitted', 'score': None, 'max_score': activity.max_score,
                     'url_name': 'activity_detail', 'obj_id': activity.id,
                 })
             elif not completion.graded:
-                cells.append({
-                    'status': 'pending', 'points': None,
+                activity_cells.append({
+                    'status': 'pending', 'score': None, 'max_score': activity.max_score,
                     'url_name': 'activity_detail', 'obj_id': activity.id,
                 })
             else:
-                total_points += completion.total_points
-                cells.append({
-                    'status': 'evaluated', 'points': completion.total_points,
+                if activity.max_score:
+                    activity_percentages.append(
+                        completion.score / activity.max_score * 100)
+                activity_cells.append({
+                    'status': 'evaluated', 'score': completion.score, 'max_score': activity.max_score,
                     'url_name': 'activity_detail', 'obj_id': activity.id,
                 })
 
         for project in projects:
             submission = submission_map.get((student.id, project.id))
             if submission is None:
-                cells.append({
-                    'status': 'not_submitted', 'points': None,
+                project_cells.append({
+                    'status': 'not_submitted', 'score': None, 'max_score': project.max_score,
                     'url_name': 'project_detail', 'obj_id': project.id,
                 })
             elif not submission.evaluated:
-                cells.append({
-                    'status': 'pending', 'points': None,
+                project_cells.append({
+                    'status': 'pending', 'score': None, 'max_score': project.max_score,
                     'url_name': 'evaluate_submission', 'obj_id': submission.id,
                 })
             else:
-                points = sum(sa.points for sa in submission.skill_awards.all())
-                total_points += points
-                cells.append({
-                    'status': 'evaluated', 'points': points,
+                if project.max_score and submission.score is not None:
+                    project_percentages.append(
+                        submission.score / project.max_score * 100)
+                project_cells.append({
+                    'status': 'evaluated', 'score': submission.score, 'max_score': project.max_score,
                     'url_name': 'evaluate_submission', 'obj_id': submission.id,
                 })
 
-        rows.append({'student': student, 'cells': cells,
-                     'total_points': total_points})
+        activity_average = (
+            sum(activity_percentages) / len(activity_percentages)
+            if activity_percentages else None)
+        project_average = (
+            sum(project_percentages) / len(project_percentages)
+            if project_percentages else None)
+
+        if activity_average is not None and project_average is not None:
+            average = (
+                activity_average * subject.activity_weight
+                + project_average * subject.project_weight) / 100
+        elif activity_average is not None:
+            average = activity_average
+        elif project_average is not None:
+            average = project_average
+        else:
+            average = None
+
+        rows.append({
+            'student': student, 'activity_cells': activity_cells,
+            'project_cells': project_cells, 'average': average,
+            'activity_average': activity_average,
+        })
+
+    ranked = sorted(
+        (r for r in rows if r['average'] is not None),
+        key=lambda r: r['average'], reverse=True)
+    rank = 0
+    previous_average = None
+    for i, row in enumerate(ranked, start=1):
+        if row['average'] != previous_average:
+            rank = i
+            previous_average = row['average']
+        row['rank'] = rank
+    for row in rows:
+        row.setdefault('rank', None)
 
     return render(request, 'tracker/gradesheet.html', {
         'subject': subject, 'activities': activities, 'projects': projects,
         'rows': rows, 'column_count': activities.count() + projects.count(),
+        'weights_form': SubjectWeightsForm(instance=subject),
     })
+
+
+@login_required
+def update_grade_weights(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
+    if request.method == 'POST':
+        form = SubjectWeightsForm(request.POST, instance=subject)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Grade weighting updated.')
+        else:
+            for error in form.non_field_errors():
+                messages.error(request, error)
+    return redirect('gradesheet_view', subject_id=subject.id)
 
 
 def manage_students(request, subject_id):
@@ -642,3 +698,12 @@ def delete_personal_task(request, task_id):
         task.delete()
         return redirect('personal_task_list')
     return render(request, 'tracker/confirm_delete.html', {'object_name': task.title, 'cancel_url': 'personal_task_list'})
+
+def skill_applies_to_student(skill, student):
+    if skill is None:
+        return False
+    if skill.category != 'course':
+        return True 
+    profile = getattr(student, 'profile', None)
+    student_course_id = getattr(profile, 'course_id', None)
+    return skill.course_id is not None and skill.course_id == student_course_id

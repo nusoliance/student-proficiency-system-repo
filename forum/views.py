@@ -151,3 +151,5 @@ def delete_answer(request, answer_id):
     if request.method == 'POST':
         answer.delete()
     return redirect('post_detail', post_id=post_id)
+
+
