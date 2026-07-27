@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="content-frame">
+<h2>All Caught Up!</h2>
+<p>Every submission for "{{ subject.name }}" has been graded. ({{ total_graded }} total)</p>
+<a href="{% url 'gradesheet_view' subject.id %}" class="btn-secondary">Back to Gradesheet</a>
+</div>
+{% endblock %}
