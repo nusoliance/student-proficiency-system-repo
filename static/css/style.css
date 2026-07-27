@@ -1862,8 +1862,7 @@ input[type="submit"]:hover {
 }
 
 .gradesheet-status-empty {
-    color: var(--muted);
-    background: #F1F2F4;
+    color: rgb(205, 16, 16);
 }
 
 .gradesheet-status-pending {

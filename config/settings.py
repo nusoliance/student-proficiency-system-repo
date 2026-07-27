@@ -146,5 +146,37 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 EMAIL_TIMEOUT = 10
+
+LOGS_DIR = BASE_DIR / 'logs'
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} {levelname} {name}: {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'accounts_file': {
+            'class': 'logging.FileHandler',
+            'filename': LOGS_DIR / 'accounts.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'accounts': {
+            'handlers': ['console', 'accounts_file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
