@@ -18,6 +18,10 @@
             <a href="{% url 'delete_subject' subject.id %}" class="btn-secondary"
                 style="color:#991B1B; border-color:#991B1B;">Delete Subject</a>
             {% endif %}
+            {% if not user.profile.is_manager and user.profile.mode == 'professional' %}
+            <a href="{% url 'my_gradesheet_view' subject.id %}" class="btn-secondary">My Gradesheet</a>
+            
+            {% endif %}
         </div>
     </div>
 

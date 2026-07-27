@@ -306,9 +306,97 @@ def finish_evaluation(request, submission_id):
     return redirect('project_detail', project_id=submission.project.id)
 
 
-@login_required
-def gradesheet_view(request, subject_id):
-    subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
+def _build_gradesheet_row(subject, student, activities, projects, completion_map, submission_map, is_teacher=True):
+    activity_cells = []
+    project_cells = []
+    activity_percentages = []
+    project_percentages = []
+
+    for activity in activities:
+        completion = completion_map.get((student.id, activity.id))
+        if completion is None:
+            activity_cells.append({
+                'status': 'not_submitted', 'score': None, 'max_score': activity.max_score,
+                'url_name': 'activity_detail', 'obj_id': activity.id,
+            })
+        elif not completion.graded:
+            activity_cells.append({
+                'status': 'pending', 'score': None, 'max_score': activity.max_score,
+                'url_name': 'activity_detail', 'obj_id': activity.id,
+            })
+        else:
+            if activity.max_score:
+                activity_percentages.append(
+                    completion.score / activity.max_score * 100)
+            activity_cells.append({
+                'status': 'evaluated', 'score': completion.score, 'max_score': activity.max_score,
+                'url_name': 'activity_detail', 'obj_id': activity.id,
+            })
+
+    for project in projects:
+        submission = submission_map.get((student.id, project.id))
+        if submission is None:
+            project_cells.append({
+                'status': 'not_submitted', 'score': None, 'max_score': project.max_score,
+                'url_name': 'project_detail', 'obj_id': project.id,
+            })
+        elif not submission.evaluated:
+            project_cells.append({
+                'status': 'pending', 'score': None, 'max_score': project.max_score,
+                'url_name': 'evaluate_submission' if is_teacher else 'project_detail',
+                'obj_id': submission.id if is_teacher else project.id,
+            })
+        else:
+            if project.max_score and submission.score is not None:
+                project_percentages.append(
+                    submission.score / project.max_score * 100)
+            project_cells.append({
+                'status': 'evaluated', 'score': submission.score, 'max_score': project.max_score,
+                'url_name': 'evaluate_submission' if is_teacher else 'project_detail',
+                'obj_id': submission.id if is_teacher else project.id,
+            })
+
+    activity_average = (
+        sum(activity_percentages) / len(activity_percentages)
+        if activity_percentages else None)
+    project_average = (
+        sum(project_percentages) / len(project_percentages)
+        if project_percentages else None)
+
+    if activity_average is not None and project_average is not None:
+        average = (
+            activity_average * subject.activity_weight
+            + project_average * subject.project_weight) / 100
+    elif activity_average is not None:
+        average = activity_average
+    elif project_average is not None:
+        average = project_average
+    else:
+        average = None
+
+    return {
+        'student': student, 'activity_cells': activity_cells,
+        'project_cells': project_cells, 'average': average,
+        'activity_average': activity_average,
+    }
+
+
+def _rank_gradesheet_rows(rows):
+    ranked = sorted(
+        (r for r in rows if r['average'] is not None),
+        key=lambda r: r['average'], reverse=True)
+    rank = 0
+    previous_average = None
+    for i, row in enumerate(ranked, start=1):
+        if row['average'] != previous_average:
+            rank = i
+            previous_average = row['average']
+        row['rank'] = rank
+    for row in rows:
+        row.setdefault('rank', None)
+
+
+def build_gradesheet_data(subject):
     students = subject.students.all().order_by('username')
     activities = Activity.objects.filter(
         topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
@@ -390,10 +478,30 @@ def gradesheet_view(request, subject_id):
         else:
             average = None
 
+        total_items = len(activity_cells) + len(project_cells)
+        incomplete_items = sum(
+            1 for cell in activity_cells + project_cells
+            if cell['status'] in ('not_submitted', 'pending'))
+        missing_work_ratio = (
+            incomplete_items / total_items if total_items else 0)
+
+        low_average = average is not None and average < subject.at_risk_threshold
+        missing_too_much = total_items > 0 and missing_work_ratio > 0.5
+
+        if low_average and missing_too_much:
+            at_risk_reason = 'Low average and incomplete work'
+        elif low_average:
+            at_risk_reason = 'Low average'
+        elif missing_too_much:
+            at_risk_reason = 'Incomplete work'
+        else:
+            at_risk_reason = None
+
         rows.append({
             'student': student, 'activity_cells': activity_cells,
             'project_cells': project_cells, 'average': average,
             'activity_average': activity_average,
+            'at_risk_reason': at_risk_reason,
         })
 
     ranked = sorted(
@@ -409,10 +517,55 @@ def gradesheet_view(request, subject_id):
     for row in rows:
         row.setdefault('rank', None)
 
+    return {
+        'activities': activities, 'projects': projects, 'rows': rows,
+        'column_count': activities.count() + projects.count(),
+    }
+
+
+@login_required
+def gradesheet_view(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
+    data = build_gradesheet_data(subject)
+    return render(request, 'tracker/gradesheet.html', {
+        'subject': subject, 'activities': data['activities'],
+        'projects': data['projects'], 'rows': data['rows'],
+        'column_count': data['column_count'],
+        'weights_form': SubjectWeightsForm(instance=subject),
+        'show_teacher_controls': True,
+    })
+
+@login_required
+def my_gradesheet_view(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id, students=request.user)
+    students = subject.students.all().order_by('username')
+    activities = Activity.objects.filter(
+        topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
+    projects = subject.projects.all().order_by('deadline')
+
+    activity_completions = ActivityCompletion.objects.filter(
+        activity__in=activities)
+    completion_map = {
+        (c.student_id, c.activity_id): c for c in activity_completions}
+
+    submissions = ProjectSubmission.objects.filter(project__in=projects)
+    submission_map = {
+        (sub.student_id, sub.project_id): sub for sub in submissions}
+
+    all_rows = [
+        _build_gradesheet_row(subject, student, activities, projects,
+                               completion_map, submission_map, is_teacher=False)
+        for student in students
+    ]
+    _rank_gradesheet_rows(all_rows)
+    own_row = next(
+        (r for r in all_rows if r['student'].id == request.user.id), None)
+
     return render(request, 'tracker/gradesheet.html', {
         'subject': subject, 'activities': activities, 'projects': projects,
-        'rows': rows, 'column_count': activities.count() + projects.count(),
-        'weights_form': SubjectWeightsForm(instance=subject),
+        'rows': [own_row] if own_row else [],
+        'column_count': activities.count() + projects.count(),
+        'show_teacher_controls': False,
     })
 
 @login_required
@@ -459,13 +612,42 @@ def subject_analytics(request, subject_id):
     return render(request, 'tracker/subject_analytics.html', context)
 
 @login_required
+def my_subject_analytics(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id, students=request.user)
+
+    activities = Activity.objects.filter(topic__lesson_plan__subject=subject).order_by('deadline')
+    projects = subject.projects.all().order_by('deadline')
+
+    score_items = []
+    for activity in activities:
+        completion = ActivityCompletion.objects.filter(
+            activity=activity, student=request.user, graded=True).first()
+        if completion and completion.score is not None and activity.max_score:
+            pct = completion.score / activity.max_score * 100
+            score_items.append({'label': activity.title, 'deadline': activity.deadline, 'score': round(pct, 1)})
+    for project in projects:
+        submission = ProjectSubmission.objects.filter(
+            project=project, student=request.user, evaluated=True, score__isnull=False).first()
+        if submission and project.max_score:
+            pct = submission.score / project.max_score * 100
+            score_items.append({'label': project.title, 'deadline': project.deadline, 'score': round(pct, 1)})
+    score_items.sort(key=lambda x: x['deadline'] or date.max)
+
+    context = {
+        'subject': subject,
+        'score_chart_data': {'labels': [i['label'] for i in score_items], 'scores': [i['score'] for i in score_items]},
+        'has_score_data': bool(score_items),
+    }
+    return render(request, 'tracker/my_subject_analytics.html', context)
+
+@login_required
 def update_grade_weights(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
     if request.method == 'POST':
         form = SubjectWeightsForm(request.POST, instance=subject)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Grade weighting updated.')
+            
         else:
             for error in form.non_field_errors():
                 messages.error(request, error)

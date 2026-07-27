@@ -219,10 +219,14 @@ class PersonalTaskForm(forms.ModelForm):
 class SubjectWeightsForm(forms.ModelForm):
     class Meta:
         model = Subject
-        fields = ['activity_weight', 'project_weight']
+        fields = ['activity_weight', 'project_weight', 'at_risk_threshold']
         widgets = {
             'activity_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
             'project_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+            'at_risk_threshold': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+        }
+        labels = {
+            'at_risk_threshold': 'Flag students below this General Average (%)',
         }
 
     def clean(self):
