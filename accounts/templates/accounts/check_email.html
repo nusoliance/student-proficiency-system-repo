@@ -2,9 +2,17 @@
 {% block content %}
 <div class="login-section">
     <div class="lgn-part">
+        {% if email_sent %}
         <h2>Check Your Email</h2>
         <p>We sent a verification link to <strong>{{ email }}</strong>. Click it to activate your account and log in.
         </p>
+        {% else %}
+        <h2>Account Created</h2>
+        <p>Your account for <strong>{{ email }}</strong> was created, but we weren't able to send the verification
+            email right now. Please try again in a little while, or contact your teacher/administrator so they can
+            activate your account manually.
+        </p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

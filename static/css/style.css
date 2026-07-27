@@ -2130,7 +2130,7 @@ input[type="submit"]:hover {
     font-family: 'Public Sans', sans-serif;
     font-weight: 500;
     font-size: 0.68rem;
-    color: var(--muted);
+    color: black;
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
@@ -2162,8 +2162,11 @@ input[type="submit"]:hover {
 
 .skills-summary-group-row td {
     background: #EEF2FF;
-    color: #1E3A8A;
     font-weight: 700;
+}
+
+.skills-summary-group-label {
+    color: #1E3A8A;
     text-align: left;
     text-transform: uppercase;
     font-size: 0.75rem;
@@ -2171,6 +2174,12 @@ input[type="submit"]:hover {
     padding: 0.45rem 0.8rem;
     position: sticky;
     left: 0;
+}
+
+.skills-summary-course-header {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.8rem;
+    vertical-align: bottom;
 }
 
 .skills-summary-avg-row td {
