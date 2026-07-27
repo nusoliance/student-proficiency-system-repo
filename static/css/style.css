@@ -1459,6 +1459,7 @@ input[type="submit"]:hover {
 
 .manager-actions {
     display: flex;
+    align-items: center;
     gap: 10px;
     flex-wrap: wrap;
 }
@@ -1467,14 +1468,19 @@ input[type="submit"]:hover {
     background-color: transparent;
     color: #334155;
     padding: 8px 16px;
+    border: none;
     border-radius: 5px;
     text-decoration: none;
+    font-family: inherit;
     font-size: 13px;
     font-weight: 600;
+    line-height: 1.4;
+    cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
+    background-color: transparent;
     border-color: #1E3A8A;
     color: #1E3A8A;
 }
@@ -2208,4 +2214,63 @@ input[type="submit"]:hover {
     font-weight: 700;
     color: #e61212;
     cursor: help;
+}
+/*save as PDF - jade*/
+@media print {
+    @page {
+        size: landscape;
+        margin: 1cm;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    .navbar,
+    .profile-banner,
+    .reminder-bar,
+    #dropdownMenu,
+    .breadcrumb-bar,
+    .page-messages,
+    .manager-actions,
+    .weights-toggle,
+    .weights-panel {
+        display: none !important;
+    }
+
+    .gradesheet-container,
+    .gradesheet-container * {
+        visibility: visible;
+    }
+
+    .gradesheet-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+    .gradesheet-scroll {
+        overflow: visible;
+        border: none;
+    }
+
+    .gradesheet-table {
+        width: 100%;
+    }
+
+    .gradesheet-student-col,
+    .gradesheet-total-col {
+        position: static;
+    }
+
+    .gradesheet-table tr {
+        break-inside: avoid;
+    }
+
+    .gradesheet-status,
+    .gradesheet-at-risk-badge {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }

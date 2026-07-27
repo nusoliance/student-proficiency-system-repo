@@ -16,6 +16,7 @@
             <a href="{% url 'my_subject_analytics' subject.id %}" class="btn-secondary">My Analytics</a>
             {% endif %}
             <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-secondary">Back to Lesson Plan</a>
+            <button type="button" class="btn-secondary" onclick="window.print()">Print / Save as PDF</button>
         </div>
     </div>
 
