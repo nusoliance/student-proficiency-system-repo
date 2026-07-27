@@ -397,7 +397,8 @@ def _rank_gradesheet_rows(rows):
 
 
 def build_gradesheet_data(subject):
-    students = subject.students.all().order_by('username')
+    students = subject.students.all().order_by(
+    'last_name', 'first_name', 'username')
     activities = Activity.objects.filter(
         topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
     projects = subject.projects.all().order_by('deadline')
@@ -538,7 +539,8 @@ def gradesheet_view(request, subject_id):
 @login_required
 def my_gradesheet_view(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id, students=request.user)
-    students = subject.students.all().order_by('username')
+    students = subject.students.all().order_by(
+    'last_name', 'first_name', 'username')
     activities = Activity.objects.filter(
         topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
     projects = subject.projects.all().order_by('deadline')

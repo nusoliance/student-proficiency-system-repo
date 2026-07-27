@@ -30,6 +30,7 @@ class Profile(models.Model):
         max_length=10, choices=SCHOOL_CHOICES, blank=True)
     school_id = models.CharField(max_length=12, blank=True)
     under_evaluation = models.BooleanField(default=False)
+    middle_initial = models.CharField(max_length=4, blank=True)
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"
@@ -37,6 +38,17 @@ class Profile(models.Model):
     @property
     def is_manager(self):
         return self.role == 'teacher' or self.mode == 'personal'
+
+    @property
+    def full_display_name(self):
+        """'Last Name, First Name M.' — falls back to the username if the
+        student hasn't filled in their name yet."""
+        if self.user.last_name and self.user.first_name:
+            name = f"{self.user.last_name}, {self.user.first_name}"
+            if self.middle_initial:
+                name += f" {self.middle_initial}"
+            return name
+        return self.user.username
 
 
 @receiver(post_save, sender=User)

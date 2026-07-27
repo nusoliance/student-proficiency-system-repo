@@ -9,4 +9,5 @@ urlpatterns = [
     path('verify/<str:uidb64>/<str:token>/',
          views.verify_email, name='verify_email'),
     path('confirm-school-id/', views.confirm_school_id, name='confirm_school_id'),
+    path('edit-name/', views.edit_name, name='edit_name'),
 ]

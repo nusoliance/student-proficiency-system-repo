@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.hashers import make_password
@@ -7,8 +8,9 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+from django.contrib import messages
 import logging
-from .forms import SignUpForm
+from .forms import SignUpForm, NameForm
 from .models import Profile
 from avatar.models import Skill, StudentSkill, Course
 
@@ -161,3 +163,27 @@ def verify_email(request, uidb64, token):
         login(request, user)
         return redirect('home')
     return render(request, 'accounts/verify_invalid.html')
+
+@login_required
+def edit_name(request):
+    if request.user.profile.role != 'student':
+        return redirect('home')
+
+    if request.method == 'POST':
+        form = NameForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            user.last_name = form.cleaned_data['last_name']
+            user.first_name = form.cleaned_data['first_name']
+            user.save()
+            user.profile.middle_initial = form.cleaned_data['middle_initial']
+            user.profile.save()
+            messages.success(request, 'Your name has been updated.')
+            return redirect('edit_name')
+    else:
+        form = NameForm(initial={
+            'last_name': request.user.last_name,
+            'first_name': request.user.first_name,
+            'middle_initial': request.user.profile.middle_initial,
+        })
+    return render(request, 'accounts/edit_name.html', {'form': form})
