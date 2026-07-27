@@ -12,22 +12,23 @@
             {% if show_teacher_controls %}
             <a href="{% url 'subject_analytics' subject.id %}" class="btn-secondary">Analytics</a>
             {% if pending_count %}
-            <a href="{% url 'grade_subject_queue' subject.id %}" class="btn-secondary" style="text-decoration:none;">Grade All Pending ({{ pending_count }})</a>
+            <a href="{% url 'grade_subject_queue' subject.id %}" class="btn-primary" style="text-decoration:none;">Grade All Pending ({{ pending_count }})</a>
             {% endif %}
             <label for="weights-toggle" class="btn-secondary">Customize Weights</label>
             {% else %}
             <a href="{% url 'my_subject_analytics' subject.id %}" class="btn-secondary">My Analytics</a>
+            <label for="weights-toggle" class="btn-secondary">Configure Weights</label>
             {% endif %}
             <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-secondary">Back to Lesson Plan</a>
             <button type="button" class="btn-secondary" onclick="window.print()">Print / Save as PDF</button>
         </div>
     </div>
-    </div>
+   
 
-    {% if show_teacher_controls %}
     <input type="checkbox" id="weights-toggle" class="weights-toggle">
     <div class="weights-panel">
         <div class="form-card weights-panel-inner">
+            {% if show_teacher_controls %}
             <form method="post" action="{% url 'update_grade_weights' subject.id %}" class="custom-form">
                 {% csrf_token %}
                 <p class="helptext">Set how much each category counts toward the General Average. Must add up to 100.</p>
@@ -38,9 +39,18 @@
                     <button type="submit" class="btn-primary">Save</button>
                 </div>
             </form>
+            {% else %}
+            <div class="custom-form">
+                <p class="helptext">Your teacher configured this subject's General Average. Only a teacher can change the values below.</p>
+                <div class="weights-panel-row">
+                    <p>{{ weights_form.activity_weight.label_tag }} {{ weights_form.activity_weight }} %</p>
+                    <p>{{ weights_form.project_weight.label_tag }} {{ weights_form.project_weight }} %</p>
+                    <p>{{ weights_form.at_risk_threshold.label_tag }} {{ weights_form.at_risk_threshold }} %</p>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 
     {% if column_count == 0 %}
     <p class="empty-state-sm">No activities or projects have been added to this subject yet.</p>

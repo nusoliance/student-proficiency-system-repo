@@ -489,7 +489,7 @@ def _rank_gradesheet_rows(rows):
         row.setdefault('rank', None)
 
 
-def build_gradesheet_data(subject):
+def build_gradesheet_data(subject, is_teacher=True):
     students = subject.students.all().order_by(
     'last_name', 'first_name', 'username')
     activities = Activity.objects.filter(
@@ -543,7 +543,8 @@ def build_gradesheet_data(subject):
             elif not submission.evaluated:
                 project_cells.append({
                     'status': 'pending', 'score': None, 'max_score': project.max_score,
-                    'url_name': 'evaluate_submission', 'obj_id': submission.id,
+                    'url_name': 'evaluate_submission' if is_teacher else 'project_detail',
+                    'obj_id': submission.id if is_teacher else project.id,
                 })
             else:
                 if project.max_score and submission.score is not None:
@@ -551,7 +552,8 @@ def build_gradesheet_data(subject):
                         submission.score / project.max_score * 100)
                 project_cells.append({
                     'status': 'evaluated', 'score': submission.score, 'max_score': project.max_score,
-                    'url_name': 'evaluate_submission', 'obj_id': submission.id,
+                    'url_name': 'evaluate_submission' if is_teacher else 'project_detail',
+                    'obj_id': submission.id if is_teacher else project.id,
                 })
 
         activity_average = (
@@ -636,35 +638,21 @@ def gradesheet_view(request, subject_id):
 @login_required
 def my_gradesheet_view(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id, students=request.user)
-    students = subject.students.all().order_by(
-    'last_name', 'first_name', 'username')
-    activities = Activity.objects.filter(
-        topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
-    projects = subject.projects.all().order_by('deadline')
-
-    activity_completions = ActivityCompletion.objects.filter(
-        activity__in=activities)
-    completion_map = {
-        (c.student_id, c.activity_id): c for c in activity_completions}
-
-    submissions = ProjectSubmission.objects.filter(project__in=projects)
-    submission_map = {
-        (sub.student_id, sub.project_id): sub for sub in submissions}
-
-    all_rows = [
-        _build_gradesheet_row(subject, student, activities, projects,
-                               completion_map, submission_map, is_teacher=False)
-        for student in students
-    ]
-    _rank_gradesheet_rows(all_rows)
+    data = build_gradesheet_data(subject, is_teacher=False)
     own_row = next(
-        (r for r in all_rows if r['student'].id == request.user.id), None)
+        (r for r in data['rows'] if r['student'].id == request.user.id), None)
+    
+    weights_form = SubjectWeightsForm(instance=subject)
+    for field in weights_form.fields.values():
+        field.disabled = True
 
     return render(request, 'tracker/gradesheet.html', {
-        'subject': subject, 'activities': activities, 'projects': projects,
+        'subject': subject, 'activities': data['activities'],
+        'projects': data['projects'],
         'rows': [own_row] if own_row else [],
-        'column_count': activities.count() + projects.count(),
+        'column_count': data['column_count'],
         'show_teacher_controls': False,
+        'weights_form': weights_form,
     })
 
 @login_required
