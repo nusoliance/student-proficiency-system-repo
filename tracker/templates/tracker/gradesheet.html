@@ -73,7 +73,7 @@
                 <tr class="{% if row.at_risk_reason %}gradesheet-row-at-risk{% endif %}">
                     <td class="gradesheet-student-col">{{ row.student.profile.school_id|default:"—" }}</td>
                     <td class="gradesheet-student-col">
-                        {{ row.student.username }}
+                        {{ row.student.profile.full_display_name }}
                         {% if row.at_risk_reason %}
                         <span class="gradesheet-at-risk-badge" title="{{ row.at_risk_reason }}">Needs Attention</span>
                         {% endif %}

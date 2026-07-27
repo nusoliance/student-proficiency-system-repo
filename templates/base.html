@@ -73,6 +73,7 @@
         {% if user.profile.role == 'student' %}
         <a href="{% url 'my_skills' %}">Avatar</a>
         <a href="{% url 'task_list' %}">Tasks</a>
+        <a href="{% url 'edit_name' %}">My Name</a>
         {% if user.profile.mode == 'professional' %}
         <a href="{% url 'forum_list' %}">Subject Forums</a>
         {% endif %}

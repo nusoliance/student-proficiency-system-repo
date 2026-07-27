@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> My Name
+{% endblock %}
+{% block content %}
+<div class="form-card">
+    <h2>My Name</h2>
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        <p>{{ form.last_name.label_tag }} {{ form.last_name }}</p>
+        <p>{{ form.first_name.label_tag }} {{ form.first_name }}</p>
+        <p>
+            {{ form.middle_initial.label_tag }} {{ form.middle_initial }}
+            {% if form.middle_initial.help_text %}
+            <span class="helptext">{{ form.middle_initial.help_text }}</span>
+            {% endif %}
+        </p>
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

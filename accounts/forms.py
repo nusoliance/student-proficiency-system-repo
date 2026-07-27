@@ -10,6 +10,25 @@ from .models import Profile
 school_id_validator = RegexValidator(
     regex=r'^\d{2}-\d{4}-\d{3}$', message="Format must be 11-1111-111")
 
+middle_initial_validator = RegexValidator(
+    regex=r'^[A-Za-z]\.$',
+    message="Enter a single letter followed by a period, e.g. \"R.\"")
+
+
+class NameForm(forms.Form):
+    last_name = forms.CharField(max_length=150, label="Last Name")
+    first_name = forms.CharField(max_length=150, label="First Name")
+    middle_initial = forms.CharField(
+        max_length=4, label="Middle Initial",
+        validators=[middle_initial_validator],
+        help_text='Single letter with a period, e.g. "R."')
+
+    def clean_middle_initial(self):
+        value = self.cleaned_data['middle_initial'].strip()
+        if len(value) == 2:
+            value = value[0].upper() + value[1]
+        return value
+
 
 class SignUpForm(UserCreationForm):
     username = forms.CharField(
