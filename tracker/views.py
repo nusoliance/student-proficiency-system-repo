@@ -492,47 +492,65 @@ def manage_students(request, subject_id):
 
 def class_skill_summary(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id)
-
     students = subject.students.select_related('profile__course').order_by(
         'profile__course__name', 'username')
 
     student_skills = StudentSkill.objects.filter(
         student__in=students, skill__category__in=['course', 'general']
-    ).select_related('skill')
-
-    present_skill_ids = {ss.skill_id for ss in student_skills}
-    skills = [s for s in get_relevant_skills() if s.id in present_skill_ids]
+    ).select_related('skill', 'skill__course')
 
     skill_map = {(ss.student_id, ss.skill_id): ss for ss in student_skills}
 
-    skill_averages = []
-    for skill in skills:
-        levels = [ss.level for (sid, skid), ss in skill_map.items() if skid == skill.id]
-        skill_averages.append(round(sum(levels) / len(levels), 1) if levels else None)
+    present_skill_ids = {ss.skill_id for ss in student_skills}
+    relevant_skills = [s for s in get_relevant_skills() if s.id in present_skill_ids]
+    general_skills = [s for s in relevant_skills if s.category == 'general']
+    course_skills_pool = [s for s in relevant_skills if s.category == 'course']
 
-    skill_rows = []
-    for student in students:
+    def skill_average(skill):
+        levels = [ss.level for (
+            sid, skid), ss in skill_map.items() if skid == skill.id]
+        return round(sum(levels) / len(levels), 1) if levels else None
+
+    general_averages = [skill_average(s) for s in general_skills]
+    
+
+    def build_cells(student, skill_list, averages):
         cells = []
-        for skill, avg in zip(skills, skill_averages):
+        for skill, avg in zip(skill_list, averages):
             ss = skill_map.get((student.id, skill.id))
             level = ss.level if ss else None
             cells.append({
                 'level': level,
                 'behind': level is not None and avg is not None and level <= avg - 1,
             })
-        skill_rows.append({'student': student, 'cells': cells})
+        return cells
 
-    skill_groups = []
-    for row in skill_rows:
-        course = row['student'].profile.course
+    groups = []
+    for student in students:
+        course = student.profile.course
         course_name = course.name if course else 'No Course Assigned'
-        if not skill_groups or skill_groups[-1]['course_name'] != course_name:
-            skill_groups.append({'course_name': course_name, 'rows': []})
-        skill_groups[-1]['rows'].append(row)
+        if not groups or groups[-1]['course_name'] != course_name:
+            group_course_skills = [
+                s for s in course_skills_pool if course and s.course_id == course.id]
+            groups.append({
+                'course_name': course_name,
+                'course_skills': group_course_skills,
+                'course_averages': [skill_average(s) for s in group_course_skills],
+                'rows': [],
+            })
+        group = groups[-1]
+        group['rows'].append({
+            'student': student,
+            'general_cells': build_cells(student, general_skills, general_averages),
+            'course_cells': build_cells(student, group['course_skills'], group['course_averages']),
+        })
+
+    has_any_skills = bool(general_skills) or any(g['course_skills'] for g in groups)
 
     return render(request, 'tracker/class_skill_summary.html', {
         'subject': subject,
-        'skills': skills, 'skill_groups': skill_groups, 'skill_averages': skill_averages,
+        'general_skills': general_skills, 'general_averages': general_averages,
+        'groups': groups, 'has_any_skills': has_any_skills,
     })
 
 

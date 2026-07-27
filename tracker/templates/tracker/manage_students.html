@@ -15,9 +15,6 @@
     </div>
 
     <div class="topic-card">
-
-
-    <div class="topic-card">
         <h3 style="color:#1E3A8A; margin-top:0;">Currently Enrolled</h3>
         <ul class="activity-list">
             {% for student in subject.students.all %}
@@ -33,7 +30,7 @@
             {% endfor %}
         </ul>
     </div>
-   
+
     <div class="form-card" style="max-width:none; margin-top:20px;">
         <form method="get" class="custom-form" style="flex-direction:row; gap:10px;">
             <input type="text" name="q" value="{{ query }}" placeholder="Search by username">

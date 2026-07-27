@@ -14,36 +14,55 @@
         </div>
     </div>
 
-    {% if not skill_groups %}
+    {% if not groups %}
     <p class="empty-state-sm">Enroll students to see their skill levels here.</p>
-    {% elif not skills %}
+    {% elif not has_any_skills %}
     <p class="empty-state-sm">None of the enrolled students have tracked skills yet.</p>
     {% else %}
-    <p class="muted-note">Levels by skill, grouped by course program. Shaded cells are at least 1 level behind the class average for that skill.</p>
+   
     <div class="skills-summary-scroll">
         <table class="skills-summary-table">
             <thead>
                 <tr>
                     <th class="skills-summary-id-col">ID</th>
                     <th class="skills-summary-name-col">Student</th>
-                    {% for skill in skills %}
+                    {% for skill in general_skills %}
                     <th>
                         {{ skill.name }}
-                        <span class="skills-summary-col-type">{% if skill.category == 'general' %}General{% else %}{{ skill.course.name|default:"Course" }}{% endif %}</span>
+                        <span class="skills-summary-col-type">General</span>
                     </th>
                     {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                {% for group in skill_groups %}
+                {% for group in groups %}
                 <tr class="skills-summary-group-row">
-                    <td colspan="{{ skills|length|add:2 }}">{{ group.course_name }}</td>
+                    <td class="skills-summary-group-label" colspan="{{ general_skills|length|add:2 }}">{{ group.course_name }}</td>
+                    {% for skill in group.course_skills %}
+                    <td class="skills-summary-course-header">
+                        {{ skill.name }}
+                        <span class="skills-summary-col-type">Course</span>
+                    </td>
+                    {% endfor %}
                 </tr>
                 {% for row in group.rows %}
                 <tr>
                     <td class="skills-summary-id-col">{{ row.student.profile.school_id|default:"—" }}</td>
                     <td class="skills-summary-name-col">{{ row.student.username }}</td>
-                    {% for cell in row.cells %}
+                    {% for cell in row.general_cells %}
+                    <td class="skills-summary-cell">
+                        {% if cell.level is not None %}
+                        {% if cell.behind %}
+                        <span class="skills-summary-cell-behind">{{ cell.level }}</span>
+                        {% else %}
+                        {{ cell.level }}
+                        {% endif %}
+                        {% else %}
+                        <span class="muted-note">—</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                    {% for cell in row.course_cells %}
                     <td class="skills-summary-cell">
                         {% if cell.level is not None %}
                         {% if cell.behind %}
@@ -58,17 +77,18 @@
                     {% endfor %}
                 </tr>
                 {% endfor %}
-                {% endfor %}
-            </tbody>
-            <tfoot>
                 <tr class="skills-summary-avg-row">
                     <td class="skills-summary-id-col"></td>
-                    <td class="skills-summary-name-col">Class Average</td>
-                    {% for avg in skill_averages %}
+                    <td class="skills-summary-name-col">Average</td>
+                    {% for avg in general_averages %}
+                    <td class="skills-summary-cell">{% if avg is not None %}{{ avg }}{% else %}—{% endif %}</td>
+                    {% endfor %}
+                    {% for avg in group.course_averages %}
                     <td class="skills-summary-cell">{% if avg is not None %}{{ avg }}{% else %}—{% endif %}</td>
                     {% endfor %}
                 </tr>
-            </tfoot>
+                {% endfor %}
+            </tbody>
         </table>
     </div>
     {% endif %}

@@ -7,9 +7,12 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+import logging
 from .forms import SignUpForm
 from .models import Profile
 from avatar.models import Skill, StudentSkill, Course
+
+logger = logging.getLogger(__name__)
 
 
 def _create_user_from_data(username, email, password_hash, role, mode, course, school, school_id, flagged):
@@ -44,7 +47,13 @@ def _send_verification_email(request, user):
     subject = 'Verify your Student Proficiency System account'
     message = render_to_string(
         'accounts/verification_email.txt', {'user': user, 'verify_url': verify_url})
-    send_mail(subject, message, None, [user.email])
+    try:
+        send_mail(subject, message, None, [user.email])
+        return True
+    except Exception:
+        logger.exception(
+            'Failed to send verification email to %s', user.email)
+        return False
 
 
 def signup_view(request):
@@ -79,9 +88,10 @@ def signup_view(request):
                 role=role, mode=mode, course=course,
                 school=school, school_id=school_id, flagged=False,
             )
-            _send_verification_email(request, user)
-            return render(request, 'accounts/check_email.html', {'email': user.email})
-    else:
+            email_sent = _send_verification_email(request, user)
+            return render(request, 'accounts/check_email.html', {
+                'email': user.email, 'email_sent': email_sent,
+            })
         initial = request.session.pop('prefill_signup', {})
         form = SignUpForm(initial=initial)
     return render(request, 'accounts/signup.html', {'form': form})
@@ -116,8 +126,10 @@ def confirm_school_id(request):
             Profile.objects.filter(school='citu', school_id=pending['school_id']).exclude(
                 user=user).update(under_evaluation=True)
             del request.session['pending_signup']
-            _send_verification_email(request, user)
-            return render(request, 'accounts/check_email.html', {'email': user.email})
+            email_sent = _send_verification_email(request, user)
+            return render(request, 'accounts/check_email.html', {
+                'email': user.email, 'email_sent': email_sent,
+            })
         else:
             request.session['prefill_signup'] = {
                 'username': pending['username'],
