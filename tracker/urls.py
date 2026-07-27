@@ -53,5 +53,8 @@ urlpatterns = [
           views.gradesheet_view, name='gradesheet_view'),
      path('<int:subject_id>/gradesheet/weights/',
           views.update_grade_weights, name='update_grade_weights'),
+     path('<int:subject_id>/my-gradesheet/',
+          views.my_gradesheet_view, name='my_gradesheet_view'),
      path('<int:subject_id>/analytics/', views.subject_analytics, name='subject_analytics'),
+     path('<int:subject_id>/my-analytics/', views.my_subject_analytics, name='my_subject_analytics'),
 ]

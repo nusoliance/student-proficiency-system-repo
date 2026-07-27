@@ -7,14 +7,19 @@
 {% block content %}
 <div class="gradesheet-container">
     <div class="lesson-header">
-        <h2>{{ subject.name }} — Gradesheet</h2>
+        <h2>{{ subject.name }} — {% if show_teacher_controls %}Gradesheet{% else %}My Gradesheet{% endif %}</h2>
         <div class="manager-actions">
+            {% if show_teacher_controls %}
             <a href="{% url 'subject_analytics' subject.id %}" class="btn-secondary">Analytics</a>
             <label for="weights-toggle" class="btn-secondary">Customize Weights</label>
+            {% else %}
+            <a href="{% url 'my_subject_analytics' subject.id %}" class="btn-secondary">My Analytics</a>
+            {% endif %}
             <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-secondary">Back to Lesson Plan</a>
         </div>
     </div>
 
+    {% if show_teacher_controls %}
     <input type="checkbox" id="weights-toggle" class="weights-toggle">
     <div class="weights-panel">
         <div class="form-card weights-panel-inner">
@@ -24,11 +29,13 @@
                 <div class="weights-panel-row">
                     <p>{{ weights_form.activity_weight.label_tag }} {{ weights_form.activity_weight }} %</p>
                     <p>{{ weights_form.project_weight.label_tag }} {{ weights_form.project_weight }} %</p>
+                    <p>{{ weights_form.at_risk_threshold.label_tag }} {{ weights_form.at_risk_threshold }} %</p>
                     <button type="submit" class="btn-primary">Save</button>
                 </div>
             </form>
         </div>
     </div>
+    {% endif %}
 
     {% if column_count == 0 %}
     <p class="empty-state-sm">No activities or projects have been added to this subject yet.</p>
@@ -55,14 +62,21 @@
                     </th>
                     {% endfor %}
                     <th class="gradesheet-total-col">General Average</th>
+                    {% if show_teacher_controls %}
                     <th class="gradesheet-total-col">Ranking</th>
+                    {% endif %}
                 </tr>
             </thead>
             <tbody>
                 {% for row in rows %}
-                <tr>
+                <tr class="{% if row.at_risk_reason %}gradesheet-row-at-risk{% endif %}">
                     <td class="gradesheet-student-col">{{ row.student.profile.school_id|default:"—" }}</td>
-                    <td class="gradesheet-student-col">{{ row.student.username }}</td>
+                    <td class="gradesheet-student-col">
+                        {{ row.student.username }}
+                        {% if row.at_risk_reason %}
+                        <span class="gradesheet-at-risk-badge" title="{{ row.at_risk_reason }}">Needs Attention</span>
+                        {% endif %}
+                    </td>
                     {% for cell in row.activity_cells %}
                     <td class="gradesheet-cell">
                         <a href="{% url cell.url_name cell.obj_id %}">
@@ -91,7 +105,9 @@
                     </td>
                     {% endfor %}
                     <td class="gradesheet-total-col">{% if row.average is not None %}{{ row.average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% if show_teacher_controls %}
                     <td class="gradesheet-total-col">{{ row.rank|default:"—" }}</td>
+                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>

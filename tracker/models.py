@@ -13,6 +13,7 @@ class Subject(models.Model):
         User, related_name='subjects_enrolled', blank=True)
     activity_weight = models.PositiveIntegerField(default=50)
     project_weight = models.PositiveIntegerField(default=50)
+    at_risk_threshold = models.PositiveIntegerField(default=75)
 
     def __str__(self):
         return self.name

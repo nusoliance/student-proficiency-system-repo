@@ -2048,7 +2048,7 @@ input[type="submit"]:hover {
     margin: 0 0.4rem;
     color: var(--muted);
 }
-/* page-level messages */
+/* page-level messages - jade */
 .page-message {
     max-width: none;
     margin: 0 1rem 1rem;
@@ -2081,15 +2081,22 @@ input[type="submit"]:hover {
     display: block;
 }
 .weights-panel-inner {
-    max-width: 320px;
+    max-width: 460px;
 }
 .weights-panel-row {
     display: flex;
-    gap: 0.75rem;
+    flex-wrap: wrap;
+    gap: 1rem;
     align-items: flex-end;
 }
 .weights-panel-row .custom-form p {
     margin: 0;
+    flex: 0 0 auto;
+}
+.weights-panel-row .custom-form input[type="number"] {
+    width: 70px;
+    font-size: 1rem;
+    text-align: center;
 }
 
 /* classwide skill - jade */
@@ -2183,3 +2190,22 @@ input[type="submit"]:hover {
     vertical-align: bottom;
 }
 
+/* gradesheet but for need attention - jade*/
+.gradesheet-table tr.gradesheet-row-at-risk td {
+    background: #FEF2F2;
+}
+
+.gradesheet-table tr.gradesheet-row-at-risk .gradesheet-student-col {
+    background: #FEF2F2;
+}
+
+.gradesheet-at-risk-badge {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.15rem 0.5rem;
+
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #e61212;
+    cursor: help;
+}

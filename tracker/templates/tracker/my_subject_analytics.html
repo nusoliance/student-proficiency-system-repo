@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> My Analytics
+{% endblock %}
+{% block content %}
+<div class="content-frame">
+<h2>{{ subject.name }} — My Analytics</h2>
+
+<h3 class="dossier-section-title">My Score Trend (Activities &amp; Projects)</h3>
+{% if has_score_data %}
+<canvas id="myScoreChart" height="120"></canvas>
+<p class="muted-note">Each point is your score (%) on that activity or project, in order of deadline.</p>
+<p id="trendNote" class="muted-note"></p>
+{% else %}
+<p class="muted-note">No graded activities or projects yet.</p>
+{% endif %}
+</div>
+
+{{ score_chart_data|json_script:"my-score-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+{% if has_score_data %}
+const myScoreData = JSON.parse(document.getElementById('my-score-data').textContent);
+new Chart(document.getElementById('myScoreChart'), {
+    type: 'line',
+    data: {
+        labels: myScoreData.labels,
+        datasets: [{ label: 'Your Score (%)', data: myScoreData.scores, borderColor: '#2F6FED', backgroundColor: 'rgba(47,111,237,0.15)', tension: 0.2, fill: true }]
+    },
+    options: { scales: { y: { beginAtZero: true, max: 100 } } }
+});
+
+const scores = myScoreData.scores;
+if (scores.length >= 2) {
+    const first = scores[0];
+    const last = scores[scores.length - 1];
+    const diff = Math.round((last - first) * 10) / 10;
+    const note = document.getElementById('trendNote');
+    if (diff > 0) {
+        note.textContent = `+${diff} points from your first to most recent graded work.`;
+        
+    } else if (diff < 0) {
+        note.textContent = `Your scores are trending down (${diff} points from your first to most recent graded work).`;
+        note.style.color = '#991B1B';
+    } else {
+        note.textContent = 'Your scores have stayed steady so far.';
+    }
+}
+{% endif %}
+</script>
+{% endblock %}
