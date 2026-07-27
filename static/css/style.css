@@ -1869,7 +1869,11 @@ input[type="submit"]:hover {
     color: #000000;
 
 }
+.gradesheet-status-pending:hover {
+    color: #3514c8;
+    text-decoration: underline;
 
+}
 .gradesheet-status-done {
     color: #000000;
 
