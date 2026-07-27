@@ -92,6 +92,7 @@ def signup_view(request):
             return render(request, 'accounts/check_email.html', {
                 'email': user.email, 'email_sent': email_sent,
             })
+    else:
         initial = request.session.pop('prefill_signup', {})
         form = SignUpForm(initial=initial)
     return render(request, 'accounts/signup.html', {'form': form})
