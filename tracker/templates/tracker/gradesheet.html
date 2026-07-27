@@ -11,6 +11,9 @@
         <div class="manager-actions">
             {% if show_teacher_controls %}
             <a href="{% url 'subject_analytics' subject.id %}" class="btn-secondary">Analytics</a>
+            {% if pending_count %}
+            <a href="{% url 'grade_subject_queue' subject.id %}" class="btn-secondary" style="text-decoration:none;">Grade All Pending ({{ pending_count }})</a>
+            {% endif %}
             <label for="weights-toggle" class="btn-secondary">Customize Weights</label>
             {% else %}
             <a href="{% url 'my_subject_analytics' subject.id %}" class="btn-secondary">My Analytics</a>
@@ -18,6 +21,7 @@
             <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-secondary">Back to Lesson Plan</a>
             <button type="button" class="btn-secondary" onclick="window.print()">Print / Save as PDF</button>
         </div>
+    </div>
     </div>
 
     {% if show_teacher_controls %}

@@ -12,6 +12,36 @@ from avatar.models import Skill, StudentSkill
 from django.contrib import messages
 from datetime import date
 
+def _points_for_score(activity, score):
+    """Compute the (main, secondary, tertiary) skill points an activity
+    would award for a given score, by reusing ActivityCompletion's own
+    point-calculation properties on a throwaway (unsaved) instance so the
+    math can never drift out of sync with the model."""
+    if score is None:
+        return 0, 0, 0
+    temp = ActivityCompletion(activity=activity, score=score)
+    return temp.main_points, temp.secondary_points, temp.tertiary_points
+
+
+def _adjust_activity_skill_points(completion, activity, score, sign):
+    """Add (sign=1) or remove (sign=-1) the skill points an activity
+    awards for a given score, for the completion's student."""
+    main, secondary, tertiary = _points_for_score(activity, score)
+    awards = [(activity.skill_main, main)]
+    if activity.skill_secondary:
+        awards.append((activity.skill_secondary, secondary))
+    if activity.skill_tertiary:
+        awards.append((activity.skill_tertiary, tertiary))
+    for skill, points in awards:
+        if not skill_applies_to_student(skill, completion.student):
+            continue
+        student_skill, created = completion.student.skills.get_or_create(skill=skill)
+        student_skill.points = max(0, student_skill.points + sign * points)
+        student_skill.save()
+
+
+def _award_activity_skill_points(completion, activity):
+    _adjust_activity_skill_points(completion, activity, completion.score, sign=1)
 
 def get_relevant_skills():
     return Skill.objects.exclude(category='broad').annotate(
@@ -180,34 +210,97 @@ def grade_activity_completion(request, completion_id):
     if activity.topic.lesson_plan.subject.teacher != request.user:
         return redirect('home')
 
-    if request.method == 'POST' and not completion.graded:
+    if request.method == 'POST':
+        was_graded = completion.graded
+        old_score = completion.score
+
         form = GradeActivityForm(
             request.POST, instance=completion, max_score=activity.max_score)
         if form.is_valid():
+            if was_graded:
+                _adjust_activity_skill_points(completion, activity, old_score, sign=-1)
             completion = form.save(commit=False)
             completion.graded = True
             completion.save()
 
-            awards = [(activity.skill_main, completion.main_points)]
-            if activity.skill_secondary:
-                awards.append((activity.skill_secondary,
-                              completion.secondary_points))
-            if activity.skill_tertiary:
-                awards.append((activity.skill_tertiary,
-                              completion.tertiary_points))
-            for skill, points in awards:
-                if not skill_applies_to_student(skill, completion.student):
-                    continue
-                student_skill, created = completion.student.skills.get_or_create(
-                    skill=skill)
-                student_skill.points += points
-                student_skill.save()
+            _award_activity_skill_points(completion, activity)
+            messages.success(request, 'Grade saved.')
             return redirect('grade_activity_completion', completion_id=completion.id)
     else:
         form = GradeActivityForm(
             instance=completion, max_score=activity.max_score)
-    return render(request, 'tracker/grade_activity_completion.html', {'completion': completion, 'activity': activity, 'form': form})
 
+    show_form = not completion.graded or request.GET.get('edit') == '1'
+    return render(request, 'tracker/grade_activity_completion.html', {
+        'completion': completion, 'activity': activity, 'form': form,
+        'show_form': show_form,
+    })
+
+@login_required
+def grade_activity_queue(request, activity_id):
+    activity = get_object_or_404(Activity, id=activity_id)
+    if activity.topic.lesson_plan.subject.teacher != request.user:
+        return redirect('home')
+
+    pending = activity.completions.filter(graded=False).select_related('student').order_by('completed_at')
+    completion = pending.first()
+
+    if not completion:
+        return render(request, 'tracker/grade_queue_done.html', {
+            'activity': activity, 'total_graded': activity.completions.filter(graded=True).count(),
+        })
+
+    remaining_count = pending.count()
+
+    if request.method == 'POST':
+        form = GradeActivityForm(request.POST, instance=completion, max_score=activity.max_score)
+        if form.is_valid():
+            completion = form.save(commit=False)
+            completion.graded = True
+            completion.save()
+            _award_activity_skill_points(completion, activity)
+            return redirect('grade_activity_queue', activity_id=activity.id)
+    else:
+        form = GradeActivityForm(instance=completion, max_score=activity.max_score)
+
+    return render(request, 'tracker/grade_activity_queue.html', {
+        'activity': activity, 'completion': completion, 'form': form, 'remaining_count': remaining_count,
+    })
+
+@login_required
+def grade_subject_queue(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
+
+    pending = ActivityCompletion.objects.filter(
+        activity__topic__lesson_plan__subject=subject, graded=False
+    ).select_related('student', 'activity').order_by('completed_at')
+    completion = pending.first()
+
+    if not completion:
+        return render(request, 'tracker/grade_subject_queue_done.html', {
+            'subject': subject,
+            'total_graded': ActivityCompletion.objects.filter(
+                activity__topic__lesson_plan__subject=subject, graded=True).count(),
+        })
+
+    activity = completion.activity
+    remaining_count = pending.count()
+
+    if request.method == 'POST':
+        form = GradeActivityForm(request.POST, instance=completion, max_score=activity.max_score)
+        if form.is_valid():
+            completion = form.save(commit=False)
+            completion.graded = True
+            completion.save()
+            _award_activity_skill_points(completion, activity)
+            return redirect('grade_subject_queue', subject_id=subject.id)
+    else:
+        form = GradeActivityForm(instance=completion, max_score=activity.max_score)
+
+    return render(request, 'tracker/grade_subject_queue.html', {
+        'subject': subject, 'activity': activity, 'completion': completion,
+        'form': form, 'remaining_count': remaining_count,
+    })
 
 @login_required
 def add_project(request, subject_id):
@@ -528,13 +621,17 @@ def build_gradesheet_data(subject):
 def gradesheet_view(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
     data = build_gradesheet_data(subject)
+    pending_count = ActivityCompletion.objects.filter(
+        activity__topic__lesson_plan__subject=subject, graded=False).count()
     return render(request, 'tracker/gradesheet.html', {
         'subject': subject, 'activities': data['activities'],
         'projects': data['projects'], 'rows': data['rows'],
         'column_count': data['column_count'],
         'weights_form': SubjectWeightsForm(instance=subject),
         'show_teacher_controls': True,
+        'pending_count': pending_count,
     })
+
 
 @login_required
 def my_gradesheet_view(request, subject_id):
