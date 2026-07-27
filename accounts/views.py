@@ -52,7 +52,9 @@ def _send_verification_email(request, user):
         return True
     except Exception:
         logger.exception(
-            'Failed to send verification email to %s', user.email)
+            'Verification email failed to send (user id=%s, username=%s, email=%s). '
+            'This account may need to be activated manually via /admin/.',
+            user.id, user.username, user.email)
         return False
 
 
