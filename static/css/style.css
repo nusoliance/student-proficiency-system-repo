@@ -1397,6 +1397,9 @@ input[type="submit"]:hover {
 }
 
 .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background-color: #1E3A8A;
     color: #FFFFFF;
     border: 2px solid #0F172A;
@@ -1409,7 +1412,6 @@ input[type="submit"]:hover {
     transition: background-color 0.2s ease;
     flex: 1;
 }
-
 .btn-primary:hover {
     background-color: #162D72;
 }
@@ -1465,6 +1467,9 @@ input[type="submit"]:hover {
 }
 
 .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background-color: transparent;
     color: #334155;
     padding: 8px 16px;
