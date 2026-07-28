@@ -89,7 +89,7 @@
                     <td class="gradesheet-student-col">
                         {{ row.student.profile.full_display_name }}
                         {% if row.at_risk_reason %}
-                        <span class="gradesheet-at-risk-badge" title="{{ row.at_risk_reason }}">Needs Attention</span>
+                        <span class="gradesheet-at-risk-badge" title="{{ row.at_risk_reason }}">{% if show_teacher_controls %}Needs Attention{% else %}At Risk{% endif %}</span>
                         {% endif %}
                     </td>
                     {% for cell in row.activity_cells %}
