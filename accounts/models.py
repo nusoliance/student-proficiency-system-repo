@@ -41,8 +41,6 @@ class Profile(models.Model):
 
     @property
     def full_display_name(self):
-        """'Last Name, First Name M.' — falls back to the username if the
-        student hasn't filled in their name yet."""
         if self.user.last_name and self.user.first_name:
             name = f"{self.user.last_name}, {self.user.first_name}"
             if self.middle_initial:
@@ -59,16 +57,7 @@ def create_profile(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=Profile)
 def clear_stale_evaluation_flag(sender, instance, **kwargs):
-    """
-    When a profile is deleted (e.g. a duplicate/fake school-ID account is
-    removed), re-check whether any remaining account sharing that school ID
-    is still ambiguous. If only one account is left holding the ID, it's no
-    longer a conflict, so clear its 'under_evaluation' flag.
 
-    This runs on ANY Profile deletion path - admin panel default delete,
-    the custom delete-and-notify action, cascading deletes from removing a
-    User, or manage.py shell - so the warning never gets left stale again.
-    """
     school_id = instance.school_id
     if instance.school != 'citu' or not school_id:
         return

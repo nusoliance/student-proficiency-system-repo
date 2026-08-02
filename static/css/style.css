@@ -2279,3 +2279,96 @@ input[type="submit"]:hover {
         print-color-adjust: exact;
     }
 }
+@media (max-width: 640px) {
+    .page {
+        padding: 1.25rem 1rem 3rem;
+    }
+
+    .navbar {
+        padding: 0.75rem 1rem;
+    }
+
+    .content-frame {
+        padding: 1.25rem;
+    }
+
+    .card {
+        width: 100%;
+    }
+
+    .profile-banner-inner {
+        padding-left: 0;
+        flex-wrap: wrap;
+    }
+
+    .dossier {
+        padding: 1.1rem;
+    }
+
+    .dossier-header {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+    }
+
+    .dossier-photo {
+        width: 72px;
+        height: 72px;
+    }
+
+    .dossier-eval-columns {
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .skill-list {
+        grid-template-columns: 1fr;
+    }
+
+    .forum-columns {
+        gap: 1.25rem;
+    }
+
+    .forum-columns .content-frame {
+        min-width: 0;
+    }
+
+    .cal-grid {
+        overflow-x: auto;
+    }
+
+    .cal-week {
+        min-width: 480px;
+    }
+
+    .lesson-plan-container,
+    .submission-container,
+    .form-card,
+    .report-container,
+    .calendar-container,
+    .manage-students-container,
+    .tasks-container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .lesson-header,
+    .subjects-header,
+    .tasks-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .manager-actions {
+        width: 100%;
+    }
+
+    .activity-item,
+    .project-item {
+        flex-wrap: wrap;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+}
