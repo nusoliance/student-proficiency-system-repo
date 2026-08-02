@@ -4,11 +4,7 @@ from django.conf import settings
 
 
 class RequireStudentNameMiddleware:
-    """
-    Any logged-in student who hasn't filled in their Last Name / First Name
-    yet (via the 'My Name' form) gets redirected there on every request,
-    until they complete it. Logging out is still allowed.
-    """
+
 
     def __init__(self, get_response):
         self.get_response = get_response

@@ -13,10 +13,6 @@ from django.contrib import messages
 from datetime import date
 
 def _points_for_score(activity, score):
-    """Compute the (main, secondary, tertiary) skill points an activity
-    would award for a given score, by reusing ActivityCompletion's own
-    point-calculation properties on a throwaway (unsaved) instance so the
-    math can never drift out of sync with the model."""
     if score is None:
         return 0, 0, 0
     temp = ActivityCompletion(activity=activity, score=score)
@@ -24,8 +20,6 @@ def _points_for_score(activity, score):
 
 
 def _adjust_activity_skill_points(completion, activity, score, sign):
-    """Add (sign=1) or remove (sign=-1) the skill points an activity
-    awards for a given score, for the completion's student."""
     main, secondary, tertiary = _points_for_score(activity, score)
     awards = [(activity.skill_main, main)]
     if activity.skill_secondary:
