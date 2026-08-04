@@ -38,6 +38,24 @@ class Topic(models.Model):
         return f"{self.title} ({self.start_date} – {self.end_date})"
 
 
+class TopicDocument(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='topic_documents')
+    document = models.FileField(upload_to='topic_materials/documents/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['uploaded_at']
+
+
+class TopicImage(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='topic_images')
+    image = models.ImageField(upload_to='topic_materials/images/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['uploaded_at']
+
+
 class Activity(models.Model):
     topic = models.ForeignKey(
         Topic, on_delete=models.CASCADE, related_name='activities')

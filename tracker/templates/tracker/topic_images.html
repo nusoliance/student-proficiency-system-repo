@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a>
+<span class="breadcrumb-sep">›</span> Images
+{% endblock %}
+{% block content %}
+<h2>Images</h2>
+
+{% if is_manager %}
+<form method="post" enctype="multipart/form-data" class="custom-form" style="margin-bottom:1.5rem;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Upload Image</button>
+    </div>
+</form>
+{% endif %}
+
+<div class="image-collage">
+    {% for img in images %}
+    <a href="{{ img.image.url }}" target="_blank">
+        <img src="{{ img.image.url }}" alt="">
+    </a>
+    {% empty %}
+    <p class="empty-state-sm">No images uploaded yet.</p>
+    {% endfor %}
+</div>
+
+<p style="margin-top:1.5rem;"><a href="{% url 'topic_detail' topic.id %}">← Back to {{ topic.title }}</a></p>
+{% endblock %}

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from avatar.models import Skill
-from .models import Subject, Topic, LessonPlan, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask
+from .models import Subject, Topic, LessonPlan, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask, TopicDocument, TopicImage
 
 
 class SubjectForm(forms.ModelForm):
@@ -37,6 +37,16 @@ class TopicForm(forms.ModelForm):
                 'end_date', 'End date must be after the start date.')
         return cleaned
 
+class TopicDocumentForm(forms.ModelForm):
+    class Meta:
+        model = TopicDocument
+        fields = ['document']
+
+
+class TopicImageForm(forms.ModelForm):
+    class Meta:
+        model = TopicImage
+        fields = ['image']
 
 class ActivityForm(forms.ModelForm):
     class Meta:

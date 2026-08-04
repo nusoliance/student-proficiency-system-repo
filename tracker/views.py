@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill
-from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm
+from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill, TopicDocument, TopicImage
+from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm, TopicDocumentForm, TopicImageForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -136,6 +136,68 @@ def add_topic(request, subject_id):
         form = TopicForm()
     return render(request, 'tracker/add_topic.html', {'form': form, 'subject': subject})
 
+@login_required
+def topic_detail(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    subject = topic.lesson_plan.subject
+    is_manager = subject.teacher == request.user
+
+    activity_ids = topic.activities.values_list('id', flat=True)
+    completed_activity_ids = set(
+        ActivityCompletion.objects.filter(
+            student=request.user, activity_id__in=activity_ids).values_list('activity_id', flat=True)
+    )
+
+    return render(request, 'tracker/topic_detail.html', {
+        'topic': topic, 'subject': subject, 'is_manager': is_manager,
+        'completed_activity_ids': completed_activity_ids,
+    })
+
+
+@login_required
+def topic_documents_view(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    subject = topic.lesson_plan.subject
+    is_manager = subject.teacher == request.user
+
+    if request.method == 'POST' and is_manager:
+        form = TopicDocumentForm(request.POST, request.FILES)
+        if form.is_valid():
+            doc = form.save(commit=False)
+            doc.topic = topic
+            doc.save()
+            return redirect('topic_documents', topic_id=topic.id)
+    else:
+        form = TopicDocumentForm()
+
+    documents = list(topic.topic_documents.all())
+    return render(request, 'tracker/topic_documents.html', {
+        'topic': topic, 'subject': subject, 'is_manager': is_manager,
+        'documents': documents, 'form': form,
+    })
+
+
+@login_required
+def topic_images_view(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    subject = topic.lesson_plan.subject
+    is_manager = subject.teacher == request.user
+
+    if request.method == 'POST' and is_manager:
+        form = TopicImageForm(request.POST, request.FILES)
+        if form.is_valid():
+            img = form.save(commit=False)
+            img.topic = topic
+            img.save()
+            return redirect('topic_images', topic_id=topic.id)
+    else:
+        form = TopicImageForm()
+
+    images = topic.topic_images.all()
+    return render(request, 'tracker/topic_images.html', {
+        'topic': topic, 'subject': subject, 'is_manager': is_manager,
+        'images': images, 'form': form,
+    })
 
 @login_required
 def add_activity(request, topic_id):
