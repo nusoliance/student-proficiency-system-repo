@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a>
+<span class="breadcrumb-sep">›</span> Documents
+{% endblock %}
+{% block content %}
+<h2>{{ topic.title }} — Documents</h2>
+
+{% if is_manager %}
+<form method="post" enctype="multipart/form-data" class="custom-form" style="margin-bottom:1.5rem;">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Upload Document</button>
+    </div>
+</form>
+{% endif %}
+
+<ul class="subject-list">
+    {% for doc in documents %}
+    <li>
+        <a href="{{ doc.document.url }}" target="_blank" class="subject-card">
+            <div class="subject-card-text">
+                <div class="subject-card-name">Document {{ forloop.counter }}</div>
+                <div class="subject-card-teacher">{{ doc.uploaded_at|date:"M d, Y" }}</div>
+            </div>
+        </a>
+    </li>
+    {% empty %}
+    <li class="empty-state-sm">No documents uploaded yet.</li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'topic_detail' topic.id %}">← Back to {{ topic.title }}</a>
+{% endblock %}

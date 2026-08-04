@@ -25,37 +25,17 @@
         </div>
     </div>
 
-    {% for topic in topics %}
+   {% for topic in topics %}
     <div class="topic-card">
         <div class="topic-header">
-            <h3>{{ topic.title }} <span class="muted-note">({{ topic.start_date }} – {{ topic.end_date }})</span></h3>
+            <h3><a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a> <span class="muted-note">({{ topic.start_date }} – {{ topic.end_date }})</span></h3>
             <div class="manager-actions">
                 {% if user.profile.is_manager %}
-                <a href="{% url 'add_activity' topic.id %}" class="btn-sm">+ Add Activity</a>
                 <a href="{% url 'delete_topic' topic.id %}" class="btn-sm"
                     style="color:#991B1B; border-color:#991B1B;">Delete Topic</a>
                 {% endif %}
             </div>
         </div>
-        <ul class="activity-list">
-            {% for activity in topic.activities.all %}
-            <li class="activity-item">
-                <div class="activity-details">
-                    <a href="{% url 'activity_detail' activity.id %}" class="activity-title">{{ activity.title }}</a>
-                    <span class="activity-deadline">Due {{ activity.deadline }}</span>
-                </div>
-                <div class="activity-status">
-                    {% if activity.id in completed_activity_ids %}
-                    <span class="badge badge-success">Completed</span>
-                    {% elif activity.due_soon %}
-                    <span class="badge badge-warning">Due Soon</span>
-                    {% endif %}
-                </div>
-            </li>
-            {% empty %}
-            <li class="empty-state-sm">No activities yet.</li>
-            {% endfor %}
-        </ul>
     </div>
     {% empty %}
     <p class="empty-state-sm">No topics added yet.</p>
