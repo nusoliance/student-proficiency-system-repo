@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Grade: {{ completion.student.username }}</h2>
+<div class="content-frame">
+<p class="muted-note">Max score: {{ exam.max_score }} · Passing: {{ exam.passing_score }} ({{ exam.passing_percentage }}%)</p>
+
+{% if completion.graded %}
+<h3 class="dossier-section-title">Score</h3>
+<p>{{ completion.score }} / {{ exam.max_score }}</p>
+
+<p class="muted-note" style="font-size:0.82rem;">
+Pool = {{ exam.max_score }}÷2 = {{ pool }}.
+{% if completion.score >= exam.passing_score %}
+{{ pool }} × ({{ completion.score }}−{{ exam.passing_score }})÷({{ exam.max_score }}−{{ exam.passing_score }}) = <strong>{{ total_points }}</strong> pts
+{% else %}
+−{{ pool }} × ({{ exam.passing_score }}−{{ completion.score }})÷{{ exam.passing_score }} = <strong>{{ total_points }}</strong> pts
+{% endif %}
+</p>
+
+<h3 class="dossier-section-title">Skill Point Changes</h3>
+<ul class="ruled-list">
+{% for award in completion.skill_awards.all %}
+<li>
+    <span>{{ award.skill.name }}: Lvl {{ award.level_before }} — {{ award.points_into_level_before }}/100 → Lvl {{ award.level_after }} — {{ award.points_into_level_after }}/100</span>
+    <span style="font-weight:700; {% if award.delta >= 0 %}color:var(--green);{% else %}color:#CE2029;{% endif %}">{% if award.delta >= 0 %}+{% endif %}{{ award.delta }}</span>
+</li>
+{% empty %}
+<li class="empty-state-sm">No skills were assigned to this exam, so no points were awarded.</li>
+{% endfor %}
+</ul>
+
+{% else %}
+<form method="post" class="custom-form">
+{% csrf_token %}
+{{ form.as_p }}
+<div class="form-actions">
+<button type="submit" class="btn-primary">Submit Grade</button>
+</div>
+</form>
+{% endif %}
+</div>
+{% endblock %}

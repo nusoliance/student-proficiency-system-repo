@@ -241,3 +241,196 @@ class PersonalTask(models.Model):
 
     def __str__(self):
         return self.title
+
+class Quiz(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='quizzes')
+    title = models.CharField(max_length=200)
+    instructions = models.TextField(blank=True)
+    deadline = models.DateField()
+    max_score = models.PositiveIntegerField(default=100)
+    passing_percentage = models.PositiveIntegerField(default=60)
+    file = models.FileField(upload_to='quiz_materials/', null=True, blank=True)
+    link = models.URLField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def passing_score(self):
+        return round(self.max_score * self.passing_percentage / 100)
+
+    @property
+    def due_soon(self):
+        return 0 <= (self.deadline - timezone.now().date()).days <= 3
+
+    def __str__(self):
+        return self.title
+
+
+class QuizSkillWeight(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='skill_weights')
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    percentage = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('quiz', 'skill')
+
+    def __str__(self):
+        return f"{self.skill.name}: {self.percentage}%"
+
+
+class QuizCompletion(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='completions')
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_completions')
+    marked_done_at = models.DateTimeField(auto_now_add=True)
+    score = models.PositiveIntegerField(null=True, blank=True)
+    graded = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('quiz', 'student')
+
+    @property
+    def total_points(self):
+        if self.score is None:
+            return 0
+        quiz = self.quiz
+        pool = quiz.max_score // 2
+        threshold = quiz.passing_score
+        if self.score >= threshold:
+            span = quiz.max_score - threshold
+            if span <= 0:
+                return pool
+            return int(pool * (self.score - threshold) / span)
+        else:
+            if threshold <= 0:
+                return 0
+            return -int(pool * (threshold - self.score) / threshold)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.quiz.title}"
+    
+class QuizSkillAward(models.Model):
+    completion = models.ForeignKey(QuizCompletion, on_delete=models.CASCADE, related_name='skill_awards')
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    delta = models.IntegerField()
+    points_before = models.PositiveIntegerField()
+    points_after = models.PositiveIntegerField()
+
+    @property
+    def level_before(self):
+        return self.points_before // 100
+
+    @property
+    def level_after(self):
+        return self.points_after // 100
+
+    @property
+    def points_into_level_before(self):
+        return self.points_before % 100
+
+    @property
+    def points_into_level_after(self):
+        return self.points_after % 100
+
+    def __str__(self):
+        return f"{self.skill.name}: {self.delta:+d}"
+
+class Exam(models.Model):
+    EXAM_TYPE_CHOICES = [
+        ('prelim', 'Prelim Exam'),
+        ('midterm', 'Midterm Exam'),
+        ('prefinal', 'Prefinal Exam'),
+        ('final', 'Final Exam'),
+    ]
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams')
+    exam_type = models.CharField(max_length=10, choices=EXAM_TYPE_CHOICES)
+    instructions = models.TextField(blank=True)
+    deadline = models.DateField()
+    max_score = models.PositiveIntegerField(default=100)
+    passing_percentage = models.PositiveIntegerField(default=60)
+    file = models.FileField(upload_to='exam_materials/files/', null=True, blank=True)
+    image = models.ImageField(upload_to='exam_materials/images/', null=True, blank=True)
+    link = models.URLField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('subject', 'exam_type')
+
+    @property
+    def passing_score(self):
+        return round(self.max_score * self.passing_percentage / 100)
+
+    @property
+    def due_soon(self):
+        return 0 <= (self.deadline - timezone.now().date()).days <= 3
+
+    def __str__(self):
+        return f"{self.subject.name} - {self.get_exam_type_display()}"
+
+
+class ExamSkillWeight(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='skill_weights')
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    percentage = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('exam', 'skill')
+
+    def __str__(self):
+        return f"{self.skill.name}: {self.percentage}%"
+
+
+class ExamCompletion(models.Model):
+    exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name='completions')
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='exam_completions')
+    marked_done_at = models.DateTimeField(auto_now_add=True)
+    score = models.PositiveIntegerField(null=True, blank=True)
+    graded = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('exam', 'student')
+
+    @property
+    def total_points(self):
+        if self.score is None:
+            return 0
+        exam = self.exam
+        pool = exam.max_score // 2
+        threshold = exam.passing_score
+        if self.score >= threshold:
+            span = exam.max_score - threshold
+            if span <= 0:
+                return pool
+            return int(pool * (self.score - threshold) / span)
+        else:
+            if threshold <= 0:
+                return 0
+            return -int(pool * (threshold - self.score) / threshold)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.exam}"
+
+
+class ExamSkillAward(models.Model):
+    completion = models.ForeignKey(ExamCompletion, on_delete=models.CASCADE, related_name='skill_awards')
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+    delta = models.IntegerField()
+    points_before = models.PositiveIntegerField()
+    points_after = models.PositiveIntegerField()
+
+    @property
+    def level_before(self):
+        return self.points_before // 100
+
+    @property
+    def level_after(self):
+        return self.points_after // 100
+
+    @property
+    def points_into_level_before(self):
+        return self.points_before % 100
+
+    @property
+    def points_into_level_after(self):
+        return self.points_after % 100
+
+    def __str__(self):
+        return f"{self.skill.name}: {self.delta:+d}"

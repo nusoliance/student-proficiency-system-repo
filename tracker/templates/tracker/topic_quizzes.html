@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a>
+<span class="breadcrumb-sep">›</span> Quizzes
+{% endblock %}
+{% block content %}
+<div class="lesson-plan-container">
+    <div class="lesson-header">
+        <h2>{{ topic.title }} — Quizzes</h2>
+        {% if is_manager %}
+        <div class="manager-actions">
+            <a href="{% url 'add_quiz' topic.id %}" class="btn-secondary">+ Add Quiz</a>
+        </div>
+        {% endif %}
+    </div>
+    <ul class="activity-list">
+        {% for item in quiz_data %}
+        <li class="activity-item">
+            <div class="activity-details">
+                <a href="{% url 'quiz_detail' item.quiz.id %}" class="activity-title">{{ item.quiz.title }}</a>
+                <span class="activity-deadline">Due {{ item.quiz.deadline }}</span>
+            </div>
+            <div class="activity-status">
+                {% if item.completion.graded %}
+                <span class="badge badge-success">Graded</span>
+                {% elif item.completion %}
+                <span class="badge badge-success">Done</span>
+                {% elif item.quiz.due_soon %}
+                <span class="badge badge-warning">Due Soon</span>
+                {% endif %}
+            </div>
+        </li>
+        {% empty %}
+        <li class="empty-state-sm">No quizzes yet.</li>
+        {% endfor %}
+    </ul>
+    <p style="margin-top:1.5rem;"><a href="{% url 'topic_detail' topic.id %}">← Back to {{ topic.title }}</a></p>
+</div>
+{% endblock %}

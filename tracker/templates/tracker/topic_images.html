@@ -6,27 +6,33 @@
 <span class="breadcrumb-sep">›</span> Images
 {% endblock %}
 {% block content %}
-<h2>Images</h2>
-
-{% if is_manager %}
-<form method="post" enctype="multipart/form-data" class="custom-form" style="margin-bottom:1.5rem;">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <div class="form-actions">
-        <button type="submit" class="btn-primary">Upload Image</button>
+<div class="lesson-plan-container">
+    <div class="lesson-header">
+        <h2>Images</h2>
+        {% if is_manager %}
+        <div class="manager-actions">
+            <button type="button" class="btn-secondary" onclick="document.getElementById('imgUploadInput').click()">+ Upload Image</button>
+        </div>
+        {% endif %}
     </div>
-</form>
-{% endif %}
 
-<div class="image-collage">
-    {% for img in images %}
-    <a href="{{ img.image.url }}" target="_blank">
-        <img src="{{ img.image.url }}" alt="">
-    </a>
-    {% empty %}
-    <p class="empty-state-sm">No images uploaded yet.</p>
-    {% endfor %}
+    {% if is_manager %}
+    <form method="post" enctype="multipart/form-data" id="imgUploadForm">
+        {% csrf_token %}
+        <input type="file" name="image" id="imgUploadInput" accept="image/*" onchange="document.getElementById('imgUploadForm').submit();">
+    </form>
+    {% endif %}
+
+    <div class="image-collage">
+        {% for img in images %}
+        <a href="{{ img.image.url }}" target="_blank">
+            <img src="{{ img.image.url }}" alt="">
+        </a>
+        {% empty %}
+        <p class="empty-state-sm">No images uploaded yet.</p>
+        {% endfor %}
+    </div>
+
+    <p style="margin-top:1.5rem;"><a href="{% url 'topic_detail' topic.id %}">← Back to {{ topic.title }}</a></p>
 </div>
-
-<p style="margin-top:1.5rem;"><a href="{% url 'topic_detail' topic.id %}">← Back to {{ topic.title }}</a></p>
 {% endblock %}

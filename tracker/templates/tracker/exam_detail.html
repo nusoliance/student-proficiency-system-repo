@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="submission-container">
+    <div class="submission-header"><h2>{{ exam.get_exam_type_display }} — {{ exam.subject.name }}</h2></div>
+    <div class="submission-status-box">
+        <p>Due: {{ exam.deadline }}</p>
+        {% if exam.instructions %}<p>{{ exam.instructions|linebreaks }}</p>{% endif %}
+        {% if exam.image %}<p><img src="{{ exam.image.url }}" class="submission-img"></p>{% endif %}
+        {% if exam.file %}<p><a href="{{ exam.file.url }}" target="_blank">Download Exam File</a></p>{% endif %}
+        {% if exam.link %}<p><a href="{{ exam.link }}" target="_blank">Open Exam Link</a></p>{% endif %}
+
+        {% if completion %}
+        <p>
+            {% if completion.graded %}
+            <span class="badge badge-success">Graded</span> {{ completion.score }}/{{ exam.max_score }}
+            {% else %}
+            <span class="badge badge-warning">Marked Done — awaiting grade</span>
+            {% endif %}
+        </p>
+        {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-primary">Mark as Done</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

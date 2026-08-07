@@ -1,9 +1,20 @@
 from django.contrib import admin
-from .models import Subject, LessonPlan, Topic, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask
-
+from .models import Subject, LessonPlan, Topic, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask, Quiz, QuizSkillWeight, QuizCompletion, TopicDocument, TopicImage, QuizSkillAward ,Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward
 admin.site.register(Subject)
 admin.site.register(LessonPlan)
 admin.site.register(Topic)
 admin.site.register(Activity)
 admin.site.register(ActivityCompletion)
 admin.site.register(PersonalTask)
+admin.site.register(Project)
+admin.site.register(ProjectSubmission)
+admin.site.register(Quiz)
+admin.site.register(QuizSkillWeight)
+admin.site.register(QuizCompletion)
+admin.site.register(QuizSkillAward)
+admin.site.register(TopicDocument)
+admin.site.register(TopicImage)
+admin.site.register(Exam)
+admin.site.register(ExamSkillWeight)
+admin.site.register(ExamCompletion)
+admin.site.register(ExamSkillAward)

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-card">
+<h2>{{ exam_type_label }}</h2>
+<p class="empty-state-sm">This exam hasn't been created yet.</p>
+<a href="{% url 'lesson_plan_view' subject.id %}">← Back to {{ subject.name }}</a>
+</div>
+{% endblock %}

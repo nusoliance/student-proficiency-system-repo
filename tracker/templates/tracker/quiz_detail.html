@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="submission-container">
+    <div class="submission-header"><h2>{{ quiz.title }}</h2></div>
+    <div class="submission-status-box">
+        <p>Due: {{ quiz.deadline }}</p>
+        {% if quiz.instructions %}<p>{{ quiz.instructions|linebreaks }}</p>{% endif %}
+        {% if quiz.file %}<p><a href="{{ quiz.file.url }}" target="_blank">Download Quiz File</a></p>{% endif %}
+        {% if quiz.link %}<p><a href="{{ quiz.link }}" target="_blank">Open Quiz Link</a></p>{% endif %}
+
+        {% if completion %}
+        <p>
+            {% if completion.graded %}
+            <span class="badge badge-success">Graded</span> {{ completion.score }}/{{ quiz.max_score }}
+            {% else %}
+            <span class="badge badge-warning">Marked Done — awaiting grade</span>
+            {% endif %}
+        </p>
+        {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn-primary">Mark as Done</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
