@@ -25,7 +25,7 @@ body {
   font-size: 15px;
 }
 
-/* ── Sidebar ── */
+/*for sidebars*/
 .sidebar {
   position: fixed; top: 0; left: 0;
   width: var(--sidebar-w);
@@ -123,7 +123,7 @@ body {
 }
 .logout-btn:hover { color: var(--white); }
 
-/* ── Top Header ── */
+/*top headers */
 .topbar {
   margin-left: var(--sidebar-w);
   background: var(--white);
@@ -150,14 +150,14 @@ body {
   font-size: 9px; display: flex; align-items: center; justify-content: center;
 }
 
-/* ── Main Content ── */
+/*main content*/
 .main-content {
   margin-left: var(--sidebar-w);
   padding: 28px;
   min-height: calc(100vh - 60px);
 }
 
-/* ── Cards ── */
+/*for cards*/
 .card {
   background: var(--white);
   border-radius: 12px;
@@ -191,7 +191,7 @@ body {
 .stat-val { font-size: 26px; font-weight: 800; color: var(--text-dark); }
 .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-/* ── Buttons ── */
+/*for buttons*/
 .btn-primary {
   background: var(--maroon);
   color: var(--white);
@@ -223,7 +223,7 @@ body {
 }
 .btn-maroon:hover { background: var(--maroon-hover); }
 
-/* ── Badges ── */
+/*for badges*/
 .badge {
   display: inline-block;
   padding: 4px 10px; border-radius: 20px;
@@ -235,11 +235,11 @@ body {
 .badge-blue   { background: #E3F2FD; color: #0D47A1; }
 .badge-navy   { background: var(--maroon-light); color: var(--maroon); }
 
-/* ── Progress bar ── */
+/*fpr progess bar */
 .progress-wrap { background: var(--border); border-radius: 99px; height: 8px; overflow: hidden; }
 .progress-bar  { height: 8px; border-radius: 99px; background: var(--maroon); }
 
-/* ── Table ── */
+/*fpr tables*/
 .sps-table { width: 100%; border-collapse: collapse; }
 .sps-table th {
   text-align: left; padding: 12px 16px;
@@ -257,7 +257,7 @@ body {
 .sps-table tr:last-child td { border-bottom: none; }
 .sps-table tr:hover td { background: #F8FAFC; }
 
-/* ── Form controls ── */
+/*form controls*/
 .form-label { font-size: 13px; font-weight: 600; color: var(--text-dark); margin-bottom: 6px; display: block; }
 
 .form-control {
@@ -269,13 +269,13 @@ body {
 }
 .form-control:focus { border-color: var(--maroon); box-shadow: 0 0 0 3px var(--maroon-glow); }
 
-/* ── Utilities ── */
+/*utilities*/
 .page-title { font-size: 22px; font-weight: 800; color: var(--text-dark); }
 .section-title { font-size: 16px; font-weight: 700; color: var(--text-dark); }
 .text-muted { color: var(--muted); }
 .text-sm { font-size: 13px; }
 
-/* ── Reusable Empty State UI Style ── */
+/*Reusable Empty State UI Style*/
 .empty-state-box {
   display: flex;
   flex-direction: column;
@@ -314,3 +314,9 @@ body {
 
 .submission-img { max-width: 100%; border-radius: 8px; }
 .muted-note { color: var(--muted); }
+
+
+input[type="file"]#docUploadInput,
+input[type="file"]#imgUploadInput {
+    display: none;
+}

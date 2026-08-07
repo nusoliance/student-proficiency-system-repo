@@ -1,6 +1,6 @@
 :root {
     --bg-dark: #0d1b39;
-    --bg-light: #e9eaee;
+    --bg-light: #d1cde0;
     --panel: #FFFFFF;
     --line: #abaeb3;
     --text: #101828;
@@ -759,6 +759,11 @@ input[type="submit"]:hover {
 
 .cal-activity-bar {
     background: var(--green);
+    color: #fff;
+}
+
+.cal-quiz-bar {
+    background-color: #8B5CF6;
     color: #fff;
 }
 
@@ -2372,6 +2377,7 @@ input[type="submit"]:hover {
         font-size: 1.3rem;
     }
 }
+/*topic page*/
 .image-collage {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -2389,4 +2395,8 @@ input[type="submit"]:hover {
     height: 100%;
     object-fit: cover;
     display: block;
+}
+input[type="file"]#docUploadInput,
+input[type="file"]#imgUploadInput {
+    display: none;
 }

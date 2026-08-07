@@ -1,8 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 from avatar.models import Skill
-from .models import Subject, Topic, LessonPlan, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask, TopicDocument, TopicImage
-
+from .models import Subject, Topic, LessonPlan, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward
+from django.db.models import Sum
 
 class SubjectForm(forms.ModelForm):
     class Meta:
@@ -248,3 +248,98 @@ class SubjectWeightsForm(forms.ModelForm):
                 raise forms.ValidationError(
                     'Activities % and Projects % must add up to 100.')
         return cleaned_data
+
+
+class QuizForm(forms.ModelForm):
+    passing_percentage = forms.IntegerField(
+        min_value=1, max_value=100, label="Passing Score (% of Max Score)",
+        help_text="e.g. 60 means students need 60% of the max score to pass"
+    )
+
+    class Meta:
+        model = Quiz
+        fields = ['title', 'instructions', 'deadline', 'max_score', 'passing_percentage', 'file', 'link']
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})} 
+
+
+class QuizSkillWeightForm(forms.ModelForm):
+    class Meta:
+        model = QuizSkillWeight
+        fields = ['skill', 'percentage']
+
+    def __init__(self, *args, **kwargs):
+        self.quiz = kwargs.pop('quiz')
+        relevant_skills = kwargs.pop('relevant_skills')
+        super().__init__(*args, **kwargs)
+        already_used = self.quiz.skill_weights.values_list('skill_id', flat=True)
+        self.fields['skill'].queryset = relevant_skills.exclude(id__in=already_used)
+
+    def clean_percentage(self):
+        percentage = self.cleaned_data['percentage']
+        existing_total = self.quiz.skill_weights.aggregate(total=Sum('percentage'))['total'] or 0
+        if existing_total + percentage > 100:
+            raise forms.ValidationError(f"Total percentage can't exceed 100%. Currently at {existing_total}%.")
+        return percentage
+
+
+class GradeQuizForm(forms.ModelForm):
+    class Meta:
+        model = QuizCompletion
+        fields = ['score']
+
+    def __init__(self, *args, **kwargs):
+        self.max_score = kwargs.pop('max_score')
+        super().__init__(*args, **kwargs)
+
+    def clean_score(self):
+        score = self.cleaned_data['score']
+        if score > self.max_score:
+            raise forms.ValidationError(f"Score can't exceed the maximum of {self.max_score}.")
+        return score
+
+class ExamForm(forms.ModelForm):
+    passing_percentage = forms.IntegerField(
+        min_value=1, max_value=100, label="Passing Score (% of Max Score)",
+        help_text="e.g. 60 means students need 60% of the max score to pass"
+    )
+
+    class Meta:
+        model = Exam
+        fields = ['instructions', 'deadline', 'max_score', 'passing_percentage', 'file', 'image', 'link']
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+
+
+class ExamSkillWeightForm(forms.ModelForm):
+    class Meta:
+        model = ExamSkillWeight
+        fields = ['skill', 'percentage']
+
+    def __init__(self, *args, **kwargs):
+        self.exam = kwargs.pop('exam')
+        relevant_skills = kwargs.pop('relevant_skills')
+        super().__init__(*args, **kwargs)
+        already_used = self.exam.skill_weights.values_list('skill_id', flat=True)
+        self.fields['skill'].queryset = relevant_skills.exclude(id__in=already_used)
+
+    def clean_percentage(self):
+        percentage = self.cleaned_data['percentage']
+        existing_total = self.exam.skill_weights.aggregate(total=Sum('percentage'))['total'] or 0
+        if existing_total + percentage > 100:
+            raise forms.ValidationError(f"Total percentage can't exceed 100%. Currently at {existing_total}%.")
+        return percentage
+
+
+class GradeExamForm(forms.ModelForm):
+    class Meta:
+        model = ExamCompletion
+        fields = ['score']
+
+    def __init__(self, *args, **kwargs):
+        self.max_score = kwargs.pop('max_score')
+        super().__init__(*args, **kwargs)
+
+    def clean_score(self):
+        score = self.cleaned_data['score']
+        if score > self.max_score:
+            raise forms.ValidationError(f"Score can't exceed the maximum of {self.max_score}.")
+        return score

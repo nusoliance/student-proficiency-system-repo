@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a>
+<span class="breadcrumb-sep">›</span> Activities
+{% endblock %}
+{% block content %}
+<div class="lesson-plan-container">
+    <div class="lesson-header">
+        <h2>{{ topic.title }} — Activities</h2>
+        {% if is_manager %}
+        <div class="manager-actions">
+            <a href="{% url 'add_activity' topic.id %}" class="btn-secondary">+ Add Activity</a>
+        </div>
+        {% endif %}
+    </div>
+    <ul class="activity-list">
+        {% for activity in topic.activities.all %}
+        <li class="activity-item">
+            <div class="activity-details">
+                <a href="{% url 'activity_detail' activity.id %}" class="activity-title">{{ activity.title }}</a>
+                <span class="activity-deadline">Due {{ activity.deadline }}</span>
+            </div>
+            <div class="activity-status">
+                {% if activity.id in completed_activity_ids %}
+                <span class="badge badge-success">Completed</span>
+                {% elif activity.due_soon %}
+                <span class="badge badge-warning">Due Soon</span>
+                {% endif %}
+            </div>
+        </li>
+        {% empty %}
+        <li class="empty-state-sm">No activities yet.</li>
+        {% endfor %}
+    </ul>
+    <p style="margin-top:1.5rem;"><a href="{% url 'topic_detail' topic.id %}">← Back to {{ topic.title }}</a></p>
+</div>
+{% endblock %}

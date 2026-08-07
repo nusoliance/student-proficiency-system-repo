@@ -8,38 +8,30 @@
 <div class="lesson-plan-container">
     <div class="lesson-header">
         <h2>{{ topic.title }} <span class="muted-note">({{ topic.start_date }} – {{ topic.end_date }})</span></h2>
-        <div class="manager-actions">
-            <a href="{% url 'topic_documents' topic.id %}" class="btn-secondary">📄 Documents</a>
-            <a href="{% url 'topic_images' topic.id %}" class="btn-secondary">🖼️ Images</a>
-        </div>
     </div>
 
-    <div class="topic-card">
-        <div class="topic-header">
-            <h3>Activities</h3>
-            {% if is_manager %}
-            <a href="{% url 'add_activity' topic.id %}" class="btn-sm">+ Add Activity</a>
-            {% endif %}
-        </div>
-        <ul class="activity-list">
-            {% for activity in topic.activities.all %}
-            <li class="activity-item">
-                <div class="activity-details">
-                    <a href="{% url 'activity_detail' activity.id %}" class="activity-title">{{ activity.title }}</a>
-                    <span class="activity-deadline">Due {{ activity.deadline }}</span>
-                </div>
-                <div class="activity-status">
-                    {% if activity.id in completed_activity_ids %}
-                    <span class="badge badge-success">Completed</span>
-                    {% elif activity.due_soon %}
-                    <span class="badge badge-warning">Due Soon</span>
-                    {% endif %}
-                </div>
-            </li>
-            {% empty %}
-            <li class="empty-state-sm">No activities yet.</li>
-            {% endfor %}
-        </ul>
+    <div class="manager-actions" style="margin-bottom:1.5rem;">
+        <a href="{% url 'topic_documents' topic.id %}" class="btn-secondary"> Documents</a>
+        <a href="{% url 'topic_images' topic.id %}" class="btn-secondary"> Images</a>
     </div>
+
+    <ul class="subject-list">
+        <li>
+            <a href="{% url 'topic_quizzes' topic.id %}" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">Quizzes</div>
+                    <div class="subject-card-teacher">View and manage quizzes for this topic</div>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'topic_activities' topic.id %}" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">Activities</div>
+                    <div class="subject-card-teacher">View and manage activities for this topic</div>
+                </div>
+            </a>
+        </li>
+    </ul>
 </div>
 {% endblock %}

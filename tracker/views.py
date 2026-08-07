@@ -1,13 +1,13 @@
 from django.shortcuts import get_object_or_404
-from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill, TopicDocument, TopicImage
-from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm, TopicDocumentForm, TopicImageForm
+from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward
+from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm, TopicDocumentForm, TopicImageForm, QuizForm, QuizSkillWeightForm, GradeQuizForm, ExamForm, ExamSkillWeightForm, GradeExamForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.models import User
 import calendar as cal_module
-from django.db.models import Q, Case, When, Value, IntegerField
+from django.db.models import Q, Case, When, Value, IntegerField, Sum
 from avatar.models import Skill, StudentSkill
 from django.contrib import messages
 from datetime import date
@@ -141,18 +141,156 @@ def topic_detail(request, topic_id):
     topic = get_object_or_404(Topic, id=topic_id)
     subject = topic.lesson_plan.subject
     is_manager = subject.teacher == request.user
+    return render(request, 'tracker/topic_detail.html', {
+        'topic': topic, 'subject': subject, 'is_manager': is_manager,
+    })
+
+@login_required
+def topic_activities_view(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    subject = topic.lesson_plan.subject
+    is_manager = subject.teacher == request.user
 
     activity_ids = topic.activities.values_list('id', flat=True)
     completed_activity_ids = set(
         ActivityCompletion.objects.filter(
             student=request.user, activity_id__in=activity_ids).values_list('activity_id', flat=True)
     )
-
-    return render(request, 'tracker/topic_detail.html', {
+    return render(request, 'tracker/topic_activities.html', {
         'topic': topic, 'subject': subject, 'is_manager': is_manager,
         'completed_activity_ids': completed_activity_ids,
     })
 
+
+@login_required
+def topic_quizzes_view(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    subject = topic.lesson_plan.subject
+    is_manager = subject.teacher == request.user
+    quizzes = topic.quizzes.all()
+    completions_by_quiz = {
+        c.quiz_id: c for c in QuizCompletion.objects.filter(quiz__in=quizzes, student=request.user)
+    }
+    quiz_data = [{'quiz': q, 'completion': completions_by_quiz.get(q.id)} for q in quizzes]
+    return render(request, 'tracker/topic_quizzes.html', {
+        'topic': topic, 'subject': subject, 'is_manager': is_manager, 'quiz_data': quiz_data,
+    })
+
+@login_required
+def add_quiz(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    subject = topic.lesson_plan.subject
+    if subject.teacher != request.user:
+        return redirect('topic_quizzes', topic_id=topic.id)
+    if request.method == 'POST':
+        form = QuizForm(request.POST, request.FILES)
+        if form.is_valid():
+            quiz = form.save(commit=False)
+            quiz.topic = topic
+            quiz.save()
+            return redirect('add_quiz_skill', quiz_id=quiz.id)
+    else:
+        form = QuizForm()
+    return render(request, 'tracker/add_quiz.html', {'form': form, 'topic': topic})
+
+
+@login_required
+def add_quiz_skill_weight(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    subject = quiz.topic.lesson_plan.subject
+    if subject.teacher != request.user:
+        return redirect('topic_quizzes', topic_id=quiz.topic.id)
+
+    relevant_skills = get_relevant_skills()
+    if request.method == 'POST':
+        form = QuizSkillWeightForm(request.POST, quiz=quiz, relevant_skills=relevant_skills)
+        if form.is_valid():
+            weight = form.save(commit=False)
+            weight.quiz = quiz
+            weight.save()
+            return redirect('add_quiz_skill', quiz_id=quiz.id)
+    else:
+        form = QuizSkillWeightForm(quiz=quiz, relevant_skills=relevant_skills)
+
+    total_percentage = quiz.skill_weights.aggregate(total=Sum('percentage'))['total'] or 0
+    return render(request, 'tracker/add_quiz_skill.html', {
+        'quiz': quiz, 'form': form, 'skills': relevant_skills, 'total_percentage': total_percentage,
+    })
+
+
+@login_required
+def quiz_detail(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    subject = quiz.topic.lesson_plan.subject
+    is_owner = subject.teacher == request.user
+    is_personal = request.user.profile.mode == 'personal'
+
+    if is_owner and is_personal:
+        completion = QuizCompletion.objects.filter(quiz=quiz, student=request.user).first()
+        if request.method == 'POST' and not completion:
+            completion = QuizCompletion.objects.create(quiz=quiz, student=request.user)
+            return redirect('grade_quiz_completion', completion_id=completion.id)
+        return render(request, 'tracker/quiz_detail_personal.html', {'quiz': quiz, 'completion': completion})
+
+    if is_owner:
+        completions = quiz.completions.select_related('student').all()
+        pending_count = completions.filter(graded=False).count()
+        return render(request, 'tracker/quiz_detail_teacher.html', {
+            'quiz': quiz, 'completions': completions, 'pending_count': pending_count,
+        })
+
+    completion = QuizCompletion.objects.filter(quiz=quiz, student=request.user).first()
+    if request.method == 'POST' and not completion:
+        completion = QuizCompletion.objects.create(quiz=quiz, student=request.user)
+    return render(request, 'tracker/quiz_detail.html', {'quiz': quiz, 'completion': completion})
+
+
+@login_required
+def grade_quiz_completion(request, completion_id):
+    completion = get_object_or_404(QuizCompletion, id=completion_id)
+    quiz = completion.quiz
+    if quiz.topic.lesson_plan.subject.teacher != request.user:
+        return redirect('home')
+
+    if request.method == 'POST' and not completion.graded:
+        form = GradeQuizForm(request.POST, instance=completion, max_score=quiz.max_score)
+        if form.is_valid():
+            completion = form.save(commit=False)
+            completion.graded = True
+            completion.save()
+            total_points = completion.total_points
+            for weight in quiz.skill_weights.all():
+                delta = total_points * weight.percentage // 100
+                student_skill, created = completion.student.skills.get_or_create(skill=weight.skill)
+                points_before = student_skill.points
+                points_after = max(0, points_before + delta)
+                student_skill.points = points_after
+                student_skill.save()
+                QuizSkillAward.objects.create(
+                    completion=completion, skill=weight.skill, delta=delta,
+                    points_before=points_before, points_after=points_after,
+                )
+            return redirect('grade_quiz_completion', completion_id=completion.id)
+    else:
+        form = GradeQuizForm(instance=completion, max_score=quiz.max_score)
+
+    return render(request, 'tracker/grade_quiz_completion.html', {
+        'quiz': quiz, 'completion': completion, 'form': form,
+        'pool': quiz.max_score // 2,
+        'total_points': completion.total_points if completion.graded else None,
+    })
+
+
+@login_required
+def delete_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id, topic__lesson_plan__subject__teacher=request.user)
+    topic_id = quiz.topic.id
+    if request.method == 'POST':
+        quiz.delete()
+        return redirect('topic_quizzes', topic_id=topic_id)
+    return render(request, 'tracker/confirm_delete.html', {
+        'object_name': quiz.title, 'cancel_url': 'topic_quizzes', 'cancel_arg': topic_id,
+    })
 
 @login_required
 def topic_documents_view(request, topic_id):
@@ -1056,6 +1194,22 @@ def calendar_view(request, subject_id):
                     'url_name': 'activity_detail', 'obj_id': activity.id,
                 })
                 row += 1
+                
+            for quiz in topic.quizzes.all():
+                q_start, q_end = quiz.created_at.date(), quiz.deadline
+                if q_end < week_start or q_start > week_end:
+                    continue
+                ib_start = max(q_start, week_start)
+                ib_end = min(q_end, week_end)
+                bars.append({
+                    'label': f"Quiz: {quiz.title}",
+                    'css_class': 'cal-item-bar cal-quiz-bar',
+                    'col_start': (ib_start - week_start).days + 1,
+                    'col_span': (ib_end - ib_start).days + 1,
+                    'row': row,
+                    'url_name': 'quiz_detail', 'obj_id': quiz.id,
+                })
+                row += 1
 
         for project in projects:
             p_start, p_end = project.created_at.date(), project.deadline
@@ -1138,3 +1292,135 @@ def skill_applies_to_student(skill, student):
     profile = getattr(student, 'profile', None)
     student_course_id = getattr(profile, 'course_id', None)
     return skill.course_id is not None and skill.course_id == student_course_id
+
+#exams
+
+EXAM_TYPE_LABELS = dict(Exam.EXAM_TYPE_CHOICES)
+
+@login_required
+def exam_router(request, subject_id, exam_type):
+    subject = get_object_or_404(Subject, id=subject_id)
+    is_manager = subject.teacher == request.user
+    exam = Exam.objects.filter(subject=subject, exam_type=exam_type).first()
+
+    if exam:
+        return redirect('exam_detail', exam_id=exam.id)
+    if is_manager:
+        return redirect('add_exam', subject_id=subject.id, exam_type=exam_type)
+    return render(request, 'tracker/exam_not_available.html', {
+        'subject': subject, 'exam_type_label': EXAM_TYPE_LABELS.get(exam_type, exam_type),
+    })
+
+
+@login_required
+def add_exam(request, subject_id, exam_type):
+    subject = get_object_or_404(Subject, id=subject_id)
+    if subject.teacher != request.user:
+        return redirect('lesson_plan_view', subject_id=subject.id)
+    if exam_type not in EXAM_TYPE_LABELS:
+        return redirect('lesson_plan_view', subject_id=subject.id)
+
+    existing = Exam.objects.filter(subject=subject, exam_type=exam_type).first()
+    if existing:
+        return redirect('exam_detail', exam_id=existing.id)
+
+    if request.method == 'POST':
+        form = ExamForm(request.POST, request.FILES)
+        if form.is_valid():
+            exam = form.save(commit=False)
+            exam.subject = subject
+            exam.exam_type = exam_type
+            exam.save()
+            return redirect('add_exam_skill', exam_id=exam.id)
+    else:
+        form = ExamForm()
+    return render(request, 'tracker/add_exam.html', {
+        'form': form, 'subject': subject, 'exam_type_label': EXAM_TYPE_LABELS.get(exam_type, exam_type),
+    })
+
+
+@login_required
+def add_exam_skill_weight(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    subject = exam.subject
+    if subject.teacher != request.user:
+        return redirect('exam_detail', exam_id=exam.id)
+
+    relevant_skills = get_relevant_skills()
+    if request.method == 'POST':
+        form = ExamSkillWeightForm(request.POST, exam=exam, relevant_skills=relevant_skills)
+        if form.is_valid():
+            weight = form.save(commit=False)
+            weight.exam = exam
+            weight.save()
+            return redirect('add_exam_skill', exam_id=exam.id)
+    else:
+        form = ExamSkillWeightForm(exam=exam, relevant_skills=relevant_skills)
+
+    total_percentage = exam.skill_weights.aggregate(total=Sum('percentage'))['total'] or 0
+    return render(request, 'tracker/add_exam_skill.html', {
+        'exam': exam, 'form': form, 'skills': relevant_skills, 'total_percentage': total_percentage,
+    })
+
+
+@login_required
+def exam_detail(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    subject = exam.subject
+    is_owner = subject.teacher == request.user
+    is_personal = request.user.profile.mode == 'personal'
+
+    if is_owner and is_personal:
+        completion = ExamCompletion.objects.filter(exam=exam, student=request.user).first()
+        if request.method == 'POST' and not completion:
+            completion = ExamCompletion.objects.create(exam=exam, student=request.user)
+            return redirect('grade_exam_completion', completion_id=completion.id)
+        return render(request, 'tracker/exam_detail_personal.html', {'exam': exam, 'completion': completion})
+
+    if is_owner:
+        completions = exam.completions.select_related('student').all()
+        pending_count = completions.filter(graded=False).count()
+        return render(request, 'tracker/exam_detail_teacher.html', {
+            'exam': exam, 'completions': completions, 'pending_count': pending_count,
+        })
+
+    completion = ExamCompletion.objects.filter(exam=exam, student=request.user).first()
+    if request.method == 'POST' and not completion:
+        completion = ExamCompletion.objects.create(exam=exam, student=request.user)
+    return render(request, 'tracker/exam_detail.html', {'exam': exam, 'completion': completion})
+
+
+@login_required
+def grade_exam_completion(request, completion_id):
+    completion = get_object_or_404(ExamCompletion, id=completion_id)
+    exam = completion.exam
+    if exam.subject.teacher != request.user:
+        return redirect('home')
+
+    if request.method == 'POST' and not completion.graded:
+        form = GradeExamForm(request.POST, instance=completion, max_score=exam.max_score)
+        if form.is_valid():
+            completion = form.save(commit=False)
+            completion.graded = True
+            completion.save()
+            total_points = completion.total_points
+            for weight in exam.skill_weights.all():
+                delta = total_points * weight.percentage // 100
+                student_skill, created = completion.student.skills.get_or_create(skill=weight.skill)
+                points_before = student_skill.points
+                points_after = max(0, points_before + delta)
+                student_skill.points = points_after
+                student_skill.save()
+                ExamSkillAward.objects.create(
+                    completion=completion, skill=weight.skill, delta=delta,
+                    points_before=points_before, points_after=points_after,
+                )
+            return redirect('grade_exam_completion', completion_id=completion.id)
+    else:
+        form = GradeExamForm(instance=completion, max_score=exam.max_score)
+
+    return render(request, 'tracker/grade_exam_completion.html', {
+        'exam': exam, 'completion': completion, 'form': form,
+        'pool': exam.max_score // 2,
+        'total_points': completion.total_points if completion.graded else None,
+    })
