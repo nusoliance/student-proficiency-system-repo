@@ -1157,6 +1157,7 @@ def calendar_view(request, subject_id):
 
     topics = subject.lesson_plan.topics.all()
     projects = subject.projects.filter(deadline__isnull=False)
+    exams = subject.exams.all()
 
     weeks_data = []
     for week in month_weeks:
@@ -1164,6 +1165,7 @@ def calendar_view(request, subject_id):
         bars = []
         row = 1
 
+        visible_topics = []
         for topic in topics:
             if topic.end_date < week_start or topic.start_date > week_end:
                 continue
@@ -1178,7 +1180,22 @@ def calendar_view(request, subject_id):
                 'url_name': 'lesson_plan_view', 'obj_id': subject.id,
             })
             row += 1
+            visible_topics.append(topic)
 
+        for exam in exams:
+            if exam.deadline < week_start or exam.deadline > week_end:
+                continue
+            bars.append({
+                'label': f"{exam.get_exam_type_display()}",
+                'css_class': 'cal-item-bar cal-exam-bar',
+                'col_start': (exam.deadline - week_start).days + 1,
+                'col_span': 1,
+                'row': row,
+                'url_name': 'exam_detail', 'obj_id': exam.id,
+            })
+            row += 1
+
+        for topic in visible_topics:
             for activity in topic.activities.all():
                 a_start, a_end = activity.created_at.date(), activity.deadline
                 if a_end < week_start or a_start > week_end:
@@ -1194,7 +1211,7 @@ def calendar_view(request, subject_id):
                     'url_name': 'activity_detail', 'obj_id': activity.id,
                 })
                 row += 1
-                
+
             for quiz in topic.quizzes.all():
                 q_start, q_end = quiz.created_at.date(), quiz.deadline
                 if q_end < week_start or q_start > week_end:
@@ -1202,7 +1219,7 @@ def calendar_view(request, subject_id):
                 ib_start = max(q_start, week_start)
                 ib_end = min(q_end, week_end)
                 bars.append({
-                    'label': f"Quiz: {quiz.title}",
+                    'label': f"{quiz.title}",
                     'css_class': 'cal-item-bar cal-quiz-bar',
                     'col_start': (ib_start - week_start).days + 1,
                     'col_span': (ib_end - ib_start).days + 1,
@@ -1423,4 +1440,15 @@ def grade_exam_completion(request, completion_id):
         'exam': exam, 'completion': completion, 'form': form,
         'pool': exam.max_score // 2,
         'total_points': completion.total_points if completion.graded else None,
+    })
+
+@login_required
+def delete_exam(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id, subject__teacher=request.user)
+    subject_id = exam.subject.id
+    if request.method == 'POST':
+        exam.delete()
+        return redirect('lesson_plan_view', subject_id=subject_id)
+    return render(request, 'tracker/confirm_delete.html', {
+        'object_name': exam.get_exam_type_display(), 'cancel_url': 'lesson_plan_view', 'cancel_arg': subject_id,
     })

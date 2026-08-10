@@ -763,13 +763,20 @@ input[type="submit"]:hover {
 }
 
 .cal-quiz-bar {
-    background-color: #8B5CF6;
-    color: #fff;
+    background-color: #87d40b;
+    color: #FFFFFF;
 }
 
 .cal-project-bar {
     background: var(--amber);
     color: #fff;
+}
+
+.cal-exam-bar {
+    background: #DC2626;
+    color: #fff;
+    font-weight: 700;
+    opacity: 1;
 }
 
 .cal-item-bar:hover {
@@ -1669,6 +1676,13 @@ input[type="submit"]:hover {
 .cal-project-bar {
     background-color: #FEF3C7;
     color: #92400E;
+}
+
+.cal-exam-bar {
+    background-color: #DC2626;
+    color: #FFFFFF;
+    font-weight: 700;
+    opacity: 1;
 }
 
 /* for submitting act.s or projs, - Jade */

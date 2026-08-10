@@ -75,4 +75,6 @@ urlpatterns = [
      path('exam/<int:exam_id>/add-skill/', views.add_exam_skill_weight, name='add_exam_skill'),
      path('exam/<int:exam_id>/', views.exam_detail, name='exam_detail'),
      path('exam-completion/<int:completion_id>/grade/', views.grade_exam_completion, name='grade_exam_completion'),
+     path('exam-completion/<int:completion_id>/grade/', views.grade_exam_completion, name='grade_exam_completion'),
+     path('exam/<int:exam_id>/delete/', views.delete_exam, name='delete_exam'),
 ]
