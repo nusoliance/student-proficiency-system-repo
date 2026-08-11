@@ -226,27 +226,47 @@ class PersonalTaskForm(forms.ModelForm):
             instance.save()
         return instance
 
+SUBJECT_WEIGHT_FIELDS = [
+    'activity_weight', 'quiz_weight', 'prelim_weight',
+    'midterm_weight', 'prefinal_weight', 'final_weight', 'project_weight',
+]
+
+
 class SubjectWeightsForm(forms.ModelForm):
+    WEIGHT_FIELDS = SUBJECT_WEIGHT_FIELDS
+
     class Meta:
         model = Subject
-        fields = ['activity_weight', 'project_weight', 'at_risk_threshold']
+        fields = SUBJECT_WEIGHT_FIELDS + ['at_risk_threshold']
         widgets = {
             'activity_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+            'quiz_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+            'prelim_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+            'midterm_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+            'prefinal_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+            'final_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
             'project_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
             'at_risk_threshold': forms.NumberInput(attrs={'min': 0, 'max': 100}),
         }
         labels = {
+            'activity_weight': 'Activities %',
+            'quiz_weight': 'Quizzes %',
+            'prelim_weight': 'Prelim Exam %',
+            'midterm_weight': 'Midterm Exam %',
+            'prefinal_weight': 'Prefinal Exam %',
+            'final_weight': 'Final Exam %',
+            'project_weight': 'Projects %',
             'at_risk_threshold': 'Flag students below this General Average (%)',
         }
 
     def clean(self):
         cleaned_data = super().clean()
-        activity_weight = cleaned_data.get('activity_weight')
-        project_weight = cleaned_data.get('project_weight')
-        if activity_weight is not None and project_weight is not None:
-            if activity_weight + project_weight != 100:
+        values = [cleaned_data.get(f) for f in self.WEIGHT_FIELDS]
+        if all(v is not None for v in values):
+            if sum(values) != 100:
                 raise forms.ValidationError(
-                    'Activities % and Projects % must add up to 100.')
+                    'Activities %, Quizzes %, Prelim %, Midterm %, Prefinal %, Final %, '
+                    'and Projects % must all add up to 100.')
         return cleaned_data
 
 

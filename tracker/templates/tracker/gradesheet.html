@@ -34,6 +34,11 @@
                 <p class="helptext">Set how much each category counts toward the General Average. Must add up to 100.</p>
                 <div class="weights-panel-row">
                     <p>{{ weights_form.activity_weight.label_tag }} {{ weights_form.activity_weight }} %</p>
+                    <p>{{ weights_form.quiz_weight.label_tag }} {{ weights_form.quiz_weight }} %</p>
+                    <p>{{ weights_form.prelim_weight.label_tag }} {{ weights_form.prelim_weight }} %</p>
+                    <p>{{ weights_form.midterm_weight.label_tag }} {{ weights_form.midterm_weight }} %</p>
+                    <p>{{ weights_form.prefinal_weight.label_tag }} {{ weights_form.prefinal_weight }} %</p>
+                    <p>{{ weights_form.final_weight.label_tag }} {{ weights_form.final_weight }} %</p>
                     <p>{{ weights_form.project_weight.label_tag }} {{ weights_form.project_weight }} %</p>
                     <p>{{ weights_form.at_risk_threshold.label_tag }} {{ weights_form.at_risk_threshold }} %</p>
                     <button type="submit" class="btn-primary">Save</button>
@@ -44,6 +49,11 @@
                 <p class="helptext">Your teacher configured this subject's General Average. Only a teacher can change the values below.</p>
                 <div class="weights-panel-row">
                     <p>{{ weights_form.activity_weight.label_tag }} {{ weights_form.activity_weight }} %</p>
+                    <p>{{ weights_form.quiz_weight.label_tag }} {{ weights_form.quiz_weight }} %</p>
+                    <p>{{ weights_form.prelim_weight.label_tag }} {{ weights_form.prelim_weight }} %</p>
+                    <p>{{ weights_form.midterm_weight.label_tag }} {{ weights_form.midterm_weight }} %</p>
+                    <p>{{ weights_form.prefinal_weight.label_tag }} {{ weights_form.prefinal_weight }} %</p>
+                    <p>{{ weights_form.final_weight.label_tag }} {{ weights_form.final_weight }} %</p>
                     <p>{{ weights_form.project_weight.label_tag }} {{ weights_form.project_weight }} %</p>
                     <p>{{ weights_form.at_risk_threshold.label_tag }} {{ weights_form.at_risk_threshold }} %</p>
                 </div>
@@ -53,7 +63,7 @@
     </div>
 
     {% if column_count == 0 %}
-    <p class="empty-state-sm">No activities or projects have been added to this subject yet.</p>
+    <p class="empty-state-sm">No activities, quizzes, exams, or projects have been added to this subject yet.</p>
     {% elif not rows %}
     <p class="empty-state-sm">No students enrolled yet.</p>
     {% else %}
@@ -70,6 +80,23 @@
                     </th>
                     {% endfor %}
                     <th class="gradesheet-total-col">Activity Average</th>
+                    {% for quiz in quizzes %}
+                    <th>
+                        <a href="{% url 'quiz_detail' quiz.id %}">{{ quiz.title }}</a>
+                        <span class="gradesheet-col-type">Quiz</span>
+                    </th>
+                    {% endfor %}
+                    <th class="gradesheet-total-col">Quiz Average</th>
+                    {% for exam_type, exam in exam_columns %}
+                    <th>
+                        {% if exam %}
+                        <a href="{% url 'exam_detail' exam.id %}">{{ exam.get_exam_type_display }}</a>
+                        {% else %}
+                        {{ exam_type|title }} Exam
+                        {% endif %}
+                        <span class="gradesheet-col-type">Exam</span>
+                    </th>
+                    {% endfor %}
                     {% for project in projects %}
                     <th>
                         <a href="{% url 'project_detail' project.id %}">{{ project.title }}</a>

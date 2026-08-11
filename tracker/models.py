@@ -12,6 +12,11 @@ class Subject(models.Model):
     students = models.ManyToManyField(
         User, related_name='subjects_enrolled', blank=True)
     activity_weight = models.PositiveIntegerField(default=50)
+    quiz_weight = models.PositiveIntegerField(default=0)
+    prelim_weight = models.PositiveIntegerField(default=0)
+    midterm_weight = models.PositiveIntegerField(default=0)
+    prefinal_weight = models.PositiveIntegerField(default=0)
+    final_weight = models.PositiveIntegerField(default=0)
     project_weight = models.PositiveIntegerField(default=50)
     at_risk_threshold = models.PositiveIntegerField(default=75)
 

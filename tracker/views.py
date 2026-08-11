@@ -683,17 +683,33 @@ def _rank_gradesheet_rows(rows):
         row.setdefault('rank', None)
 
 
+EXAM_TYPE_ORDER = ['prelim', 'midterm', 'prefinal', 'final']
+
+
 def build_gradesheet_data(subject, is_teacher=True):
     students = subject.students.all().order_by(
     'last_name', 'first_name', 'username')
     activities = Activity.objects.filter(
         topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
+    quizzes = Quiz.objects.filter(
+        topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
+    exams_by_type = {e.exam_type: e for e in subject.exams.all()}
+    exam_list = [exams_by_type.get(t) for t in EXAM_TYPE_ORDER]
     projects = subject.projects.all().order_by('deadline')
 
     activity_completions = ActivityCompletion.objects.filter(
         activity__in=activities)
     completion_map = {
         (c.student_id, c.activity_id): c for c in activity_completions}
+
+    quiz_completions = QuizCompletion.objects.filter(quiz__in=quizzes)
+    quiz_completion_map = {
+        (c.student_id, c.quiz_id): c for c in quiz_completions}
+
+    existing_exams = [e for e in exam_list if e is not None]
+    exam_completions = ExamCompletion.objects.filter(exam__in=existing_exams)
+    exam_completion_map = {
+        (c.student_id, c.exam_id): c for c in exam_completions}
 
     submissions = ProjectSubmission.objects.filter(project__in=projects)
     submission_map = {
@@ -702,9 +718,14 @@ def build_gradesheet_data(subject, is_teacher=True):
     rows = []
     for student in students:
         activity_cells = []
+        quiz_cells = []
+        exam_cells = []
         project_cells = []
         activity_percentages = []
+        quiz_percentages = []
+        quiz_passing_percentages = []
         project_percentages = []
+        exam_pcts = {}
 
         for activity in activities:
             completion = completion_map.get((student.id, activity.id))
@@ -725,6 +746,55 @@ def build_gradesheet_data(subject, is_teacher=True):
                 activity_cells.append({
                     'status': 'evaluated', 'score': completion.score, 'max_score': activity.max_score,
                     'url_name': 'activity_detail', 'obj_id': activity.id,
+                })
+
+        for quiz in quizzes:
+            completion = quiz_completion_map.get((student.id, quiz.id))
+            if completion is None:
+                quiz_cells.append({
+                    'status': 'not_submitted', 'score': None, 'max_score': quiz.max_score,
+                    'url_name': 'quiz_detail', 'obj_id': quiz.id,
+                })
+            elif not completion.graded:
+                quiz_cells.append({
+                    'status': 'pending', 'score': None, 'max_score': quiz.max_score,
+                    'url_name': 'quiz_detail', 'obj_id': quiz.id,
+                })
+            else:
+                below_passing = completion.score < quiz.passing_score
+                if quiz.max_score:
+                    pct = completion.score / quiz.max_score * 100
+                    quiz_percentages.append(pct)
+                    quiz_passing_percentages.append(quiz.passing_percentage)
+                quiz_cells.append({
+                    'status': 'evaluated', 'score': completion.score, 'max_score': quiz.max_score,
+                    'url_name': 'quiz_detail', 'obj_id': quiz.id,
+                    'below_passing': below_passing,
+                })
+
+        for exam_type, exam in zip(EXAM_TYPE_ORDER, exam_list):
+            if exam is None:
+                exam_cells.append({'status': 'not_added'})
+                continue
+            completion = exam_completion_map.get((student.id, exam.id))
+            if completion is None:
+                exam_cells.append({
+                    'status': 'not_submitted', 'score': None, 'max_score': exam.max_score,
+                    'url_name': 'exam_detail', 'obj_id': exam.id,
+                })
+            elif not completion.graded:
+                exam_cells.append({
+                    'status': 'pending', 'score': None, 'max_score': exam.max_score,
+                    'url_name': 'exam_detail', 'obj_id': exam.id,
+                })
+            else:
+                below_passing = completion.score < exam.passing_score
+                if exam.max_score:
+                    exam_pcts[exam_type] = completion.score / exam.max_score * 100
+                exam_cells.append({
+                    'status': 'evaluated', 'score': completion.score, 'max_score': exam.max_score,
+                    'url_name': 'exam_detail', 'obj_id': exam.id,
+                    'below_passing': below_passing,
                 })
 
         for project in projects:
@@ -753,24 +823,40 @@ def build_gradesheet_data(subject, is_teacher=True):
         activity_average = (
             sum(activity_percentages) / len(activity_percentages)
             if activity_percentages else None)
+        quiz_average = (
+            sum(quiz_percentages) / len(quiz_percentages)
+            if quiz_percentages else None)
+        quiz_average_below_passing = (
+            quiz_average is not None
+            and quiz_average < (sum(quiz_passing_percentages) / len(quiz_passing_percentages)))
         project_average = (
             sum(project_percentages) / len(project_percentages)
             if project_percentages else None)
 
-        if activity_average is not None and project_average is not None:
-            average = (
-                activity_average * subject.activity_weight
-                + project_average * subject.project_weight) / 100
-        elif activity_average is not None:
-            average = activity_average
-        elif project_average is not None:
-            average = project_average
-        else:
+        weighted_categories = [
+            (activity_average, subject.activity_weight),
+            (quiz_average, subject.quiz_weight),
+            (exam_pcts.get('prelim'), subject.prelim_weight),
+            (exam_pcts.get('midterm'), subject.midterm_weight),
+            (exam_pcts.get('prefinal'), subject.prefinal_weight),
+            (exam_pcts.get('final'), subject.final_weight),
+            (project_average, subject.project_weight),
+        ]
+        present = [(avg, w) for avg, w in weighted_categories if avg is not None]
+        if not present:
             average = None
+        else:
+            total_weight = sum(w for _, w in present)
+            if total_weight > 0:
+                average = sum(avg * w for avg, w in present) / total_weight
+            else:
+                average = sum(avg for avg, _ in present) / len(present)
 
-        total_items = len(activity_cells) + len(project_cells)
+        all_cells = activity_cells + quiz_cells + project_cells + [
+            c for c in exam_cells if c['status'] != 'not_added']
+        total_items = len(all_cells)
         incomplete_items = sum(
-            1 for cell in activity_cells + project_cells
+            1 for cell in all_cells
             if cell['status'] in ('not_submitted', 'pending'))
         missing_work_ratio = (
             incomplete_items / total_items if total_items else 0)
@@ -789,8 +875,12 @@ def build_gradesheet_data(subject, is_teacher=True):
 
         rows.append({
             'student': student, 'activity_cells': activity_cells,
+            'quiz_cells': quiz_cells, 'exam_cells': exam_cells,
             'project_cells': project_cells, 'average': average,
             'activity_average': activity_average,
+            'quiz_average': quiz_average,
+            'quiz_average_below_passing': quiz_average_below_passing,
+            'average_below_passing': average is not None and average < subject.at_risk_threshold,
             'at_risk_reason': at_risk_reason,
         })
 
@@ -808,8 +898,12 @@ def build_gradesheet_data(subject, is_teacher=True):
         row.setdefault('rank', None)
 
     return {
-        'activities': activities, 'projects': projects, 'rows': rows,
-        'column_count': activities.count() + projects.count(),
+        'activities': activities, 'quizzes': quizzes,
+        'exam_columns': list(zip(EXAM_TYPE_ORDER, exam_list)),
+        'projects': projects, 'rows': rows,
+        'column_count': (
+            activities.count() + quizzes.count()
+            + len(existing_exams) + projects.count()),
     }
 
 
@@ -821,6 +915,7 @@ def gradesheet_view(request, subject_id):
         activity__topic__lesson_plan__subject=subject, graded=False).count()
     return render(request, 'tracker/gradesheet.html', {
         'subject': subject, 'activities': data['activities'],
+        'quizzes': data['quizzes'], 'exam_columns': data['exam_columns'],
         'projects': data['projects'], 'rows': data['rows'],
         'column_count': data['column_count'],
         'weights_form': SubjectWeightsForm(instance=subject),
@@ -842,6 +937,7 @@ def my_gradesheet_view(request, subject_id):
 
     return render(request, 'tracker/gradesheet.html', {
         'subject': subject, 'activities': data['activities'],
+        'quizzes': data['quizzes'], 'exam_columns': data['exam_columns'],
         'projects': data['projects'],
         'rows': [own_row] if own_row else [],
         'column_count': data['column_count'],

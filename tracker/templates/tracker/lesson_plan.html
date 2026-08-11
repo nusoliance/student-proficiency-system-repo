@@ -20,8 +20,8 @@
             </div>
             {% if user.profile.is_manager %}
             <a href="{% url 'add_topic' subject.id %}" class="btn-secondary">+ Add Topic</a>
-            {% if user.profile.mode != 'personal' %}
             <a href="{% url 'gradesheet_view' subject.id %}" class="btn-secondary">Gradesheet</a>
+            {% if user.profile.mode != 'personal' %}
             <a href="{% url 'manage_students' subject.id %}" class="btn-secondary">Manage Students</a>
             {% endif %}
             <a href="{% url 'delete_subject' subject.id %}" class="btn-secondary"
