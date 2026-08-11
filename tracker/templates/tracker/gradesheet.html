@@ -133,6 +133,37 @@
                     </td>
                     {% endfor %}
                     <td class="gradesheet-total-col">{% if row.activity_average is not None %}{{ row.activity_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% for cell in row.quiz_cells %}
+                    <td class="gradesheet-cell">
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done{% if cell.below_passing %} gradesheet-below-passing{% endif %}">{{ cell.score }}/{{ cell.max_score }}</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    <td class="gradesheet-total-col{% if row.quiz_average_below_passing %} gradesheet-below-passing{% endif %}">{% if row.quiz_average is not None %}{{ row.quiz_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% for cell in row.exam_cells %}
+                    <td class="gradesheet-cell">
+                        {% if cell.status == 'not_added' %}
+                        <span class="gradesheet-status gradesheet-status-empty">Not added</span>
+                        {% else %}
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done{% if cell.below_passing %} gradesheet-below-passing{% endif %}">{{ cell.score }}/{{ cell.max_score }}</span>
+                            {% endif %}
+                        </a>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
                     {% for cell in row.project_cells %}
                     <td class="gradesheet-cell">
                         <a href="{% url cell.url_name cell.obj_id %}">
@@ -146,7 +177,7 @@
                         </a>
                     </td>
                     {% endfor %}
-                    <td class="gradesheet-total-col">{% if row.average is not None %}{{ row.average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    <td class="gradesheet-total-col{% if row.average_below_passing %} gradesheet-below-passing{% endif %}">{% if row.average is not None %}{{ row.average|floatformat:2 }}%{% else %}—{% endif %}</td>
                     {% if show_teacher_controls %}
                     <td class="gradesheet-total-col">{{ row.rank|default:"—" }}</td>
                     {% endif %}
