@@ -11,6 +11,7 @@ urlpatterns = [
     path('topic/<int:topic_id>/activities/', views.topic_activities_view, name='topic_activities'),
      path('topic/<int:topic_id>/quizzes/', views.topic_quizzes_view, name='topic_quizzes'),
      path('topic/<int:topic_id>/documents/', views.topic_documents_view, name='topic_documents'),
+     path('document/<int:document_id>/', views.document_view, name='document_view'),
      path('topic/<int:topic_id>/images/', views.topic_images_view, name='topic_images'),
     path('topic/<int:topic_id>/add-activity/',
          views.add_activity, name='add_activity'),

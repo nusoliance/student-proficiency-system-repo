@@ -7,6 +7,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.contrib.auth.models import User
 import calendar as cal_module
+import os
 from django.db.models import Q, Case, When, Value, IntegerField, Sum
 from avatar.models import Skill, StudentSkill
 from django.contrib import messages
@@ -328,6 +329,27 @@ def topic_documents_view(request, topic_id):
     return render(request, 'tracker/topic_documents.html', {
         'topic': topic, 'subject': subject, 'is_manager': is_manager,
         'documents': documents, 'form': form,
+    })
+DOCUMENT_IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg'}
+
+
+@login_required
+def document_view(request, document_id):
+    document = get_object_or_404(TopicDocument, id=document_id)
+    topic = document.topic
+    subject = topic.lesson_plan.subject
+    ext = os.path.splitext(document.document.name)[1].lower()
+    if ext == '.pdf':
+        preview_type = 'pdf'
+    elif ext in DOCUMENT_IMAGE_EXTS:
+        preview_type = 'image'
+    elif ext == '.docx':
+        preview_type = 'docx'
+    else:
+        preview_type = 'none'
+    return render(request, 'tracker/document_view.html', {
+        'document': document, 'topic': topic, 'subject': subject,
+        'preview_type': preview_type,
     })
 
 
