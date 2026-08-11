@@ -40,6 +40,7 @@
             <h3><a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a> <span class="muted-note">({{ topic.start_date }} – {{ topic.end_date }})</span></h3>
             <div class="manager-actions">
                 {% if user.profile.is_manager %}
+                <a href="{% url 'edit_topic' topic.id %}" class="btn-sm">Edit</a>
                 <a href="{% url 'delete_topic' topic.id %}" class="btn-sm"
                     style="color:#991B1B; border-color:#991B1B;">Delete Topic</a>
                 {% endif %}

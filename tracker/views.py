@@ -137,6 +137,22 @@ def add_topic(request, subject_id):
     return render(request, 'tracker/add_topic.html', {'form': form, 'subject': subject})
 
 @login_required
+def edit_topic(request, topic_id):
+    topic = get_object_or_404(
+        Topic, id=topic_id, lesson_plan__subject__teacher=request.user)
+    subject = topic.lesson_plan.subject
+    if request.method == 'POST':
+        form = TopicForm(request.POST, instance=topic)
+        if form.is_valid():
+            form.save()
+            return redirect('lesson_plan_view', subject_id=subject.id)
+    else:
+        form = TopicForm(instance=topic)
+    return render(request, 'tracker/edit_topic.html', {
+        'form': form, 'subject': subject, 'topic': topic,
+    })
+
+@login_required
 def topic_detail(request, topic_id):
     topic = get_object_or_404(Topic, id=topic_id)
     subject = topic.lesson_plan.subject

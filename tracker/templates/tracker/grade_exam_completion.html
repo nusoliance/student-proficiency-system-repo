@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' exam.subject.id %}">{{ exam.subject.name }}</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'exam_detail' exam.id %}">{{ exam.get_exam_type_display }}</a>
+<span class="breadcrumb-sep">›</span> Grade
+{% endblock %}
 {% block content %}
 <h2>Grade: {{ completion.student.username }}</h2>
 <div class="content-frame">

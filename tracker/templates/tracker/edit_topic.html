@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> Edit {{ topic.title }}
+{% endblock %}
+{% block content %}
+<div class="form-card">
+    <h2>Edit {{ topic.title }}</h2>
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save</button>
+            <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
