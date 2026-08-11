@@ -16,12 +16,20 @@
         </div>
     </div>
 
+    {% if preview_type != 'none' %}
+    <div class="document-zoom-controls">
+        <button type="button" class="zoom-btn" onclick="adjustDocPreviewZoom(-0.1)" aria-label="Zoom out">−</button>
+        <span id="docZoomLabel" class="zoom-label">100%</span>
+        <button type="button" class="zoom-btn" onclick="adjustDocPreviewZoom(0.1)" aria-label="Zoom in">+</button>
+    </div>
+    {% endif %}
+
     {% if preview_type == 'pdf' %}
-    <iframe src="{{ document.document.url }}" class="document-preview-frame"></iframe>
+    <iframe src="{{ document.document.url }}" class="document-preview-frame zoomable-preview"></iframe>
     {% elif preview_type == 'image' %}
-    <img src="{{ document.document.url }}" class="document-preview-image">
+    <img src="{{ document.document.url }}" class="document-preview-image zoomable-preview">
     {% elif preview_type == 'docx' %}
-    <div id="docxPreview" class="document-preview-docx">
+    <div id="docxPreview" class="document-preview-docx zoomable-preview">
         <p class="empty-state-sm">Loading preview…</p>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.11.0/mammoth.browser.min.js"></script>
@@ -41,6 +49,20 @@
     <div class="content-frame">
         <p class="empty-state-sm">A preview isn't available for this file type. Use the Download button above to open it.</p>
     </div>
+    {% endif %}
+
+    {% if preview_type != 'none' %}
+    <script>
+        var docPreviewZoom = 1;
+        function adjustDocPreviewZoom(delta) {
+            docPreviewZoom = Math.min(2, Math.max(0.4, Math.round((docPreviewZoom + delta) * 100) / 100));
+            document.querySelectorAll('.zoomable-preview').forEach(function (el) {
+                el.style.zoom = docPreviewZoom;
+            });
+            var label = document.getElementById('docZoomLabel');
+            if (label) { label.textContent = Math.round(docPreviewZoom * 100) + '%'; }
+        }
+    </script>
     {% endif %}
 </div>
 {% endblock %}

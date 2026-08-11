@@ -640,13 +640,46 @@ input[type="submit"]:hover {
     height: 80vh;
     border: 1px solid var(--border, #ddd);
     border-radius: 8px;
+    margin-top: 0.5rem;
+}
+
+.document-zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
     margin-top: 1rem;
+}
+
+.zoom-btn {
+    background-color: transparent;
+    color: #334155;
+    border: 2px solid #334155;
+    border-radius: 5px;
+    width: 28px;
+    height: 28px;
+    line-height: 1;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.zoom-btn:hover {
+    color: #0F172A;
+    border-color: #0F172A;
+}
+
+.zoom-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    min-width: 38px;
+    text-align: center;
 }
 
 .document-preview-image {
     max-width: 100%;
     border-radius: 8px;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 .document-preview-docx {
@@ -654,7 +687,7 @@ input[type="submit"]:hover {
     max-height: 80vh;
     overflow: auto;
     padding: 2rem 2.5rem;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     line-height: 1.6;
     color: #1a1a1a;
     border: 1px solid var(--border, #ddd);
