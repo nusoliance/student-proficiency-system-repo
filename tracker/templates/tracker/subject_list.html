@@ -10,7 +10,7 @@
         <a href="{% url 'lesson_plan_view' item.subject.id %}" class="subject-card">
             <div class="subject-card-text">
                 <div class="subject-card-name">{{ item.subject.name }}</div>
-                <div class="subject-card-teacher">{{ item.subject.teacher.username }}</div>
+                <div class="subject-card-teacher">{{ item.subject.professor_name|default:item.subject.teacher.username }}</div>
             </div>
             {% if item.due_count %}
             <span class="subject-card-badge">{{ item.due_count }}</span>

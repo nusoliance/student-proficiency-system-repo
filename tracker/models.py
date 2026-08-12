@@ -4,13 +4,30 @@ from django.utils import timezone
 from avatar.models import Skill
 from datetime import timedelta
 
+DAY_CHOICES = [
+    ('mon', 'Mon'), ('tue', 'Tue'), ('wed', 'Wed'), ('thu', 'Thu'),
+    ('fri', 'Fri'), ('sat', 'Sat'), ('sun', 'Sun'),
+]
+
 
 class Subject(models.Model):
+    SUBJECT_TYPE_CHOICES = [('lec', 'Lecture'), ('lab', 'Laboratory')]
+    DELIVERY_MODE_CHOICES = [
+        ('online', 'Online'), ('onsite', 'Onsite'), ('hybrid', 'Hybrid')]
+
     name = models.CharField(max_length=100)
     teacher = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='subjects_taught')
     students = models.ManyToManyField(
         User, related_name='subjects_enrolled', blank=True)
+    subject_type = models.CharField(
+        max_length=3, choices=SUBJECT_TYPE_CHOICES, blank=True)
+    delivery_mode = models.CharField(
+        max_length=6, choices=DELIVERY_MODE_CHOICES, blank=True)
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
+    room = models.CharField(max_length=100, blank=True)
+    professor_name = models.CharField(max_length=100, blank=True)
     activity_weight = models.PositiveIntegerField(default=50)
     quiz_weight = models.PositiveIntegerField(default=0)
     prelim_weight = models.PositiveIntegerField(default=0)
@@ -22,6 +39,22 @@ class Subject(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SubjectMeetingDay(models.Model):
+    MODE_CHOICES = [('online', 'Online'), ('onsite', 'Onsite')]
+
+    subject = models.ForeignKey(
+        Subject, on_delete=models.CASCADE, related_name='meeting_days')
+    day = models.CharField(max_length=3, choices=DAY_CHOICES)
+    mode = models.CharField(max_length=6, choices=MODE_CHOICES)
+
+    class Meta:
+        unique_together = ('subject', 'day')
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.subject.name} - {self.get_day_display()} ({self.get_mode_display()})"
 
 
 class LessonPlan(models.Model):

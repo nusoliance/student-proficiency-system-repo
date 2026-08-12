@@ -1,13 +1,57 @@
 from django import forms
 from django.contrib.auth.models import User
 from avatar.models import Skill
-from .models import Subject, Topic, LessonPlan, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward
+from .models import Subject, Topic, LessonPlan, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward, DAY_CHOICES
 from django.db.models import Sum
 
-class SubjectForm(forms.ModelForm):
+class SubjectScheduleFieldsMixin(forms.Form):
+    subject_type = forms.ChoiceField(
+        choices=[('', '— Select —')] + Subject.SUBJECT_TYPE_CHOICES,
+        required=False, label='Lecture or Laboratory')
+    delivery_mode = forms.ChoiceField(
+        choices=[('', '— Select —')] + Subject.DELIVERY_MODE_CHOICES,
+        required=False, label='Class Format')
+    start_time = forms.TimeField(
+        required=False, widget=forms.TimeInput(attrs={'type': 'time'}))
+    end_time = forms.TimeField(
+        required=False, widget=forms.TimeInput(attrs={'type': 'time'}))
+    room = forms.CharField(required=False, max_length=100, label='Room')
+    professor_name = forms.CharField(
+        required=False, max_length=100, label='Teacher / Professor Name')
+    days = forms.MultipleChoiceField(
+        choices=DAY_CHOICES, required=False,
+        widget=forms.CheckboxSelectMultiple, label='Day(s) of the week')
+    onsite_days = forms.MultipleChoiceField(
+        choices=DAY_CHOICES, required=False,
+        widget=forms.CheckboxSelectMultiple,
+        label='Which of those days are onsite? (the rest are online)')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        delivery_mode = cleaned_data.get('delivery_mode')
+        days = cleaned_data.get('days') or []
+        onsite_days = cleaned_data.get('onsite_days') or []
+        room = cleaned_data.get('room')
+
+        if not set(onsite_days).issubset(set(days)):
+            self.add_error(
+                'onsite_days', 'Onsite days must also be selected as class days.')
+
+        if delivery_mode == 'onsite' and days and not room:
+            self.add_error('room', 'Room is required for onsite classes.')
+        if delivery_mode == 'hybrid' and onsite_days and not room:
+            self.add_error('room', 'Room is required for the onsite day(s).')
+
+        return cleaned_data
+
+
+class SubjectForm(SubjectScheduleFieldsMixin, forms.ModelForm):
     class Meta:
         model = Subject
-        fields = ['name', 'students']
+        fields = [
+            'name', 'students', 'subject_type', 'delivery_mode',
+            'start_time', 'end_time', 'room', 'professor_name',
+        ]
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
@@ -17,6 +61,15 @@ class SubjectForm(forms.ModelForm):
         else:
             self.fields['students'].queryset = User.objects.filter(
                 profile__role='student', profile__mode='professional')
+
+
+class SubjectCustomizeForm(SubjectScheduleFieldsMixin, forms.ModelForm):
+    class Meta:
+        model = Subject
+        fields = [
+            'name', 'subject_type', 'delivery_mode',
+            'start_time', 'end_time', 'room', 'professor_name',
+        ]
 
 
 class TopicForm(forms.ModelForm):

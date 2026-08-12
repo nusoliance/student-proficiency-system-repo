@@ -1,18 +1,16 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
 <span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
-<span class="breadcrumb-sep">›</span> Add Subject
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> Customize
 {% endblock %}
 {% block content %}
 <div class="form-card">
-    <h2>Add Subject</h2>
+    <h2>Customize {{ subject.name }}</h2>
     <form method="post" class="custom-form">
         {% csrf_token %}
         {{ form.non_field_errors }}
         <p>{{ form.name.label_tag }} {{ form.name }}{{ form.name.errors }}</p>
-        {% if form.students %}
-        <p>{{ form.students.label_tag }} {{ form.students }}{{ form.students.errors }}</p>
-        {% endif %}
         <p>{{ form.professor_name.label_tag }} {{ form.professor_name }}{{ form.professor_name.errors }}</p>
         <p>{{ form.subject_type.label_tag }} {{ form.subject_type }}{{ form.subject_type.errors }}</p>
         <p>{{ form.delivery_mode.label_tag }} {{ form.delivery_mode }}{{ form.delivery_mode.errors }}</p>
@@ -47,8 +45,8 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn-primary">Create</button>
-            <a href="{% url 'subject_list' %}" class="btn-cancel">Cancel</a>
+            <button type="submit" class="btn-primary">Save</button>
+            <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-cancel">Cancel</a>
         </div>
     </form>
 </div>

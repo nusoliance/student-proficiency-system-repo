@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .models import Subject, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward
-from .forms import SubjectForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm, TopicDocumentForm, TopicImageForm, QuizForm, QuizSkillWeightForm, GradeQuizForm, ExamForm, ExamSkillWeightForm, GradeExamForm
+from .models import Subject, SubjectMeetingDay, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward
+from .forms import SubjectForm, SubjectCustomizeForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm, TopicDocumentForm, TopicImageForm, QuizForm, QuizSkillWeightForm, GradeQuizForm, ExamForm, ExamSkillWeightForm, GradeExamForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -90,6 +90,21 @@ def subject_list(request):
     return render(request, 'tracker/subject_list.html', {'subject_data': subject_data})
 
 
+def save_subject_meeting_days(subject, cleaned_data):
+    subject.meeting_days.all().delete()
+    delivery_mode = cleaned_data.get('delivery_mode')
+    days = cleaned_data.get('days') or []
+    onsite_days = set(cleaned_data.get('onsite_days') or [])
+    for day in days:
+        if delivery_mode == 'onsite':
+            mode = 'onsite'
+        elif delivery_mode == 'hybrid':
+            mode = 'onsite' if day in onsite_days else 'online'
+        else:
+            mode = 'online'
+        SubjectMeetingDay.objects.create(subject=subject, day=day, mode=mode)
+
+
 @login_required
 def add_subject(request):
     if request.method == 'POST':
@@ -99,6 +114,7 @@ def add_subject(request):
             subject.teacher = request.user
             subject.save()
             form.save_m2m()
+            save_subject_meeting_days(subject, form.cleaned_data)
             if request.user.profile.mode == 'personal':
                 subject.students.add(request.user)
             LessonPlan.objects.create(subject=subject)
@@ -106,6 +122,27 @@ def add_subject(request):
     else:
         form = SubjectForm(user=request.user)
     return render(request, 'tracker/add_subject.html', {'form': form})
+
+
+@login_required
+def customize_subject(request, subject_id):
+    subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
+    existing_days = {d.day: d.mode for d in subject.meeting_days.all()}
+    initial = {
+        'days': list(existing_days.keys()),
+        'onsite_days': [day for day, mode in existing_days.items() if mode == 'onsite'],
+    }
+    if request.method == 'POST':
+        form = SubjectCustomizeForm(request.POST, instance=subject, initial=initial)
+        if form.is_valid():
+            subject = form.save()
+            save_subject_meeting_days(subject, form.cleaned_data)
+            return redirect('lesson_plan_view', subject_id=subject.id)
+    else:
+        form = SubjectCustomizeForm(instance=subject, initial=initial)
+    return render(request, 'tracker/customize_subject.html', {
+        'subject': subject, 'form': form,
+    })
 
 
 @login_required
