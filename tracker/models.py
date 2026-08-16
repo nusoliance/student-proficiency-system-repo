@@ -9,6 +9,8 @@ DAY_CHOICES = [
     ('fri', 'Fri'), ('sat', 'Sat'), ('sun', 'Sun'),
 ]
 
+TERM_CHOICES = [('midterm', 'Midterm'), ('final', 'Final')]
+
 
 class Subject(models.Model):
     SUBJECT_TYPE_CHOICES = [('lec', 'Lecture'), ('lab', 'Laboratory')]
@@ -30,12 +32,17 @@ class Subject(models.Model):
     professor_name = models.CharField(max_length=100, blank=True)
     activity_weight = models.PositiveIntegerField(default=50)
     quiz_weight = models.PositiveIntegerField(default=0)
+    midterm_activity_weight = models.PositiveIntegerField(default=0)
+    final_activity_weight = models.PositiveIntegerField(default=0)
+    midterm_quiz_weight = models.PositiveIntegerField(default=0)
+    final_quiz_weight = models.PositiveIntegerField(default=0)
     prelim_weight = models.PositiveIntegerField(default=0)
     midterm_weight = models.PositiveIntegerField(default=0)
     prefinal_weight = models.PositiveIntegerField(default=0)
     final_weight = models.PositiveIntegerField(default=0)
     project_weight = models.PositiveIntegerField(default=50)
     at_risk_threshold = models.PositiveIntegerField(default=75)
+    divide_by_semester = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -102,6 +109,8 @@ class Activity(models.Model):
     deadline = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
     max_score = models.PositiveIntegerField(default=100)
+    term = models.CharField(
+        max_length=7, choices=TERM_CHOICES, default='midterm', blank=True)
 
     skill_main = models.ForeignKey(
         Skill, on_delete=models.SET_NULL, null=True, related_name='activities_main')
@@ -233,6 +242,8 @@ class PersonalTask(models.Model):
     title = models.CharField(max_length=200)
     no_deadline = models.BooleanField(default=False)
     deadline = models.DateField(null=True, blank=True)
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
     difficulty = models.IntegerField(choices=DIFFICULTY_CHOICES)
     importance = models.IntegerField(choices=IMPORTANCE_CHOICES)
 
@@ -290,6 +301,8 @@ class Quiz(models.Model):
     file = models.FileField(upload_to='quiz_materials/', null=True, blank=True)
     link = models.URLField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    term = models.CharField(
+        max_length=7, choices=TERM_CHOICES, default='midterm', blank=True)
 
     @property
     def passing_score(self):

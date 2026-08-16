@@ -3,15 +3,15 @@
 <span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
 <span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
 <span class="breadcrumb-sep">›</span> <a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a>
-<span class="breadcrumb-sep">›</span> Quizzes
+<span class="breadcrumb-sep">›</span> {{ term_label }}Quizzes
 {% endblock %}
 {% block content %}
 <div class="lesson-plan-container">
     <div class="lesson-header">
-        <h2>{{ topic.title }} — Quizzes</h2>
+        <h2>{{ topic.title }} — {{ term_label }}Quizzes</h2>
         {% if is_manager %}
         <div class="manager-actions">
-            <a href="{% url 'add_quiz' topic.id %}" class="btn-secondary">+ Add Quiz</a>
+            <a href="{% url 'add_quiz' topic.id %}{% if term %}?term={{ term }}{% endif %}" class="btn-secondary">+ Add Quiz</a>
         </div>
         {% endif %}
     </div>
@@ -33,7 +33,7 @@
             </div>
         </li>
         {% empty %}
-        <li class="empty-state-sm">No quizzes yet.</li>
+        <li class="empty-state-sm">No {{ term_label|lower }}quizzes yet.</li>
         {% endfor %}
     </ul>
     <p style="margin-top:1.5rem;"><a href="{% url 'topic_detail' topic.id %}">← Back to {{ topic.title }}</a></p>

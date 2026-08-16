@@ -9,17 +9,15 @@
 <div class="lesson-plan-container">
     <div class="lesson-header">
         <h2>Images</h2>
-        {% if is_manager %}
-        <div class="manager-actions">
-            <button type="button" class="btn-secondary" onclick="document.getElementById('imgUploadInput').click()">+ Upload Image</button>
-        </div>
-        {% endif %}
     </div>
 
     {% if is_manager %}
-    <form method="post" enctype="multipart/form-data" id="imgUploadForm">
+    <form method="post" enctype="multipart/form-data" id="imgUploadForm" class="doc-upload-form">
         {% csrf_token %}
-        <input type="file" name="image" id="imgUploadInput" accept="image/*" onchange="document.getElementById('imgUploadForm').submit();">
+        {{ form.non_field_errors }}
+        <input type="file" name="image" id="imgUploadInput" accept="image/*">
+        {{ form.image.errors }}
+        <button type="submit" class="btn-secondary">Upload Image</button>
     </form>
     {% endif %}
 

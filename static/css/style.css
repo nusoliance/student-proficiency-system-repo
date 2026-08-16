@@ -1496,7 +1496,7 @@ input[type="submit"]:hover {
     margin-top: 4px;
 }
 
-.custom-form .errorlist {
+.errorlist {
     list-style: none;
     padding: 0;
     margin: 4px 0 0;
@@ -1603,6 +1603,16 @@ input[type="submit"]:hover {
     background-color: transparent;
     border-color: #1E3A8A;
     color: #1E3A8A;
+}
+
+.btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-secondary:disabled:hover {
+    border-color: inherit;
+    color: #334155;
 }
 
 .badge {
@@ -2400,6 +2410,38 @@ input[type="submit"]:hover {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
+
+    .week-cal-page,
+    .week-cal-page * {
+        visibility: visible;
+    }
+
+    .week-cal-page {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        max-width: none;
+        margin: 0;
+    }
+
+    .week-cal-scroll {
+        max-height: none !important;
+        overflow: visible !important;
+        zoom: 0.55;
+    }
+
+    .week-cal-grid {
+        min-width: 0;
+    }
+
+    .week-cal-event,
+    .week-cal-chip,
+    .week-cal-today-col {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }
 @media (max-width: 640px) {
     .page {
@@ -2513,7 +2555,272 @@ input[type="submit"]:hover {
     object-fit: cover;
     display: block;
 }
-input[type="file"]#docUploadInput,
-input[type="file"]#imgUploadInput {
+.doc-upload-form {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+/* Week Calendar */
+.week-cal-page {
+    overflow-x: auto;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.5rem 2.5rem;
+    box-sizing: border-box;
+}
+
+.week-cal-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+
+.week-cal-grid {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--panel);
+    min-width: 760px;
+}
+
+.week-cal-header-row,
+.week-cal-allday-row,
+.week-cal-body {
+    display: flex;
+}
+
+.week-cal-gutter-cell {
+    width: 60px;
+    flex-shrink: 0;
+    border-right: var(--gridline-width, 1px) solid var(--line);
+}
+
+.week-cal-day-header {
+    flex: 1;
+    text-align: center;
+    padding: 0.6rem 0;
+    border-right: var(--gridline-width, 1px) solid var(--line);
+    border-bottom: var(--gridline-width, 1px) solid var(--line);
+}
+
+.week-cal-day-header:last-child {
+    border-right: none;
+}
+
+.week-cal-day-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+}
+
+.week-cal-day-number {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text);
+    font-family: 'Sora', sans-serif;
+}
+
+.week-cal-today .week-cal-day-number {
+    color: var(--blue);
+}
+
+.week-cal-allday-row {
+    border-bottom: var(--gridline-width, 1px) solid var(--line);
+    min-height: 34px;
+}
+
+.week-cal-gutter-label {
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.week-cal-allday-cell {
+    flex: 1;
+    border-right: var(--gridline-width, 1px) solid var(--line);
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.week-cal-allday-cell:last-child {
+    border-right: none;
+}
+
+.week-cal-chip {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.week-cal-exam-chip {
+    background: #DC2626;
+}
+
+.week-cal-task-chip {
+    background: #2563EB;
+}
+
+.week-cal-chip-done {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+
+.week-cal-scroll {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.week-cal-body {
+    position: relative;
+}
+
+.week-cal-gutter {
+    width: 60px;
+    flex-shrink: 0;
+    border-right: var(--gridline-width, 1px) solid var(--line);
+}
+
+.week-cal-hour-label {
+    height: 60px;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    padding-right: 6px;
+    box-sizing: border-box;
+    transform: translateY(-8px);
+}
+
+.week-cal-hour-label:first-child {
+    transform: none;
+    padding-top: 2px;
+}
+
+.week-cal-day-col {
+    flex: 1;
+    position: relative;
+    height: 1440px;
+    border-right: var(--gridline-width, 1px) solid var(--line);
+    background-image: linear-gradient(to bottom, var(--line) var(--gridline-width, 1px), transparent var(--gridline-width, 1px));
+    background-size: 100% 60px;
+}
+
+.week-cal-day-col:last-child {
+    border-right: none;
+}
+
+.week-cal-today-col {
+    background-color: rgba(59, 130, 246, 0.06);
+}
+
+.week-cal-event {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border-radius: 6px;
+    padding: 4px 6px;
+    overflow: hidden;
+    color: #fff;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+    line-height: 1.3;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.week-cal-event-title {
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.week-cal-event-sub {
+    font-size: 10px;
+    opacity: 0.9;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.week-cal-event-done {
+    opacity: 0.5;
+}
+
+.week-cal-event-done .week-cal-event-title {
+    text-decoration: line-through;
+}
+
+/* Adaptive font sizing based on box height (set server-side per event) */
+.week-cal-event-md {
+    padding: 3px 5px;
+}
+
+.week-cal-event-md .week-cal-event-title {
+    font-size: 10px;
+}
+
+.week-cal-event-md .week-cal-event-sub {
+    font-size: 9px;
+}
+
+.week-cal-event-md .week-cal-event-location {
     display: none;
+}
+
+.week-cal-event-sm {
+    padding: 2px 4px;
+    line-height: 1.1;
+}
+
+.week-cal-event-sm .week-cal-event-title {
+    font-size: 8px;
+}
+
+.week-cal-event-sm .week-cal-event-sub {
+    font-size: 7px;
+}
+
+.week-cal-event-sm .week-cal-event-location {
+    display: none;
+}
+
+.week-cal-event-xs {
+    padding: 1px 3px;
+    line-height: 1;
+}
+
+.week-cal-event-xs .week-cal-event-title {
+    font-size: 7px;
+}
+
+.week-cal-event-xs .week-cal-event-sub {
+    display: none;
+}
+
+/* full view of calendar */
+.week-cal-scroll.week-cal-fullview {
+    max-height: none;
+    overflow-y: visible;
 }

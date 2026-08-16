@@ -9,21 +9,25 @@
     <h2>Add Personal Task</h2>
     <form method="post" class="custom-form">
         {% csrf_token %}
-        <p>{{ form.title.label_tag }} {{ form.title }}</p>
-        <p>{{ form.difficulty.label_tag }} {{ form.difficulty }}</p>
-        <p>{{ form.importance.label_tag }} {{ form.importance }}</p>
-        <p>{{ form.skill_main.label_tag }} {{ form.skill_main }}</p>
-        <p>{{ form.skill_secondary.label_tag }} {{ form.skill_secondary }}</p>
-        <p>{{ form.skill_tertiary.label_tag }} {{ form.skill_tertiary }}</p>
+        {{ form.non_field_errors }}
+        <p>{{ form.title.label_tag }} {{ form.title }}{{ form.title.errors }}</p>
+        <p>{{ form.difficulty.label_tag }} {{ form.difficulty }}{{ form.difficulty.errors }}</p>
+        <p>{{ form.importance.label_tag }} {{ form.importance }}{{ form.importance.errors }}</p>
+        <p>{{ form.skill_main.label_tag }} {{ form.skill_main }}{{ form.skill_main.errors }}</p>
+        <p>{{ form.skill_secondary.label_tag }} {{ form.skill_secondary }}{{ form.skill_secondary.errors }}</p>
+        <p>{{ form.skill_tertiary.label_tag }} {{ form.skill_tertiary }}{{ form.skill_tertiary.errors }}</p>
 
-        <p><label>{{ form.no_deadline }} {{ form.no_deadline.label }}</label></p>
+        <p><label>{{ form.no_deadline }} {{ form.no_deadline.label }}</label>{{ form.no_deadline.errors }}</p>
+        <p class="helptext">With "No deadline" on and Repeat set to Daily or Weekly, this becomes an ongoing reminder that appears on your Calendar on every matching day (through Jan 1, 2027) instead of a one-time due date.</p>
         <div id="deadlineWrapper">
-            <p>{{ form.deadline.label_tag }} {{ form.deadline }}</p>
+            <p>{{ form.deadline.label_tag }} {{ form.deadline }}{{ form.deadline.errors }}</p>
         </div>
+        <p>{{ form.start_time.label_tag }} {{ form.start_time }}{{ form.start_time.errors }}</p>
+        <p>{{ form.end_time.label_tag }} {{ form.end_time }}{{ form.end_time.errors }}</p>
 
-        <p>{{ form.repeat.label_tag }} {{ form.repeat }}</p>
+        <p>{{ form.repeat.label_tag }} {{ form.repeat }}{{ form.repeat.errors }}</p>
         <div id="weeklyDaysWrapper">
-            <p>{{ form.weekly_days.label_tag }}</p>
+            <p>{{ form.weekly_days.label_tag }}{{ form.weekly_days.errors }}</p>
             <div class="weekday-picker">
                 {% for checkbox in form.weekly_days %}
                 <label class="weekday-toggle">

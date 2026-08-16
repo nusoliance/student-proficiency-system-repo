@@ -1,10 +1,25 @@
 {% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> Add Quiz
+{% endblock %}
 {% block content %}
 <div class="form-card">
 <h2>Add Quiz to {{ topic.title }}</h2>
 <form method="post" enctype="multipart/form-data" class="custom-form">
     {% csrf_token %}
-    {{ form.as_p }}
+    {{ form.non_field_errors }}
+    <p>{{ form.title.label_tag }} {{ form.title }}{{ form.title.errors }}</p>
+    <p>{{ form.instructions.label_tag }} {{ form.instructions }}{{ form.instructions.errors }}</p>
+    <p>{{ form.deadline.label_tag }} {{ form.deadline }}{{ form.deadline.errors }}</p>
+    <p>{{ form.max_score.label_tag }} {{ form.max_score }}{{ form.max_score.errors }}</p>
+    <p>{{ form.passing_percentage.label_tag }} {{ form.passing_percentage }}{{ form.passing_percentage.errors }}</p>
+    {% if subject.divide_by_semester %}
+    <p>{{ form.term.label_tag }} {{ form.term }}{{ form.term.errors }}</p>
+    {% endif %}
+    <p>{{ form.file.label_tag }} {{ form.file }}{{ form.file.errors }}</p>
+    <p>{{ form.link.label_tag }} {{ form.link }}{{ form.link.errors }}</p>
     <div class="form-actions">
         <button type="submit" class="btn-primary">Create &amp; Add Skills</button>
         <a href="{% url 'topic_quizzes' topic.id %}" class="btn-cancel">Cancel</a>

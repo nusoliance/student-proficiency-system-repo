@@ -25,9 +25,9 @@
                     {% elif task.no_deadline %}
                     <span class="badge badge-warning">Ongoing</span>
                     {% elif task.due_soon %}
-                    <span class="badge badge-warning">Due {{ task.deadline }}</span>
+                    <span class="badge badge-warning">Due {{ task.deadline }}{% if task.start_time and task.end_time %} {{ task.start_time|time:"g:i A" }}–{{ task.end_time|time:"g:i A" }}{% endif %}</span>
                     {% else %}
-                    <span class="activity-deadline">Due {{ task.deadline }}</span>
+                    <span class="activity-deadline">Due {{ task.deadline }}{% if task.start_time and task.end_time %} {{ task.start_time|time:"g:i A" }}–{{ task.end_time|time:"g:i A" }}{% endif %}</span>
                     {% endif %}
                     <a href="{% url 'delete_personal_task' task.id %}" class="btn-sm"
                         style="color:#991B1B; border-color:#991B1B;">Delete</a>

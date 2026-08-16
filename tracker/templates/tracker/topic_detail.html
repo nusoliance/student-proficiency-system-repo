@@ -13,9 +13,54 @@
     <div class="manager-actions" style="margin-bottom:1.5rem;">
         <a href="{% url 'topic_documents' topic.id %}" class="btn-secondary"> Documents</a>
         <a href="{% url 'topic_images' topic.id %}" class="btn-secondary"> Images</a>
+        {% if is_manager %}
+        <form method="post" action="{% url 'toggle_semester_split' topic.id %}" id="semesterSplitForm" style="display:inline-block;">
+            {% csrf_token %}
+            <label class="btn-secondary" style="display:inline-flex; align-items:center; gap:0.4rem; cursor:pointer;">
+                <input type="checkbox" name="divide_by_semester"
+                    {% if subject.divide_by_semester %}checked{% endif %}
+                    onchange="document.getElementById('semesterSplitForm').submit()">
+                Divide activities and quizzes into semester
+            </label>
+        </form>
+        {% endif %}
     </div>
 
     <ul class="subject-list">
+        {% if subject.divide_by_semester %}
+        <li>
+            <a href="{% url 'topic_quizzes' topic.id %}?term=midterm" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">Midterm Quizzes</div>
+                    <div class="subject-card-teacher">View and manage midterm quizzes for this topic</div>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'topic_quizzes' topic.id %}?term=final" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">Final Quizzes</div>
+                    <div class="subject-card-teacher">View and manage final quizzes for this topic</div>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'topic_activities' topic.id %}?term=midterm" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">Midterm Activities</div>
+                    <div class="subject-card-teacher">View and manage midterm activities for this topic</div>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'topic_activities' topic.id %}?term=final" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">Final Activities</div>
+                    <div class="subject-card-teacher">View and manage final activities for this topic</div>
+                </div>
+            </a>
+        </li>
+        {% else %}
         <li>
             <a href="{% url 'topic_quizzes' topic.id %}" class="subject-card">
                 <div class="subject-card-text">
@@ -32,6 +77,7 @@
                 </div>
             </a>
         </li>
+        {% endif %}
     </ul>
 </div>
 {% endblock %}

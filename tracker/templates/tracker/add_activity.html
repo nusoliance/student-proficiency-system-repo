@@ -18,6 +18,10 @@
         <p>{{ form.deadline.label_tag }} {{ form.deadline }}</p>
         {{ form.max_score.errors }}
         <p>{{ form.max_score.label_tag }} {{ form.max_score }}</p>
+        {% if subject.divide_by_semester %}
+        {{ form.term.errors }}
+        <p>{{ form.term.label_tag }} {{ form.term }}</p>
+        {% endif %}
 
         {% include 'tracker/_skill_picker.html' with field=form.skill_main label="Primary Skill" placeholder="Choose a primary skill" %}
         {% include 'tracker/_skill_picker.html' with field=form.skill_secondary label="Secondary Skill" placeholder="Choose a secondary skill (optional)" %}

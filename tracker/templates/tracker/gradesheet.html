@@ -33,8 +33,15 @@
                 {% csrf_token %}
                 <p class="helptext">Set how much each category counts toward the General Average. Must add up to 100.</p>
                 <div class="weights-panel-row">
+                    {% if divide_by_semester %}
+                    <p>{{ weights_form.midterm_activity_weight.label_tag }} {{ weights_form.midterm_activity_weight }} %</p>
+                    <p>{{ weights_form.final_activity_weight.label_tag }} {{ weights_form.final_activity_weight }} %</p>
+                    <p>{{ weights_form.midterm_quiz_weight.label_tag }} {{ weights_form.midterm_quiz_weight }} %</p>
+                    <p>{{ weights_form.final_quiz_weight.label_tag }} {{ weights_form.final_quiz_weight }} %</p>
+                    {% else %}
                     <p>{{ weights_form.activity_weight.label_tag }} {{ weights_form.activity_weight }} %</p>
                     <p>{{ weights_form.quiz_weight.label_tag }} {{ weights_form.quiz_weight }} %</p>
+                    {% endif %}
                     <p>{{ weights_form.prelim_weight.label_tag }} {{ weights_form.prelim_weight }} %</p>
                     <p>{{ weights_form.midterm_weight.label_tag }} {{ weights_form.midterm_weight }} %</p>
                     <p>{{ weights_form.prefinal_weight.label_tag }} {{ weights_form.prefinal_weight }} %</p>
@@ -48,8 +55,15 @@
             <div class="custom-form">
                 <p class="helptext">Your teacher configured this subject's General Average. Only a teacher can change the values below.</p>
                 <div class="weights-panel-row">
+                    {% if divide_by_semester %}
+                    <p>{{ weights_form.midterm_activity_weight.label_tag }} {{ weights_form.midterm_activity_weight }} %</p>
+                    <p>{{ weights_form.final_activity_weight.label_tag }} {{ weights_form.final_activity_weight }} %</p>
+                    <p>{{ weights_form.midterm_quiz_weight.label_tag }} {{ weights_form.midterm_quiz_weight }} %</p>
+                    <p>{{ weights_form.final_quiz_weight.label_tag }} {{ weights_form.final_quiz_weight }} %</p>
+                    {% else %}
                     <p>{{ weights_form.activity_weight.label_tag }} {{ weights_form.activity_weight }} %</p>
                     <p>{{ weights_form.quiz_weight.label_tag }} {{ weights_form.quiz_weight }} %</p>
+                    {% endif %}
                     <p>{{ weights_form.prelim_weight.label_tag }} {{ weights_form.prelim_weight }} %</p>
                     <p>{{ weights_form.midterm_weight.label_tag }} {{ weights_form.midterm_weight }} %</p>
                     <p>{{ weights_form.prefinal_weight.label_tag }} {{ weights_form.prefinal_weight }} %</p>
@@ -73,6 +87,36 @@
                 <tr>
                     <th class="gradesheet-student-col">ID</th>
                     <th class="gradesheet-student-col">Student</th>
+                    {% if divide_by_semester %}
+                    {% for activity in midterm_activities %}
+                    <th>
+                        <a href="{% url 'activity_detail' activity.id %}">{{ activity.title }}</a>
+                        <span class="gradesheet-col-type">Midterm Activity</span>
+                    </th>
+                    {% endfor %}
+                    <th class="gradesheet-total-col">Midterm Activity Average</th>
+                    {% for activity in final_activities %}
+                    <th>
+                        <a href="{% url 'activity_detail' activity.id %}">{{ activity.title }}</a>
+                        <span class="gradesheet-col-type">Final Activity</span>
+                    </th>
+                    {% endfor %}
+                    <th class="gradesheet-total-col">Final Activity Average</th>
+                    {% for quiz in midterm_quizzes %}
+                    <th>
+                        <a href="{% url 'quiz_detail' quiz.id %}">{{ quiz.title }}</a>
+                        <span class="gradesheet-col-type">Midterm Quiz</span>
+                    </th>
+                    {% endfor %}
+                    <th class="gradesheet-total-col">Midterm Quiz Average</th>
+                    {% for quiz in final_quizzes %}
+                    <th>
+                        <a href="{% url 'quiz_detail' quiz.id %}">{{ quiz.title }}</a>
+                        <span class="gradesheet-col-type">Final Quiz</span>
+                    </th>
+                    {% endfor %}
+                    <th class="gradesheet-total-col">Final Quiz Average</th>
+                    {% else %}
                     {% for activity in activities %}
                     <th>
                         <a href="{% url 'activity_detail' activity.id %}">{{ activity.title }}</a>
@@ -87,6 +131,7 @@
                     </th>
                     {% endfor %}
                     <th class="gradesheet-total-col">Quiz Average</th>
+                    {% endif %}
                     {% for exam_type, exam in exam_columns %}
                     <th>
                         {% if exam %}
@@ -119,6 +164,64 @@
                         <span class="gradesheet-at-risk-badge" title="{{ row.at_risk_reason }}">{% if show_teacher_controls %}Needs Attention{% else %}At Risk{% endif %}</span>
                         {% endif %}
                     </td>
+                    {% if divide_by_semester %}
+                    {% for cell in row.midterm_activity_cells %}
+                    <td class="gradesheet-cell">
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done">{{ cell.score }}/{{ cell.max_score }}</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    <td class="gradesheet-total-col">{% if row.midterm_activity_average is not None %}{{ row.midterm_activity_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% for cell in row.final_activity_cells %}
+                    <td class="gradesheet-cell">
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done">{{ cell.score }}/{{ cell.max_score }}</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    <td class="gradesheet-total-col">{% if row.final_activity_average is not None %}{{ row.final_activity_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% for cell in row.midterm_quiz_cells %}
+                    <td class="gradesheet-cell">
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done{% if cell.below_passing %} gradesheet-below-passing{% endif %}">{{ cell.score }}/{{ cell.max_score }}</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    <td class="gradesheet-total-col{% if row.midterm_quiz_average_below_passing %} gradesheet-below-passing{% endif %}">{% if row.midterm_quiz_average is not None %}{{ row.midterm_quiz_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% for cell in row.final_quiz_cells %}
+                    <td class="gradesheet-cell">
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done{% if cell.below_passing %} gradesheet-below-passing{% endif %}">{{ cell.score }}/{{ cell.max_score }}</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    <td class="gradesheet-total-col{% if row.final_quiz_average_below_passing %} gradesheet-below-passing{% endif %}">{% if row.final_quiz_average is not None %}{{ row.final_quiz_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% else %}
                     {% for cell in row.activity_cells %}
                     <td class="gradesheet-cell">
                         <a href="{% url cell.url_name cell.obj_id %}">
@@ -147,6 +250,7 @@
                     </td>
                     {% endfor %}
                     <td class="gradesheet-total-col{% if row.quiz_average_below_passing %} gradesheet-below-passing{% endif %}">{% if row.quiz_average is not None %}{{ row.quiz_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% endif %}
                     {% for cell in row.exam_cells %}
                     <td class="gradesheet-cell">
                         {% if cell.status == 'not_added' %}

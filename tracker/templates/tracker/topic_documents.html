@@ -9,17 +9,15 @@
 <div class="lesson-plan-container">
     <div class="lesson-header">
         <h2>{{ topic.title }} — Documents</h2>
-        {% if is_manager %}
-        <div class="manager-actions">
-            <button type="button" class="btn-secondary" onclick="document.getElementById('docUploadInput').click()">+ Upload Document</button>
-        </div>
-        {% endif %}
     </div>
 
     {% if is_manager %}
-    <form method="post" enctype="multipart/form-data" id="docUploadForm">
+    <form method="post" enctype="multipart/form-data" id="docUploadForm" class="doc-upload-form">
         {% csrf_token %}
-        <input type="file" name="document" id="docUploadInput" onchange="document.getElementById('docUploadForm').submit();">
+        {{ form.non_field_errors }}
+        <input type="file" name="document" id="docUploadInput">
+        {{ form.document.errors }}
+        <button type="submit" class="btn-secondary">Upload Document</button>
     </form>
     {% endif %}
 

@@ -33,7 +33,7 @@
             {% if task.no_deadline %}
             <p class="task-detail-row">No deadline</p>
             {% else %}
-            <p class="task-detail-row">Deadline: {{ task.deadline }}</p>
+            <p class="task-detail-row">Deadline: {{ task.deadline }}{% if task.start_time and task.end_time %} · {{ task.start_time|time:"g:i A" }} – {{ task.end_time|time:"g:i A" }}{% endif %}</p>
             {% endif %}
 
             {% if task.repeat == 'weekly' %}

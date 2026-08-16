@@ -104,7 +104,7 @@ class TopicImageForm(forms.ModelForm):
 class ActivityForm(forms.ModelForm):
     class Meta:
         model = Activity
-        fields = ['title', 'instructions', 'deadline', 'max_score',
+        fields = ['title', 'instructions', 'deadline', 'max_score', 'term',
                   'skill_main', 'skill_secondary', 'skill_tertiary']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
@@ -237,9 +237,14 @@ class PersonalTaskForm(forms.ModelForm):
 
     class Meta:
         model = PersonalTask
-        fields = ['title', 'no_deadline', 'deadline', 'difficulty', 'importance',
+        fields = ['title', 'no_deadline', 'deadline', 'start_time', 'end_time', 'difficulty', 'importance',
                   'skill_main', 'skill_secondary', 'skill_tertiary', 'repeat', 'notify']
-        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+        widgets = {
+            'deadline': forms.DateInput(attrs={'type': 'date'}),
+            'start_time': forms.TimeInput(attrs={'type': 'time'}),
+            'end_time': forms.TimeInput(attrs={'type': 'time'}),
+        }
+        labels = {'start_time': 'Start time (optional)', 'end_time': 'End time (optional)'}
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
@@ -257,6 +262,8 @@ class PersonalTaskForm(forms.ModelForm):
         cleaned = super().clean()
         no_deadline = cleaned.get('no_deadline')
         deadline = cleaned.get('deadline')
+        start_time = cleaned.get('start_time')
+        end_time = cleaned.get('end_time')
         repeat = cleaned.get('repeat')
         weekly_days = cleaned.get('weekly_days')
 
@@ -265,6 +272,14 @@ class PersonalTaskForm(forms.ModelForm):
         elif not deadline:
             self.add_error(
                 'deadline', 'A deadline is required unless this task has no deadline.')
+
+        if bool(start_time) != bool(end_time):
+            self.add_error(
+                'end_time' if start_time else 'start_time',
+                'Set both a start time and an end time, or leave both blank.')
+        elif start_time and end_time and end_time <= start_time:
+            self.add_error(
+                'end_time', 'End time must be after the start time.')
 
         if repeat == 'weekly' and not weekly_days:
             self.add_error(
@@ -279,31 +294,32 @@ class PersonalTaskForm(forms.ModelForm):
             instance.save()
         return instance
 
-SUBJECT_WEIGHT_FIELDS = [
-    'activity_weight', 'quiz_weight', 'prelim_weight',
-    'midterm_weight', 'prefinal_weight', 'final_weight', 'project_weight',
+COMBINED_WEIGHT_FIELDS = ['activity_weight', 'quiz_weight']
+SPLIT_WEIGHT_FIELDS = [
+    'midterm_activity_weight', 'final_activity_weight',
+    'midterm_quiz_weight', 'final_quiz_weight',
 ]
+SHARED_WEIGHT_FIELDS = [
+    'prelim_weight', 'midterm_weight', 'prefinal_weight', 'final_weight', 'project_weight',
+]
+SUBJECT_WEIGHT_FIELDS = COMBINED_WEIGHT_FIELDS + SPLIT_WEIGHT_FIELDS + SHARED_WEIGHT_FIELDS
 
 
 class SubjectWeightsForm(forms.ModelForm):
-    WEIGHT_FIELDS = SUBJECT_WEIGHT_FIELDS
-
     class Meta:
         model = Subject
         fields = SUBJECT_WEIGHT_FIELDS + ['at_risk_threshold']
         widgets = {
-            'activity_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
-            'quiz_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
-            'prelim_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
-            'midterm_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
-            'prefinal_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
-            'final_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
-            'project_weight': forms.NumberInput(attrs={'min': 0, 'max': 100}),
-            'at_risk_threshold': forms.NumberInput(attrs={'min': 0, 'max': 100}),
+            field: forms.NumberInput(attrs={'min': 0, 'max': 100})
+            for field in SUBJECT_WEIGHT_FIELDS + ['at_risk_threshold']
         }
         labels = {
             'activity_weight': 'Activities %',
             'quiz_weight': 'Quizzes %',
+            'midterm_activity_weight': 'Midterm Activities %',
+            'final_activity_weight': 'Final Activities %',
+            'midterm_quiz_weight': 'Midterm Quizzes %',
+            'final_quiz_weight': 'Final Quizzes %',
             'prelim_weight': 'Prelim Exam %',
             'midterm_weight': 'Midterm Exam %',
             'prefinal_weight': 'Prefinal Exam %',
@@ -312,14 +328,25 @@ class SubjectWeightsForm(forms.ModelForm):
             'at_risk_threshold': 'Flag students below this General Average (%)',
         }
 
+    def __init__(self, *args, **kwargs):
+        self.divide_by_semester = kwargs.pop('divide_by_semester', False)
+        super().__init__(*args, **kwargs)
+        if self.divide_by_semester:
+            for field in COMBINED_WEIGHT_FIELDS:
+                del self.fields[field]
+            self.active_weight_fields = SPLIT_WEIGHT_FIELDS + SHARED_WEIGHT_FIELDS
+        else:
+            for field in SPLIT_WEIGHT_FIELDS:
+                del self.fields[field]
+            self.active_weight_fields = COMBINED_WEIGHT_FIELDS + SHARED_WEIGHT_FIELDS
+
     def clean(self):
         cleaned_data = super().clean()
-        values = [cleaned_data.get(f) for f in self.WEIGHT_FIELDS]
+        values = [cleaned_data.get(f) for f in self.active_weight_fields]
         if all(v is not None for v in values):
             if sum(values) != 100:
                 raise forms.ValidationError(
-                    'Activities %, Quizzes %, Prelim %, Midterm %, Prefinal %, Final %, '
-                    'and Projects % must all add up to 100.')
+                    'All weight percentages shown must add up to 100.')
         return cleaned_data
 
 
@@ -331,7 +358,7 @@ class QuizForm(forms.ModelForm):
 
     class Meta:
         model = Quiz
-        fields = ['title', 'instructions', 'deadline', 'max_score', 'passing_percentage', 'file', 'link']
+        fields = ['title', 'instructions', 'deadline', 'max_score', 'passing_percentage', 'term', 'file', 'link']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})} 
 
 
