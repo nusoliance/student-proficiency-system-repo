@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' assignment.topic.lesson_plan.subject.id %}">{{ assignment.topic.lesson_plan.subject.name }}</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'assignment_detail' assignment.id %}">{{ assignment.title }}</a>
+<span class="breadcrumb-sep">›</span> Grade
+{% endblock %}
+{% block content %}
+<h2>Grade: {{ completion.student.username }}</h2>
+<div class="content-frame">
+    {% if completion.image %}<p><img src="{{ completion.image.url }}" class="submission-img"></p>{% endif %}
+    {% if completion.document %}<p><a href="{{ completion.document.url }}">View submitted document</a></p>{% endif %}
+    {% if not completion.image and not completion.document %}<p class="muted-note">No files attached.</p>{% endif %}
+
+    <h3 class="dossier-section-title">Score</h3>
+    <p class="muted-note">Max score: {{ assignment.max_score }}</p>
+    {% if completion.graded and not show_form %}
+    <p>{{ completion.score }} / {{ assignment.max_score }}</p>
+    <ul class="ruled-list">
+        <li>{{ assignment.skill_main.name }} <span class="dossier-eval-score">+{{ completion.main_points }}</span></li>
+        {% if assignment.skill_secondary %}<li>{{ assignment.skill_secondary.name }} <span class="dossier-eval-score">+
+                {{completion.secondary_points }}</span></li>{% endif %}
+        {% if assignment.skill_tertiary %}<li>{{ assignment.skill_tertiary.name }} <span class="dossier-eval-score">+
+                {{completion.tertiary_points }}</span></li>{% endif %}
+    </ul>
+    <p style="margin-top:1rem;"><a href="?edit=1" class="btn-secondary">Edit Grade</a></p>
+    {% else %}
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">{% if completion.graded %}Update Grade{% else %}Submit Grade{% endif %}</button>
+            {% if completion.graded %}<a href="{% url 'grade_assignment_completion' completion.id %}" class="btn-cancel">Cancel</a>{% endif %}
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

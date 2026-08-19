@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' assignment.topic.lesson_plan.subject.id %}">{{ assignment.topic.lesson_plan.subject.name }}</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'assignment_detail' assignment.id %}">{{ assignment.title }}</a>
+<span class="breadcrumb-sep">›</span> Grade Queue
+{% endblock %}
+{% block content %}
+<div class="content-frame">
+<h2>Grading: {{ assignment.title }}</h2>
+<p class="muted-note">{{ remaining_count }} submission{{ remaining_count|pluralize }} left to grade.</p>
+
+<h3 class="dossier-section-title">{{ completion.student.username }}</h3>
+{% if completion.image %}<p><img src="{{ completion.image.url }}" class="submission-img"></p>{% endif %}
+{% if completion.document %}<p><a href="{{ completion.document.url }}">View submitted document</a></p>{% endif %}
+{% if not completion.image and not completion.document %}<p class="muted-note">No files attached.</p>{% endif %}
+
+<form method="post" class="custom-form">
+{% csrf_token %}
+{{ form.as_p }}
+<div class="form-actions">
+<button type="submit" class="btn-primary">Save &amp; Next</button>
+</div>
+</form>
+
+<p style="margin-top:1rem;"><a href="{% url 'assignment_detail' assignment.id %}">Exit Queue</a></p>
+</div>
+{% endblock %}

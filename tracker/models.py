@@ -32,10 +32,13 @@ class Subject(models.Model):
     professor_name = models.CharField(max_length=100, blank=True)
     activity_weight = models.PositiveIntegerField(default=50)
     quiz_weight = models.PositiveIntegerField(default=0)
+    assignment_weight = models.PositiveIntegerField(default=0)
     midterm_activity_weight = models.PositiveIntegerField(default=0)
     final_activity_weight = models.PositiveIntegerField(default=0)
     midterm_quiz_weight = models.PositiveIntegerField(default=0)
     final_quiz_weight = models.PositiveIntegerField(default=0)
+    midterm_assignment_weight = models.PositiveIntegerField(default=0)
+    final_assignment_weight = models.PositiveIntegerField(default=0)
     prelim_weight = models.PositiveIntegerField(default=0)
     midterm_weight = models.PositiveIntegerField(default=0)
     prefinal_weight = models.PositiveIntegerField(default=0)
@@ -178,6 +181,85 @@ class ActivityCompletion(models.Model):
 
     def __str__(self):
         return f"{self.student.username} completed {self.activity.title}"
+
+
+class Assignment(models.Model):
+    topic = models.ForeignKey(
+        Topic, on_delete=models.CASCADE, related_name='assignments')
+    title = models.CharField(max_length=200)
+    instructions = models.TextField(blank=True)
+    deadline = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    max_score = models.PositiveIntegerField(default=100)
+    term = models.CharField(
+        max_length=7, choices=TERM_CHOICES, default='midterm', blank=True)
+
+    skill_main = models.ForeignKey(
+        Skill, on_delete=models.SET_NULL, null=True, related_name='assignments_main')
+    skill_secondary = models.ForeignKey(
+        Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='assignments_secondary')
+    skill_tertiary = models.ForeignKey(
+        Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='assignments_tertiary')
+
+    @property
+    def due_soon(self):
+        return 0 <= (self.deadline - timezone.now().date()).days <= 3
+
+    def __str__(self):
+        return self.title
+
+
+class AssignmentCompletion(models.Model):
+    assignment = models.ForeignKey(
+        Assignment, on_delete=models.CASCADE, related_name='completions')
+    student = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='assignment_completions')
+    image = models.ImageField(
+        upload_to='assignment_submissions/images/', null=True, blank=True)
+    document = models.FileField(
+        upload_to='assignment_submissions/documents/', null=True, blank=True)
+    completed_at = models.DateTimeField(auto_now_add=True)
+    score = models.PositiveIntegerField(null=True, blank=True)
+    graded = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('assignment', 'student')
+
+    @property
+    def total_points(self):
+        if self.score is None or not self.assignment.max_score:
+            return 0
+        pool = self.assignment.max_score // 2
+        return pool * self.score // self.assignment.max_score
+
+    @property
+    def _skill_weights(self):
+        weights = [5]
+        weights.append(3 if self.assignment.skill_secondary else 0)
+        weights.append(2 if self.assignment.skill_tertiary else 0)
+        return weights
+
+    @property
+    def main_points(self):
+        weights = self._skill_weights
+        return self.total_points * weights[0] // sum(weights)
+
+    @property
+    def secondary_points(self):
+        if not self.assignment.skill_secondary:
+            return 0
+        weights = self._skill_weights
+        return self.total_points * weights[1] // sum(weights)
+
+    @property
+    def tertiary_points(self):
+        if not self.assignment.skill_tertiary:
+            return 0
+        weights = self._skill_weights
+        return self.total_points * weights[2] // sum(weights)
+
+    def __str__(self):
+        return f"{self.student.username} completed {self.assignment.title}"
 
 
 class Project(models.Model):

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from avatar.models import Skill
-from .models import Subject, Topic, LessonPlan, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, PersonalTask, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward, DAY_CHOICES
+from .models import Subject, Topic, LessonPlan, Activity, Project, ProjectSubmission, SkillAward, ActivityCompletion, Assignment, AssignmentCompletion, PersonalTask, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward, DAY_CHOICES
 from django.db.models import Sum
 
 class SubjectScheduleFieldsMixin(forms.Form):
@@ -138,6 +138,42 @@ class GradeActivityForm(forms.ModelForm):
                 f"Score can't exceed the maximum of {self.max_score}.")
         return score
 
+class AssignmentForm(forms.ModelForm):
+    class Meta:
+        model = Assignment
+        fields = ['title', 'instructions', 'deadline', 'max_score', 'term',
+                  'skill_main', 'skill_secondary', 'skill_tertiary']
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        relevant_skills = kwargs.pop('relevant_skills')
+        super().__init__(*args, **kwargs)
+        self.fields['skill_main'].queryset = relevant_skills
+        self.fields['skill_secondary'].queryset = relevant_skills
+        self.fields['skill_tertiary'].queryset = relevant_skills
+
+
+class AssignmentCompletionForm(forms.ModelForm):
+    class Meta:
+        model = AssignmentCompletion
+        fields = ['image', 'document']
+
+
+class GradeAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = AssignmentCompletion
+        fields = ['score']
+
+    def __init__(self, *args, **kwargs):
+        self.max_score = kwargs.pop('max_score')
+        super().__init__(*args, **kwargs)
+
+    def clean_score(self):
+        score = self.cleaned_data['score']
+        if score > self.max_score:
+            raise forms.ValidationError(
+                f"Score can't exceed the maximum of {self.max_score}.")
+        return score
 
 class ProjectForm(forms.ModelForm):
     class Meta:
@@ -294,10 +330,11 @@ class PersonalTaskForm(forms.ModelForm):
             instance.save()
         return instance
 
-COMBINED_WEIGHT_FIELDS = ['activity_weight', 'quiz_weight']
+COMBINED_WEIGHT_FIELDS = ['activity_weight', 'quiz_weight', 'assignment_weight']
 SPLIT_WEIGHT_FIELDS = [
     'midterm_activity_weight', 'final_activity_weight',
     'midterm_quiz_weight', 'final_quiz_weight',
+    'midterm_assignment_weight', 'final_assignment_weight',
 ]
 SHARED_WEIGHT_FIELDS = [
     'prelim_weight', 'midterm_weight', 'prefinal_weight', 'final_weight', 'project_weight',
@@ -316,10 +353,13 @@ class SubjectWeightsForm(forms.ModelForm):
         labels = {
             'activity_weight': 'Activities %',
             'quiz_weight': 'Quizzes %',
+            'assignment_weight': 'Assignments %',
             'midterm_activity_weight': 'Midterm Activities %',
             'final_activity_weight': 'Final Activities %',
             'midterm_quiz_weight': 'Midterm Quizzes %',
             'final_quiz_weight': 'Final Quizzes %',
+            'midterm_assignment_weight': 'Midterm Assignments %',
+            'final_assignment_weight': 'Final Assignments %',
             'prelim_weight': 'Prelim Exam %',
             'midterm_weight': 'Midterm Exam %',
             'prefinal_weight': 'Prefinal Exam %',

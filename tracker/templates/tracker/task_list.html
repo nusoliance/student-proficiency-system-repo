@@ -33,6 +33,31 @@
 
 
     <div class="topic-card">
+        <h3 style="color:#1E3A8A; margin-top:0;">Assignments</h3>
+        <ul class="activity-list">
+            {% for assignment in assignments %}
+            <li class="activity-item">
+                <div class="activity-details">
+                    <a href="{% url 'assignment_detail' assignment.id %}" class="activity-title">{{ assignment.title }}</a>
+                    <span class="activity-deadline">{{ assignment.topic.lesson_plan.subject.name }}</span>
+                </div>
+                <div class="activity-status">
+                    {% if assignment.id in completed_assignment_ids %}
+                    <span class="badge badge-success">Done</span>
+                    {% elif assignment.due_soon %}
+                    <span class="badge badge-warning">Due {{ assignment.deadline }}</span>
+                    {% else %}
+                    <span class="activity-deadline">Due {{ assignment.deadline }}</span>
+                    {% endif %}
+                </div>
+            </li>
+            {% empty %}
+            <li class="empty-state-sm">No assignments assigned yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="topic-card">
         <h3 style="color:#1E3A8A; margin-top:0;">Activities</h3>
         <ul class="activity-list">
             {% for activity in activities %}
@@ -53,6 +78,31 @@
             </li>
             {% empty %}
             <li class="empty-state-sm">No activities assigned yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="topic-card">
+        <h3 style="color:#1E3A8A; margin-top:0;">Quiz</h3>
+        <ul class="activity-list">
+            {% for quiz in quizzes %}
+            <li class="activity-item">
+                <div class="activity-details">
+                    <a href="{% url 'quiz_detail' quiz.id %}" class="activity-title">{{ quiz.title }}</a>
+                    <span class="activity-deadline">{{ quiz.topic.lesson_plan.subject.name }}</span>
+                </div>
+                <div class="activity-status">
+                    {% if quiz.id in completed_quiz_ids %}
+                    <span class="badge badge-success">Done</span>
+                    {% elif quiz.due_soon %}
+                    <span class="badge badge-warning">Due {{ quiz.deadline }}</span>
+                    {% else %}
+                    <span class="activity-deadline">Due {{ quiz.deadline }}</span>
+                    {% endif %}
+                </div>
+            </li>
+            {% empty %}
+            <li class="empty-state-sm">No quizzes assigned yet.</li>
             {% endfor %}
         </ul>
     </div>
@@ -79,6 +129,31 @@
             </li>
             {% empty %}
             <li class="empty-state-sm">No projects assigned yet.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="topic-card">
+        <h3 style="color:#1E3A8A; margin-top:0;">Exams</h3>
+        <ul class="activity-list">
+            {% for exam in exams %}
+            <li class="activity-item">
+                <div class="activity-details">
+                    <a href="{% url 'exam_detail' exam.id %}" class="activity-title">{{ exam.get_exam_type_display }}</a>
+                    <span class="activity-deadline">{{ exam.subject.name }}</span>
+                </div>
+                <div class="activity-status">
+                    {% if exam.id in completed_exam_ids %}
+                    <span class="badge badge-success">Done</span>
+                    {% elif exam.due_soon %}
+                    <span class="badge badge-warning">Due {{ exam.deadline }}</span>
+                    {% else %}
+                    <span class="activity-deadline">Due {{ exam.deadline }}</span>
+                    {% endif %}
+                </div>
+            </li>
+            {% empty %}
+            <li class="empty-state-sm">No exams assigned yet.</li>
             {% endfor %}
         </ul>
     </div>

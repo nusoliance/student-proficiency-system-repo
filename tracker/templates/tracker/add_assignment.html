@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' topic.lesson_plan.subject.id %}">{{ topic.lesson_plan.subject.name }}</a>
+<span class="breadcrumb-sep">›</span> Add Assignment
+{% endblock %}
+{% load static %}
+{% block content %}
+<div class="form-card">
+    <h2>Add Assignment to {{ topic.title }}</h2>
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        {{ form.title.errors }}
+        <p>{{ form.title.label_tag }} {{ form.title }}</p>
+        {{ form.instructions.errors }}
+        <p>{{ form.instructions.label_tag }} {{ form.instructions }}</p>
+        {{ form.deadline.errors }}
+        <p>{{ form.deadline.label_tag }} {{ form.deadline }}</p>
+        {{ form.max_score.errors }}
+        <p>{{ form.max_score.label_tag }} {{ form.max_score }}</p>
+        {% if subject.divide_by_semester %}
+        {{ form.term.errors }}
+        <p>{{ form.term.label_tag }} {{ form.term }}</p>
+        {% endif %}
+
+        {% include 'tracker/_skill_picker.html' with field=form.skill_main label="Primary Skill" placeholder="Choose a primary skill" %}
+        {% include 'tracker/_skill_picker.html' with field=form.skill_secondary label="Secondary Skill" placeholder="Choose a secondary skill (optional)" %}
+        {% include 'tracker/_skill_picker.html' with field=form.skill_tertiary label="Tertiary Skill" placeholder="Choose a tertiary skill (optional)" %}
+        {{ skill_groups|json_script:"skill-groups-data" }}
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Create</button>
+            <a href="{% url 'lesson_plan_view' topic.lesson_plan.subject.id %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+</div>
+<script src="{% static 'js/skill_picker.js' %}"></script>
+{% endblock %}

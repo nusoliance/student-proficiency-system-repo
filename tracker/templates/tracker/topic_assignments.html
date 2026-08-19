@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' subject.id %}">{{ subject.name }}</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a>
+<span class="breadcrumb-sep">›</span> {{ term_label }}Assignments
+{% endblock %}
+{% block content %}
+<div class="lesson-plan-container">
+    <div class="lesson-header">
+        <h2>{{ topic.title }} — {{ term_label }}Assignments</h2>
+        {% if is_manager %}
+        <div class="manager-actions">
+            <a href="{% url 'add_assignment' topic.id %}{% if term %}?term={{ term }}{% endif %}" class="btn-secondary">+ Add Assignment</a>
+        </div>
+        {% endif %}
+    </div>
+    <ul class="activity-list">
+        {% for assignment in assignments %}
+        <li class="activity-item">
+            <div class="activity-details">
+                <a href="{% url 'assignment_detail' assignment.id %}" class="activity-title">{{ assignment.title }}</a>
+                <span class="activity-deadline">Due {{ assignment.deadline }}</span>
+            </div>
+            <div class="activity-status">
+                {% if assignment.id in completed_assignment_ids %}
+                <span class="badge badge-success">Completed</span>
+                {% elif assignment.due_soon %}
+                <span class="badge badge-warning">Due Soon</span>
+                {% endif %}
+            </div>
+        </li>
+        {% empty %}
+        <li class="empty-state-sm">No {{ term_label|lower }}assignments yet.</li>
+        {% endfor %}
+    </ul>
+    <p style="margin-top:1.5rem;"><a href="{% url 'topic_detail' topic.id %}">← Back to {{ topic.title }}</a></p>
+</div>
+{% endblock %}

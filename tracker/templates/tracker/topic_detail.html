@@ -20,7 +20,7 @@
                 <input type="checkbox" name="divide_by_semester"
                     {% if subject.divide_by_semester %}checked{% endif %}
                     onchange="document.getElementById('semesterSplitForm').submit()">
-                Divide activities and quizzes into semester
+                Divide activities, quizzes, and assignments into semester
             </label>
         </form>
         {% endif %}
@@ -60,6 +60,22 @@
                 </div>
             </a>
         </li>
+        <li>
+            <a href="{% url 'topic_assignments' topic.id %}?term=midterm" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">Midterm Assignments</div>
+                    <div class="subject-card-teacher">View and manage midterm assignments for this topic</div>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'topic_assignments' topic.id %}?term=final" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">Final Assignments</div>
+                    <div class="subject-card-teacher">View and manage final assignments for this topic</div>
+                </div>
+            </a>
+        </li>
         {% else %}
         <li>
             <a href="{% url 'topic_quizzes' topic.id %}" class="subject-card">
@@ -74,6 +90,14 @@
                 <div class="subject-card-text">
                     <div class="subject-card-name">Activities</div>
                     <div class="subject-card-teacher">View and manage activities for this topic</div>
+                </div>
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'topic_assignments' topic.id %}" class="subject-card">
+                <div class="subject-card-text">
+                    <div class="subject-card-name">Assignments</div>
+                    <div class="subject-card-teacher">View and manage assignments for this topic</div>
                 </div>
             </a>
         </li>

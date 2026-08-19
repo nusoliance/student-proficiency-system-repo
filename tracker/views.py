@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
-from .models import Subject, SubjectMeetingDay, LessonPlan, Topic, Activity, ActivityCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward, DAY_CHOICES
-from .forms import SubjectForm, SubjectCustomizeForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm, TopicDocumentForm, TopicImageForm, QuizForm, QuizSkillWeightForm, GradeQuizForm, ExamForm, ExamSkillWeightForm, GradeExamForm
+from .models import Subject, SubjectMeetingDay, LessonPlan, Topic, Activity, ActivityCompletion, Assignment, AssignmentCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward, DAY_CHOICES
+from .forms import SubjectForm, SubjectCustomizeForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, AssignmentForm, AssignmentCompletionForm, GradeAssignmentForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm, TopicDocumentForm, TopicImageForm, QuizForm, QuizSkillWeightForm, GradeQuizForm, ExamForm, ExamSkillWeightForm, GradeExamForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -37,6 +37,33 @@ def _adjust_activity_skill_points(completion, activity, score, sign):
 
 def _award_activity_skill_points(completion, activity):
     _adjust_activity_skill_points(completion, activity, completion.score, sign=1)
+
+
+def _points_for_assignment_score(assignment, score):
+    if score is None:
+        return 0, 0, 0
+    temp = AssignmentCompletion(assignment=assignment, score=score)
+    return temp.main_points, temp.secondary_points, temp.tertiary_points
+
+
+def _adjust_assignment_skill_points(completion, assignment, score, sign):
+    main, secondary, tertiary = _points_for_assignment_score(assignment, score)
+    awards = [(assignment.skill_main, main)]
+    if assignment.skill_secondary:
+        awards.append((assignment.skill_secondary, secondary))
+    if assignment.skill_tertiary:
+        awards.append((assignment.skill_tertiary, tertiary))
+    for skill, points in awards:
+        if not skill_applies_to_student(skill, completion.student):
+            continue
+        student_skill, created = completion.student.skills.get_or_create(skill=skill)
+        student_skill.points = max(0, student_skill.points + sign * points)
+        student_skill.save()
+
+
+def _award_assignment_skill_points(completion, assignment):
+    _adjust_assignment_skill_points(completion, assignment, completion.score, sign=1)
+
 
 def get_relevant_skills():
     return Skill.objects.exclude(category='broad').annotate(
@@ -211,9 +238,12 @@ def toggle_semester_split(request, topic_id):
             subject.final_activity_weight = subject.activity_weight - subject.midterm_activity_weight
             subject.midterm_quiz_weight = subject.quiz_weight // 2
             subject.final_quiz_weight = subject.quiz_weight - subject.midterm_quiz_weight
+            subject.midterm_assignment_weight = subject.assignment_weight // 2
+            subject.final_assignment_weight = subject.assignment_weight - subject.midterm_assignment_weight
         elif not new_value and subject.divide_by_semester:
             subject.activity_weight = subject.midterm_activity_weight + subject.final_activity_weight
             subject.quiz_weight = subject.midterm_quiz_weight + subject.final_quiz_weight
+            subject.assignment_weight = subject.midterm_assignment_weight + subject.final_assignment_weight
         subject.divide_by_semester = new_value
         subject.save()
     return redirect('topic_detail', topic_id=topic.id)
@@ -240,6 +270,29 @@ def topic_activities_view(request, topic_id):
         'topic': topic, 'subject': subject, 'is_manager': is_manager,
         'activities': activities, 'term': term, 'term_label': term_label,
         'completed_activity_ids': completed_activity_ids,
+    })
+
+@login_required
+def topic_assignments_view(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    subject = topic.lesson_plan.subject
+    is_manager = subject.teacher == request.user
+
+    term = request.GET.get('term')
+    assignments = topic.assignments.all()
+    if subject.divide_by_semester and term in ('midterm', 'final'):
+        assignments = assignments.filter(term=term)
+
+    assignment_ids = assignments.values_list('id', flat=True)
+    completed_assignment_ids = set(
+        AssignmentCompletion.objects.filter(
+            student=request.user, assignment_id__in=assignment_ids).values_list('assignment_id', flat=True)
+    )
+    term_label = {'midterm': 'Midterm ', 'final': 'Final '}.get(term, '')
+    return render(request, 'tracker/topic_assignments.html', {
+        'topic': topic, 'subject': subject, 'is_manager': is_manager,
+        'assignments': assignments, 'term': term, 'term_label': term_label,
+        'completed_assignment_ids': completed_assignment_ids,
     })
 
 
@@ -578,6 +631,134 @@ def grade_activity_queue(request, activity_id):
     })
 
 @login_required
+def add_assignment(request, topic_id):
+    topic = get_object_or_404(Topic, id=topic_id)
+    subject = topic.lesson_plan.subject
+    relevant_skills = get_relevant_skills()
+    if request.method == 'POST':
+        form = AssignmentForm(request.POST, relevant_skills=relevant_skills)
+        if form.is_valid():
+            assignment = form.save(commit=False)
+            assignment.topic = topic
+            assignment.save()
+            return redirect('lesson_plan_view', subject_id=subject.id)
+    else:
+        initial = {}
+        if request.GET.get('term') in ('midterm', 'final'):
+            initial['term'] = request.GET.get('term')
+        form = AssignmentForm(relevant_skills=relevant_skills, initial=initial)
+    return render(request, 'tracker/add_assignment.html', {
+        'form': form, 'topic': topic, 'subject': subject,
+        'skill_groups': skill_groups_for_picker(relevant_skills),
+    })
+
+
+@login_required
+def assignment_detail(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    subject = assignment.topic.lesson_plan.subject
+    is_owner = subject.teacher == request.user
+    is_personal = request.user.profile.mode == 'personal'
+
+    if is_owner and is_personal:
+        completion = AssignmentCompletion.objects.filter(
+            assignment=assignment, student=request.user).first()
+        if request.method == 'POST' and not completion:
+            form = AssignmentCompletionForm(request.POST, request.FILES)
+            if form.is_valid():
+                completion = form.save(commit=False)
+                completion.assignment = assignment
+                completion.student = request.user
+                completion.save()
+                return redirect('assignment_detail', assignment_id=assignment.id)
+        else:
+            form = AssignmentCompletionForm()
+        return render(request, 'tracker/assignment_detail_personal.html', {'assignment': assignment, 'completion': completion, 'form': form})
+
+    if is_owner:
+        completions = assignment.completions.select_related('student').all()
+        return render(request, 'tracker/assignment_detail_teacher.html', {'assignment': assignment, 'completions': completions})
+
+    completion = AssignmentCompletion.objects.filter(
+        assignment=assignment, student=request.user).first()
+    if request.method == 'POST' and not completion:
+        form = AssignmentCompletionForm(request.POST, request.FILES)
+        if form.is_valid():
+            completion = form.save(commit=False)
+            completion.assignment = assignment
+            completion.student = request.user
+            completion.save()
+            return redirect('assignment_detail', assignment_id=assignment.id)
+    else:
+        form = AssignmentCompletionForm()
+    return render(request, 'tracker/assignment_detail.html', {'assignment': assignment, 'completion': completion, 'form': form})
+
+
+@login_required
+def grade_assignment_completion(request, completion_id):
+    completion = get_object_or_404(AssignmentCompletion, id=completion_id)
+    assignment = completion.assignment
+    if assignment.topic.lesson_plan.subject.teacher != request.user:
+        return redirect('home')
+
+    if request.method == 'POST':
+        was_graded = completion.graded
+        old_score = completion.score
+
+        form = GradeAssignmentForm(
+            request.POST, instance=completion, max_score=assignment.max_score)
+        if form.is_valid():
+            if was_graded:
+                _adjust_assignment_skill_points(completion, assignment, old_score, sign=-1)
+            completion = form.save(commit=False)
+            completion.graded = True
+            completion.save()
+
+            _award_assignment_skill_points(completion, assignment)
+            messages.success(request, 'Grade saved.')
+            return redirect('grade_assignment_completion', completion_id=completion.id)
+    else:
+        form = GradeAssignmentForm(
+            instance=completion, max_score=assignment.max_score)
+
+    show_form = not completion.graded or request.GET.get('edit') == '1'
+    return render(request, 'tracker/grade_assignment_completion.html', {
+        'completion': completion, 'assignment': assignment, 'form': form,
+        'show_form': show_form,
+    })
+
+@login_required
+def grade_assignment_queue(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    if assignment.topic.lesson_plan.subject.teacher != request.user:
+        return redirect('home')
+
+    pending = assignment.completions.filter(graded=False).select_related('student').order_by('completed_at')
+    completion = pending.first()
+
+    if not completion:
+        return render(request, 'tracker/grade_assignment_queue_done.html', {
+            'assignment': assignment, 'total_graded': assignment.completions.filter(graded=True).count(),
+        })
+
+    remaining_count = pending.count()
+
+    if request.method == 'POST':
+        form = GradeAssignmentForm(request.POST, instance=completion, max_score=assignment.max_score)
+        if form.is_valid():
+            completion = form.save(commit=False)
+            completion.graded = True
+            completion.save()
+            _award_assignment_skill_points(completion, assignment)
+            return redirect('grade_assignment_queue', assignment_id=assignment.id)
+    else:
+        form = GradeAssignmentForm(instance=completion, max_score=assignment.max_score)
+
+    return render(request, 'tracker/grade_assignment_queue.html', {
+        'assignment': assignment, 'completion': completion, 'form': form, 'remaining_count': remaining_count,
+    })
+
+@login_required
 def grade_subject_queue(request, subject_id):
     subject = get_object_or_404(Subject, id=subject_id, teacher=request.user)
 
@@ -810,10 +991,14 @@ def build_gradesheet_data(subject, is_teacher=True):
         topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
     quizzes = Quiz.objects.filter(
         topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
+    assignments = Assignment.objects.filter(
+        topic__lesson_plan__subject=subject).select_related('topic').order_by('deadline')
     midterm_activities = [a for a in activities if a.term != 'final']
     final_activities = [a for a in activities if a.term == 'final']
     midterm_quizzes = [q for q in quizzes if q.term != 'final']
     final_quizzes = [q for q in quizzes if q.term == 'final']
+    midterm_assignments = [a for a in assignments if a.term != 'final']
+    final_assignments = [a for a in assignments if a.term == 'final']
     exams_by_type = {e.exam_type: e for e in subject.exams.all()}
     exam_list = [exams_by_type.get(t) for t in EXAM_TYPE_ORDER]
     projects = subject.projects.all().order_by('deadline')
@@ -826,6 +1011,11 @@ def build_gradesheet_data(subject, is_teacher=True):
     quiz_completions = QuizCompletion.objects.filter(quiz__in=quizzes)
     quiz_completion_map = {
         (c.student_id, c.quiz_id): c for c in quiz_completions}
+
+    assignment_completions = AssignmentCompletion.objects.filter(
+        assignment__in=assignments)
+    assignment_completion_map = {
+        (c.student_id, c.assignment_id): c for c in assignment_completions}
 
     existing_exams = [e for e in exam_list if e is not None]
     exam_completions = ExamCompletion.objects.filter(exam__in=existing_exams)
@@ -840,11 +1030,13 @@ def build_gradesheet_data(subject, is_teacher=True):
     for student in students:
         activity_cells = []
         quiz_cells = []
+        assignment_cells = []
         exam_cells = []
         project_cells = []
         activity_percentages = []
         quiz_percentages = []
         quiz_passing_percentages = []
+        assignment_percentages = []
         project_percentages = []
         exam_pcts = {}
         activity_cell_by_id = {}
@@ -852,6 +1044,8 @@ def build_gradesheet_data(subject, is_teacher=True):
         quiz_cell_by_id = {}
         quiz_pct_by_id = {}
         quiz_passing_pct_by_id = {}
+        assignment_cell_by_id = {}
+        assignment_pct_by_id = {}
 
         for activity in activities:
             completion = completion_map.get((student.id, activity.id))
@@ -904,6 +1098,30 @@ def build_gradesheet_data(subject, is_teacher=True):
                 }
             quiz_cells.append(cell)
             quiz_cell_by_id[quiz.id] = cell
+
+        for assignment in assignments:
+            completion = assignment_completion_map.get((student.id, assignment.id))
+            if completion is None:
+                cell = {
+                    'status': 'not_submitted', 'score': None, 'max_score': assignment.max_score,
+                    'url_name': 'assignment_detail', 'obj_id': assignment.id,
+                }
+            elif not completion.graded:
+                cell = {
+                    'status': 'pending', 'score': None, 'max_score': assignment.max_score,
+                    'url_name': 'assignment_detail', 'obj_id': assignment.id,
+                }
+            else:
+                if assignment.max_score:
+                    pct = completion.score / assignment.max_score * 100
+                    assignment_percentages.append(pct)
+                    assignment_pct_by_id[assignment.id] = pct
+                cell = {
+                    'status': 'evaluated', 'score': completion.score, 'max_score': assignment.max_score,
+                    'url_name': 'assignment_detail', 'obj_id': assignment.id,
+                }
+            assignment_cells.append(cell)
+            assignment_cell_by_id[assignment.id] = cell
 
         for exam_type, exam in zip(EXAM_TYPE_ORDER, exam_list):
             if exam is None:
@@ -965,6 +1183,9 @@ def build_gradesheet_data(subject, is_teacher=True):
         project_average = (
             sum(project_percentages) / len(project_percentages)
             if project_percentages else None)
+        assignment_average = (
+            sum(assignment_percentages) / len(assignment_percentages)
+            if assignment_percentages else None)
 
         def term_avg(pct_by_id, term_items):
             pcts = [pct_by_id[item.id] for item in term_items if item.id in pct_by_id]
@@ -982,6 +1203,8 @@ def build_gradesheet_data(subject, is_teacher=True):
         final_activity_avg = term_avg(activity_pct_by_id, final_activities)
         midterm_quiz_avg = term_avg(quiz_pct_by_id, midterm_quizzes)
         final_quiz_avg = term_avg(quiz_pct_by_id, final_quizzes)
+        midterm_assignment_avg = term_avg(assignment_pct_by_id, midterm_assignments)
+        final_assignment_avg = term_avg(assignment_pct_by_id, final_assignments)
 
         if divide:
             weighted_categories = [
@@ -989,6 +1212,8 @@ def build_gradesheet_data(subject, is_teacher=True):
                 (final_activity_avg, subject.final_activity_weight),
                 (midterm_quiz_avg, subject.midterm_quiz_weight),
                 (final_quiz_avg, subject.final_quiz_weight),
+                (midterm_assignment_avg, subject.midterm_assignment_weight),
+                (final_assignment_avg, subject.final_assignment_weight),
                 (exam_pcts.get('prelim'), subject.prelim_weight),
                 (exam_pcts.get('midterm'), subject.midterm_weight),
                 (exam_pcts.get('prefinal'), subject.prefinal_weight),
@@ -999,6 +1224,7 @@ def build_gradesheet_data(subject, is_teacher=True):
             weighted_categories = [
                 (activity_average, subject.activity_weight),
                 (quiz_average, subject.quiz_weight),
+                (assignment_average, subject.assignment_weight),
                 (exam_pcts.get('prelim'), subject.prelim_weight),
                 (exam_pcts.get('midterm'), subject.midterm_weight),
                 (exam_pcts.get('prefinal'), subject.prefinal_weight),
@@ -1015,7 +1241,7 @@ def build_gradesheet_data(subject, is_teacher=True):
             else:
                 average = sum(avg for avg, _ in present) / len(present)
 
-        all_cells = activity_cells + quiz_cells + project_cells + [
+        all_cells = activity_cells + quiz_cells + assignment_cells + project_cells + [
             c for c in exam_cells if c['status'] != 'not_added']
         total_items = len(all_cells)
         incomplete_items = sum(
@@ -1039,9 +1265,11 @@ def build_gradesheet_data(subject, is_teacher=True):
         row = {
             'student': student, 'activity_cells': activity_cells,
             'quiz_cells': quiz_cells, 'exam_cells': exam_cells,
+            'assignment_cells': assignment_cells,
             'project_cells': project_cells, 'average': average,
             'activity_average': activity_average,
             'quiz_average': quiz_average,
+            'assignment_average': assignment_average,
             'quiz_average_below_passing': quiz_average_below_passing,
             'average_below_passing': average is not None and average < subject.at_risk_threshold,
             'at_risk_reason': at_risk_reason,
@@ -1059,6 +1287,10 @@ def build_gradesheet_data(subject, is_teacher=True):
                 'final_quiz_average': final_quiz_avg,
                 'midterm_quiz_average_below_passing': term_quiz_avg_below_passing(midterm_quiz_avg, midterm_quizzes),
                 'final_quiz_average_below_passing': term_quiz_avg_below_passing(final_quiz_avg, final_quizzes),
+                'midterm_assignment_cells': [assignment_cell_by_id[a.id] for a in midterm_assignments],
+                'final_assignment_cells': [assignment_cell_by_id[a.id] for a in final_assignments],
+                'midterm_assignment_average': midterm_assignment_avg,
+                'final_assignment_average': final_assignment_avg,
             })
 
         rows.append(row)
@@ -1077,14 +1309,15 @@ def build_gradesheet_data(subject, is_teacher=True):
         row.setdefault('rank', None)
 
     return {
-        'activities': activities, 'quizzes': quizzes,
+        'activities': activities, 'quizzes': quizzes, 'assignments': assignments,
         'midterm_activities': midterm_activities, 'final_activities': final_activities,
         'midterm_quizzes': midterm_quizzes, 'final_quizzes': final_quizzes,
+        'midterm_assignments': midterm_assignments, 'final_assignments': final_assignments,
         'divide_by_semester': divide,
         'exam_columns': list(zip(EXAM_TYPE_ORDER, exam_list)),
         'projects': projects, 'rows': rows,
         'column_count': (
-            activities.count() + quizzes.count()
+            activities.count() + quizzes.count() + assignments.count()
             + len(existing_exams) + projects.count()),
     }
 
@@ -1097,9 +1330,10 @@ def gradesheet_view(request, subject_id):
         activity__topic__lesson_plan__subject=subject, graded=False).count()
     return render(request, 'tracker/gradesheet.html', {
         'subject': subject, 'activities': data['activities'],
-        'quizzes': data['quizzes'], 'exam_columns': data['exam_columns'],
+        'quizzes': data['quizzes'], 'assignments': data['assignments'], 'exam_columns': data['exam_columns'],
         'midterm_activities': data['midterm_activities'], 'final_activities': data['final_activities'],
         'midterm_quizzes': data['midterm_quizzes'], 'final_quizzes': data['final_quizzes'],
+        'midterm_assignments': data['midterm_assignments'], 'final_assignments': data['final_assignments'],
         'divide_by_semester': data['divide_by_semester'],
         'projects': data['projects'], 'rows': data['rows'],
         'column_count': data['column_count'],
@@ -1122,9 +1356,10 @@ def my_gradesheet_view(request, subject_id):
 
     return render(request, 'tracker/gradesheet.html', {
         'subject': subject, 'activities': data['activities'],
-        'quizzes': data['quizzes'], 'exam_columns': data['exam_columns'],
+        'quizzes': data['quizzes'], 'assignments': data['assignments'], 'exam_columns': data['exam_columns'],
         'midterm_activities': data['midterm_activities'], 'final_activities': data['final_activities'],
         'midterm_quizzes': data['midterm_quizzes'], 'final_quizzes': data['final_quizzes'],
+        'midterm_assignments': data['midterm_assignments'], 'final_assignments': data['final_assignments'],
         'divide_by_semester': data['divide_by_semester'],
         'projects': data['projects'],
         'rows': [own_row] if own_row else [],
@@ -1763,6 +1998,17 @@ def delete_activity(request, activity_id):
         activity.delete()
         return redirect('lesson_plan_view', subject_id=subject_id)
     return render(request, 'tracker/confirm_delete.html', {'object_name': activity.title, 'cancel_url': 'lesson_plan_view', 'cancel_arg': subject_id})
+
+
+@login_required
+def delete_assignment(request, assignment_id):
+    assignment = get_object_or_404(
+        Assignment, id=assignment_id, topic__lesson_plan__subject__teacher=request.user)
+    subject_id = assignment.topic.lesson_plan.subject.id
+    if request.method == 'POST':
+        assignment.delete()
+        return redirect('lesson_plan_view', subject_id=subject_id)
+    return render(request, 'tracker/confirm_delete.html', {'object_name': assignment.title, 'cancel_url': 'lesson_plan_view', 'cancel_arg': subject_id})
 
 
 @login_required

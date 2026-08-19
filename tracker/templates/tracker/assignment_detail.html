@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
+<span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' assignment.topic.lesson_plan.subject.id %}">{{ assignment.topic.lesson_plan.subject.name }}</a>
+<span class="breadcrumb-sep">›</span> {{ assignment.title }}
+{% endblock %}
+{% block content %}
+<div class="submission-container">
+    <div class="submission-header">
+        <h2>{{ assignment.title }}</h2>
+    </div>
+    <div class="submission-status-box">
+        <p>Due: {{ assignment.deadline }}</p>
+
+        {% if assignment.instructions %}
+        <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
+        <p>{{ assignment.instructions|linebreaks }}</p>
+        {% endif %}
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
+        <p
+            style="margin:0 0 0.6rem; font-size:0.95rem; font-weight:600; color:#64748B; text-transform:uppercase; letter-spacing:0.03em;">
+            Skills On This Assignment</p>
+        <ul class="activity-list">
+            <li class="activity-item">{{ assignment.skill_main.name }}{% if completion.graded %} <span
+                    class="badge badge-success">+{{ completion.main_points }} pts</span>{% endif %}</li>
+            {% if assignment.skill_secondary %}<li class="activity-item">{{ assignment.skill_secondary.name }}
+                {% if completion.graded %} <span class="badge badge-success">+{{ completion.secondary_points }}
+                    pts</span>
+                {%endif %}</li>
+            {% endif%}
+            {% if assignment.skill_tertiary %}<li class="activity-item">{{ assignment.skill_tertiary.name }}
+                {% if completion.graded %} <span class="badge badge-success">+{{ completion.tertiary_points }}
+                    pts</span>
+                {%endif %}</li>{% endif %}
+        </ul>
+
+        {% if completion %}
+        <hr style="border:none; border-top:1px solid var(--line); margin:1rem 0;">
+
+        {% if completion.graded %}
+        <p><span class="badge badge-success">Graded</span> {{ completion.score }}/{{ assignment.max_score }}</p>
+        {% else %}
+        <p><span class="badge badge-warning">Submitted — awaiting grade</span></p>
+        {% endif %}
+        {% if completion.image %}<img src="{{ completion.image.url }}">{% endif %}
+        {% if completion.document %}<p><a href="{{ completion.document.url }}">View submitted document</a></p>
+        {% endif%}
+        {% if not completion.image and not completion.document %}<p class="empty-state-sm">No files attached.</p>
+        {%endif %}
+    </div>
+    {% else %}
+    <div class="form-card">
+        <form method="post" enctype="multipart/form-data" class="custom-form">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Mark Complete</button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
