@@ -1731,6 +1731,14 @@ def _event_size_class(height_px):
 
 
 @login_required
+def calendar_hub_view(request):
+    is_personal_student = request.user.profile.role == 'student' and request.user.profile.mode == 'personal'
+    return render(request, 'tracker/calendar_hub.html', {
+        'is_personal_student': is_personal_student,
+    })
+
+
+@login_required
 def week_calendar_view(request):
     user = request.user
     today = timezone.now().date()
@@ -1864,6 +1872,299 @@ def week_calendar_view(request):
         'next_week': week_start + timedelta(days=7),
         'this_week': today - timedelta(days=today.weekday()),
     })
+
+
+@login_required
+def tasks_calendar_view(request):
+    user = request.user
+    today = timezone.now().date()
+
+    view_mode = request.GET.get('view', 'week')
+    if view_mode not in ('week', 'month'):
+        view_mode = 'week'
+
+    subjects = Subject.objects.filter(
+        Q(teacher=user) | Q(students=user)).distinct()
+    is_personal_student = user.profile.role == 'student' and user.profile.mode == 'personal'
+
+    context = {
+        'view_mode': view_mode,
+        'today': today,
+        'is_personal_student': is_personal_student,
+    }
+
+    if view_mode == 'week':
+        week_start_param = request.GET.get('week_start')
+        week_start = None
+        if week_start_param:
+            try:
+                week_start = date.fromisoformat(week_start_param)
+            except ValueError:
+                week_start = None
+        if week_start is None:
+            week_start = today
+        week_start = week_start - timedelta(days=week_start.weekday())
+        week_days = [week_start + timedelta(days=i) for i in range(7)]
+        week_end = week_days[-1]
+
+        day_code_to_index = {code: i for i, (code, _) in enumerate(DAY_CHOICES)}
+
+        timed_events = [[] for _ in range(7)]
+        allday_events = [[] for _ in range(7)]
+
+        activities = Activity.objects.filter(
+            topic__lesson_plan__subject__in=subjects,
+            deadline__gte=week_start, deadline__lte=week_end
+        ).select_related('topic__lesson_plan__subject')
+        for activity in activities:
+            idx = (activity.deadline - week_start).days
+            allday_events[idx].append({
+                'label': f"{activity.topic.lesson_plan.subject.name}: {activity.title}",
+                'css_class': 'week-cal-activity-chip',
+                'url_name': 'activity_detail', 'obj_id': activity.id,
+            })
+
+        assignments = Assignment.objects.filter(
+            topic__lesson_plan__subject__in=subjects,
+            deadline__gte=week_start, deadline__lte=week_end
+        ).select_related('topic__lesson_plan__subject')
+        for assignment in assignments:
+            idx = (assignment.deadline - week_start).days
+            allday_events[idx].append({
+                'label': f"{assignment.topic.lesson_plan.subject.name}: {assignment.title}",
+                'css_class': 'week-cal-assignment-chip',
+                'url_name': 'assignment_detail', 'obj_id': assignment.id,
+            })
+
+        quizzes = Quiz.objects.filter(
+            topic__lesson_plan__subject__in=subjects,
+            deadline__gte=week_start, deadline__lte=week_end
+        ).select_related('topic__lesson_plan__subject')
+        for quiz in quizzes:
+            idx = (quiz.deadline - week_start).days
+            allday_events[idx].append({
+                'label': f"{quiz.topic.lesson_plan.subject.name}: {quiz.title}",
+                'css_class': 'week-cal-quiz-chip',
+                'url_name': 'quiz_detail', 'obj_id': quiz.id,
+            })
+
+        exams = Exam.objects.filter(
+            subject__in=subjects, deadline__gte=week_start, deadline__lte=week_end
+        ).select_related('subject')
+        for exam in exams:
+            idx = (exam.deadline - week_start).days
+            allday_events[idx].append({
+                'label': f"{exam.subject.name} — {exam.get_exam_type_display()}",
+                'css_class': 'week-cal-exam-chip',
+                'url_name': 'exam_detail', 'obj_id': exam.id,
+            })
+
+        projects = Project.objects.filter(
+            subject__in=subjects, deadline__isnull=False,
+            deadline__gte=week_start, deadline__lte=week_end
+        ).select_related('subject')
+        for project in projects:
+            idx = (project.deadline - week_start).days
+            allday_events[idx].append({
+                'label': f"{project.subject.name}: {project.title}",
+                'css_class': 'week-cal-project-chip',
+                'url_name': 'project_detail', 'obj_id': project.id,
+            })
+
+        if is_personal_student:
+            def _append_task_event(idx, task):
+                if task.start_time and task.end_time:
+                    start_minutes = task.start_time.hour * 60 + task.start_time.minute
+                    end_minutes = task.end_time.hour * 60 + task.end_time.minute
+                    duration = max(end_minutes - start_minutes, 15)
+                    time_label = f"{_format_12h(task.start_time)} – {_format_12h(task.end_time)}"
+                    timed_events[idx].append({
+                        'label': task.title,
+                        'time_label': time_label,
+                        'location_label': 'Completed' if task.completed else 'Personal Task',
+                        'top_px': start_minutes,
+                        'height_px': duration,
+                        'color': '#2563EB',
+                        'css_class': _event_size_class(duration) + (' week-cal-event-done' if task.completed else ''),
+                        'url_name': 'personal_task_detail', 'obj_id': task.id,
+                    })
+                else:
+                    allday_events[idx].append({
+                        'label': task.title,
+                        'css_class': 'week-cal-task-chip' + (' week-cal-chip-done' if task.completed else ''),
+                        'url_name': 'personal_task_detail', 'obj_id': task.id,
+                    })
+
+            dated_tasks = PersonalTask.objects.filter(
+                student=user, no_deadline=False,
+                deadline__gte=week_start, deadline__lte=week_end)
+            for task in dated_tasks:
+                idx = (task.deadline - week_start).days
+                _append_task_event(idx, task)
+
+            if week_start <= RECURRING_EVENT_CUTOFF:
+                recurring_tasks = PersonalTask.objects.filter(
+                    student=user, no_deadline=True, repeat__in=['daily', 'weekly'], completed=False)
+                for task in recurring_tasks:
+                    if task.repeat == 'daily':
+                        matching_days = range(7)
+                    else:
+                        task_days = task.weekly_days.split(',') if task.weekly_days else []
+                        matching_days = [
+                            day_code_to_index[d] for d in task_days if d in day_code_to_index]
+                    for idx in matching_days:
+                        if week_days[idx] > RECURRING_EVENT_CUTOFF:
+                            continue
+                        _append_task_event(idx, task)
+
+        days_data = []
+        for i, day in enumerate(week_days):
+            days_data.append({
+                'date': day, 'is_today': day == today,
+                'timed_events': timed_events[i], 'allday_events': allday_events[i],
+            })
+
+        hours = []
+        for h in range(24):
+            hour_label = 12 if h % 12 == 0 else h % 12
+            period = 'AM' if h < 12 else 'PM'
+            hours.append(f"{hour_label} {period}")
+
+        context.update({
+            'days_data': days_data, 'hours': hours,
+            'week_start': week_start, 'week_end': week_end,
+            'prev_week': week_start - timedelta(days=7),
+            'next_week': week_start + timedelta(days=7),
+            'this_week': today - timedelta(days=today.weekday()),
+        })
+
+    else:
+        month_param = request.GET.get('month')
+        month_date = None
+        if month_param:
+            try:
+                y, m = month_param.split('-')
+                month_date = date(int(y), int(m), 1)
+            except (ValueError, IndexError):
+                month_date = None
+        if month_date is None:
+            month_date = today.replace(day=1)
+
+        c = cal_module.Calendar(firstweekday=0)
+        month_weeks = c.monthdatescalendar(month_date.year, month_date.month)
+
+        activities = Activity.objects.filter(
+            topic__lesson_plan__subject__in=subjects).select_related('topic__lesson_plan__subject')
+        assignments = Assignment.objects.filter(
+            topic__lesson_plan__subject__in=subjects).select_related('topic__lesson_plan__subject')
+        quizzes = Quiz.objects.filter(
+            topic__lesson_plan__subject__in=subjects).select_related('topic__lesson_plan__subject')
+        exams = Exam.objects.filter(subject__in=subjects).select_related('subject')
+        projects = Project.objects.filter(
+            subject__in=subjects, deadline__isnull=False).select_related('subject')
+        personal_tasks = PersonalTask.objects.filter(
+            student=user, no_deadline=False) if is_personal_student else PersonalTask.objects.none()
+
+        weeks_data = []
+        for week in month_weeks:
+            week_start, week_end = week[0], week[-1]
+            bars = []
+            row = 1
+
+            for activity in activities:
+                a_start, a_end = activity.created_at.date(), activity.deadline
+                if a_end < week_start or a_start > week_end:
+                    continue
+                ib_start, ib_end = max(a_start, week_start), min(a_end, week_end)
+                bars.append({
+                    'label': f"{activity.topic.lesson_plan.subject.name}: {activity.title}",
+                    'css_class': 'cal-item-bar cal-activity-bar',
+                    'col_start': (ib_start - week_start).days + 1,
+                    'col_span': (ib_end - ib_start).days + 1,
+                    'row': row, 'url_name': 'activity_detail', 'obj_id': activity.id,
+                })
+                row += 1
+
+            for assignment in assignments:
+                a_start, a_end = assignment.created_at.date(), assignment.deadline
+                if a_end < week_start or a_start > week_end:
+                    continue
+                ib_start, ib_end = max(a_start, week_start), min(a_end, week_end)
+                bars.append({
+                    'label': f"{assignment.topic.lesson_plan.subject.name}: {assignment.title}",
+                    'css_class': 'cal-item-bar cal-assignment-bar',
+                    'col_start': (ib_start - week_start).days + 1,
+                    'col_span': (ib_end - ib_start).days + 1,
+                    'row': row, 'url_name': 'assignment_detail', 'obj_id': assignment.id,
+                })
+                row += 1
+
+            for quiz in quizzes:
+                q_start, q_end = quiz.created_at.date(), quiz.deadline
+                if q_end < week_start or q_start > week_end:
+                    continue
+                ib_start, ib_end = max(q_start, week_start), min(q_end, week_end)
+                bars.append({
+                    'label': f"{quiz.topic.lesson_plan.subject.name}: {quiz.title}",
+                    'css_class': 'cal-item-bar cal-quiz-bar',
+                    'col_start': (ib_start - week_start).days + 1,
+                    'col_span': (ib_end - ib_start).days + 1,
+                    'row': row, 'url_name': 'quiz_detail', 'obj_id': quiz.id,
+                })
+                row += 1
+
+            for exam in exams:
+                if exam.deadline < week_start or exam.deadline > week_end:
+                    continue
+                bars.append({
+                    'label': f"{exam.subject.name}: {exam.get_exam_type_display()}",
+                    'css_class': 'cal-item-bar cal-exam-bar',
+                    'col_start': (exam.deadline - week_start).days + 1,
+                    'col_span': 1,
+                    'row': row, 'url_name': 'exam_detail', 'obj_id': exam.id,
+                })
+                row += 1
+
+            for project in projects:
+                p_start, p_end = project.created_at.date(), project.deadline
+                if p_end < week_start or p_start > week_end:
+                    continue
+                ib_start, ib_end = max(p_start, week_start), min(p_end, week_end)
+                bars.append({
+                    'label': f"{project.subject.name}: {project.title}",
+                    'css_class': 'cal-item-bar cal-project-bar',
+                    'col_start': (ib_start - week_start).days + 1,
+                    'col_span': (ib_end - ib_start).days + 1,
+                    'row': row, 'url_name': 'project_detail', 'obj_id': project.id,
+                })
+                row += 1
+
+            for task in personal_tasks:
+                if task.deadline < week_start or task.deadline > week_end:
+                    continue
+                bars.append({
+                    'label': task.title,
+                    'css_class': 'cal-item-bar cal-task-bar' + (' cal-bar-done' if task.completed else ''),
+                    'col_start': (task.deadline - week_start).days + 1,
+                    'col_span': 1,
+                    'row': row, 'url_name': 'personal_task_detail', 'obj_id': task.id,
+                })
+                row += 1
+
+            weeks_data.append({'days': week, 'bars': bars, 'row_count': row})
+
+        prev_month = (month_date - timedelta(days=1)).replace(day=1)
+        next_month = (month_date.replace(day=28) +
+                       timedelta(days=4)).replace(day=1)
+
+        context.update({
+            'weeks_data': weeks_data, 'month_name': month_date.strftime('%B %Y'),
+            'prev_month': prev_month.strftime('%Y-%m'),
+            'next_month': next_month.strftime('%Y-%m'),
+            'this_month': today.strftime('%Y-%m'),
+        })
+
+    return render(request, 'tracker/tasks_calendar.html', context)
 
 
 @login_required

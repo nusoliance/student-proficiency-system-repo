@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% block breadcrumbs %}
-<span class="breadcrumb-sep">›</span> Calendar
+<span class="breadcrumb-sep">›</span> <a href="{% url 'calendar_hub' %}">Calendar</a>
+<span class="breadcrumb-sep">›</span> Personal Tasks &amp; Subjects
 {% endblock %}
 {% block content %}
 <div class="week-cal-page">
     <div class="week-cal-toolbar">
-        <h2>Calendar</h2>
+        <h2>Calendar for Personal Tasks &amp; Subjects</h2>
         <div class="manager-actions">
             <a href="?week_start={{ prev_week|date:'Y-m-d' }}" class="btn-secondary">← Previous Week</a>
             <a href="?week_start={{ this_week|date:'Y-m-d' }}" class="btn-secondary">Today</a>

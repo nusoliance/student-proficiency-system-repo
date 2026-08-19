@@ -866,10 +866,40 @@ input[type="submit"]:hover {
 }
 
 .cal-exam-bar {
-    background: #DC2626;
-    color: #fff;
+    background-color: #DC2626;
+    color: #FFFFFF;
     font-weight: 700;
     opacity: 1;
+}
+
+.cal-assignment-bar {
+    background-color: #E0E7FF;
+    color: #3730A3;
+}
+
+.cal-task-bar {
+    background-color: #DBEAFE;
+    color: #1E3A8A;
+}
+
+.cal-bar-done {
+    opacity: 0.45;
+    text-decoration: line-through;
+}
+
+.cal-assignment-bar {
+    background: #6366F1;
+    color: #fff;
+}
+
+.cal-task-bar {
+    background: #2563EB;
+    color: #fff;
+}
+
+.cal-bar-done {
+    opacity: 0.45;
+    text-decoration: line-through;
 }
 
 .cal-item-bar:hover {
@@ -2581,6 +2611,53 @@ input[type="submit"]:hover {
     margin-bottom: 0.5rem;
 }
 
+.calendar-hub-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+    max-width: 900px;
+}
+
+.calendar-hub-card {
+    display: block;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.5rem;
+    color: var(--text);
+    text-decoration: none;
+}
+
+.calendar-hub-card:hover {
+    border-color: var(--blue);
+    color: var(--text);
+}
+
+.calendar-hub-card-title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-hub-card-desc {
+    color: var(--muted);
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.tasks-cal-view-toggle {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.tasks-cal-view-toggle .btn-secondary.active {
+    background: var(--blue);
+    color: #fff;
+    border-color: var(--blue);
+}
+
 .week-cal-grid {
     display: flex;
     flex-direction: column;
@@ -2679,6 +2756,22 @@ input[type="submit"]:hover {
 
 .week-cal-task-chip {
     background: #2563EB;
+}
+
+.week-cal-activity-chip {
+    background: var(--green);
+}
+
+.week-cal-assignment-chip {
+    background: #6366F1;
+}
+
+.week-cal-quiz-chip {
+    background: #87d40b;
+}
+
+.week-cal-project-chip {
+    background: var(--amber);
 }
 
 .week-cal-chip-done {

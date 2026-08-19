@@ -71,7 +71,7 @@
     {% if user.is_authenticated %}
     <div id="dropdownMenu" class="dropdown-menu">
         <a href="{% url 'subject_list' %}">Subjects</a>
-        <a href="{% url 'week_calendar_view' %}">Calendar</a>
+        <a href="{% url 'calendar_hub' %}">Calendar</a>
         {% if user.profile.role == 'student' %}
         <a href="{% url 'my_skills' %}">Avatar</a>
         <a href="{% url 'task_list' %}">Tasks</a>
