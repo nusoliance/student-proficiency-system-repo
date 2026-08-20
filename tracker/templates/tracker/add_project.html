@@ -9,7 +9,18 @@
     <h2>Add Project to {{ subject.name }}</h2>
     <form method="post" class="custom-form">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.title.errors }}
+        <p>{{ form.title.label_tag }} {{ form.title }}</p>
+        {{ form.description.errors }}
+        <p>{{ form.description.label_tag }} {{ form.description }}</p>
+        {{ form.deadline.errors }}
+        <p>{{ form.deadline.label_tag }} {{ form.deadline }}</p>
+        {{ form.max_score.errors }}
+        <p>{{ form.max_score.label_tag }} {{ form.max_score }}</p>
+        {% if subject.divide_by_semester %}
+        {{ form.term.errors }}
+        <p>{{ form.term.label_tag }} {{ form.term }}</p>
+        {% endif %}
         <div class="form-actions">
             <button type="submit" class="btn-primary">Create</button>
             <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-cancel">Cancel</a>

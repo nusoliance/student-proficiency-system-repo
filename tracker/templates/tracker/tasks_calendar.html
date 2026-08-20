@@ -5,167 +5,13 @@
 {% endblock %}
 {% block content %}
 <div class="week-cal-page">
-    <div class="week-cal-toolbar">
-        <h2>Calendar for Tasks</h2>
-        <div class="tasks-cal-view-toggle">
-            <a href="?view=week" class="btn-secondary{% if view_mode == 'week' %} active{% endif %}">Week</a>
-            <a href="?view=month" class="btn-secondary{% if view_mode == 'month' %} active{% endif %}">Month</a>
-        </div>
-    </div>
-
-    {% if view_mode == 'week' %}
-    <div class="week-cal-toolbar" style="margin-top:0.25rem;">
-        <div class="manager-actions">
-            <a href="?view=week&week_start={{ prev_week|date:'Y-m-d' }}" class="btn-secondary">← Previous Week</a>
-            <a href="?view=week&week_start={{ this_week|date:'Y-m-d' }}" class="btn-secondary">Today</a>
-            <a href="?view=week&week_start={{ next_week|date:'Y-m-d' }}" class="btn-secondary">Next Week →</a>
-        </div>
-    </div>
-    <div class="week-cal-toolbar" style="margin-top:0.25rem;">
-        <p class="muted-note" style="margin:0;">{{ week_start|date:'M j' }} – {{ week_end|date:'M j, Y' }}</p>
-        <div class="manager-actions">
-            <button type="button" id="fullViewBtn" class="btn-secondary" onclick="toggleFullView()">⤢ Full View</button>
-            <button type="button" class="btn-secondary" onclick="window.print()">Print</button>
-            <button type="button" id="copyImageBtn" class="btn-secondary" onclick="copyCalendarAsImage()">Copy as Image</button>
-        </div>
-    </div>
-
-    <div class="week-cal-grid" id="weekCalGrid">
-        <div class="week-cal-header-row">
-            <div class="week-cal-gutter-cell"></div>
-            {% for day in days_data %}
-            <div class="week-cal-day-header{% if day.is_today %} week-cal-today{% endif %}">
-                <div class="week-cal-day-name">{{ day.date|date:'D'|upper }}</div>
-                <div class="week-cal-day-number">{{ day.date|date:'j' }}</div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="week-cal-allday-row">
-            <div class="week-cal-gutter-cell week-cal-gutter-label">All day</div>
-            {% for day in days_data %}
-            <div class="week-cal-allday-cell">
-                {% for event in day.allday_events %}
-                <a href="{% url event.url_name event.obj_id %}" class="week-cal-chip {{ event.css_class }}">{{ event.label }}</a>
-                {% endfor %}
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="week-cal-scroll" id="weekCalScroll">
-            <div class="week-cal-body">
-                <div class="week-cal-gutter">
-                    {% for hour in hours %}
-                    <div class="week-cal-hour-label">{{ hour }}</div>
-                    {% endfor %}
-                </div>
-                {% for day in days_data %}
-                <div class="week-cal-day-col{% if day.is_today %} week-cal-today-col{% endif %}">
-                    {% for event in day.timed_events %}
-                    <a href="{% url event.url_name event.obj_id %}" class="week-cal-event{{ event.css_class }}"
-                        style="top:{{ event.top_px }}px; height:{{ event.height_px }}px; background-color:{{ event.color }};">
-                        <span class="week-cal-event-title">{{ event.label }}</span>
-                        <span class="week-cal-event-sub week-cal-event-time">{{ event.time_label }}</span>
-                        <span class="week-cal-event-sub week-cal-event-location">{{ event.location_label }}</span>
-                    </a>
-                    {% endfor %}
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script>
-        var weekCalScroll = document.getElementById('weekCalScroll');
-        weekCalScroll.scrollTop = 6 * 60;
-
-        function updateCopyImageAvailability() {
-            var copyBtn = document.getElementById('copyImageBtn');
-            copyBtn.disabled = !weekCalScroll.classList.contains('week-cal-fullview');
-        }
-        updateCopyImageAvailability();
-
-        function toggleFullView() {
-            var btn = document.getElementById('fullViewBtn');
-            var grid = document.getElementById('weekCalGrid');
-            var isFull = weekCalScroll.classList.toggle('week-cal-fullview');
-            if (isFull) {
-                grid.style.zoom = '';
-                var naturalHeight = grid.scrollHeight;
-                var top = grid.getBoundingClientRect().top;
-                var available = window.innerHeight - top - 24;
-                var zoomLevel = Math.max(0.28, Math.min(1, available / naturalHeight));
-                grid.style.zoom = zoomLevel;
-                grid.style.setProperty('--gridline-width', (1 / zoomLevel).toFixed(2) + 'px');
-                btn.textContent = '⤡ Exit Full View';
-            } else {
-                grid.style.zoom = '';
-                grid.style.removeProperty('--gridline-width');
-                btn.textContent = '⤢ Full View';
-            }
-            updateCopyImageAvailability();
-        }
-
-        function copyCalendarAsImage() {
-            var btn = document.getElementById('copyImageBtn');
-            var grid = document.getElementById('weekCalGrid');
-
-            if (!weekCalScroll.classList.contains('week-cal-fullview')) {
-                alert('Switch to Full View first, then use Copy as Image to capture the whole calendar.');
-                return;
-            }
-
-            var previousLabel = btn.textContent;
-            var previousZoom = grid.style.zoom;
-            var previousGridlineWidth = grid.style.getPropertyValue('--gridline-width');
-            btn.textContent = 'Capturing…';
-
-            grid.style.zoom = '';
-            grid.style.removeProperty('--gridline-width');
-
-            requestAnimationFrame(function () {
-                requestAnimationFrame(function () {
-                    html2canvas(grid, { backgroundColor: '#ffffff', scale: 2 }).then(function (canvas) {
-                        grid.style.zoom = previousZoom;
-                        if (previousGridlineWidth) {
-                            grid.style.setProperty('--gridline-width', previousGridlineWidth);
-                        }
-                        canvas.toBlob(function (blob) {
-                            if (navigator.clipboard && window.ClipboardItem) {
-                                navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(function () {
-                                    btn.textContent = 'Copied!';
-                                    setTimeout(function () { btn.textContent = previousLabel; }, 1500);
-                                }).catch(function () {
-                                    downloadCalendarImage(blob, btn, previousLabel);
-                                });
-                            } else {
-                                downloadCalendarImage(blob, btn, previousLabel);
-                            }
-                        });
-                    });
-                });
-            });
-        }
-
-        function downloadCalendarImage(blob, btn, previousLabel) {
-            var link = document.createElement('a');
-            link.download = 'tasks-calendar.png';
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            btn.textContent = 'Downloaded';
-            setTimeout(function () { btn.textContent = previousLabel; }, 1500);
-        }
-    </script>
-
-    {% else %}
-    <div class="calendar-header" style="margin-top:0.5rem;">
+    <div class="calendar-header" style="margin-top:0;">
         <div class="week-cal-toolbar" style="margin-bottom:0;">
-            <h2 style="margin:0;">{{ month_name }}</h2>
+            <h2 style="margin:0;">Calendar for Tasks — {{ month_name }}</h2>
             <div class="manager-actions">
-                <a href="?view=month&month={{ prev_month }}" class="btn-secondary">← Previous Month</a>
-                <a href="?view=month&month={{ this_month }}" class="btn-secondary">Today</a>
-                <a href="?view=month&month={{ next_month }}" class="btn-secondary">Next Month →</a>
+                <a href="?month={{ prev_month }}" class="btn-secondary">← Previous Month</a>
+                <a href="?month={{ this_month }}" class="btn-secondary">Today</a>
+                <a href="?month={{ next_month }}" class="btn-secondary">Next Month →</a>
             </div>
         </div>
     </div>
@@ -191,6 +37,5 @@
             {% endfor %}
         </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}

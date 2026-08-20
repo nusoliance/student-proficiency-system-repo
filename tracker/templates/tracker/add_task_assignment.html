@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'task_list' %}">Tasks</a>
+<span class="breadcrumb-sep">›</span> Add Assignment
+{% endblock %}
+{% load static %}
+{% block content %}
+<div class="form-card">
+    <h2>Add Assignment to a Task</h2>
+    {% if form.fields.topic.queryset.exists %}
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        {{ form.topic.errors }}
+        <p>{{ form.topic.label_tag }} {{ form.topic }}</p>
+        {{ form.title.errors }}
+        <p>{{ form.title.label_tag }} {{ form.title }}</p>
+        {{ form.instructions.errors }}
+        <p>{{ form.instructions.label_tag }} {{ form.instructions }}</p>
+        {{ form.deadline.errors }}
+        <p>{{ form.deadline.label_tag }} {{ form.deadline }}</p>
+        {{ form.max_score.errors }}
+        <p>{{ form.max_score.label_tag }} {{ form.max_score }}</p>
+
+        {% include 'tracker/_skill_picker.html' with field=form.skill_main label="Primary Skill" placeholder="Choose a primary skill" %}
+        {% include 'tracker/_skill_picker.html' with field=form.skill_secondary label="Secondary Skill" placeholder="Choose a secondary skill (optional)" %}
+        {% include 'tracker/_skill_picker.html' with field=form.skill_tertiary label="Tertiary Skill" placeholder="Choose a tertiary skill (optional)" %}
+        {{ skill_groups|json_script:"skill-groups-data" }}
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Create</button>
+            <a href="{% url 'task_list' %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+    {% else %}
+    <p class="empty-state-sm">You need a subject and topic first. Go to Subjects to create one.</p>
+
+    {% endif %}
+</div>
+<script src="{% static 'js/skill_picker.js' %}"></script>
+{% endblock %}

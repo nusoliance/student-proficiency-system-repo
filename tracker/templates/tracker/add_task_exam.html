@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block breadcrumbs %}
+<span class="breadcrumb-sep">›</span> <a href="{% url 'task_list' %}">Tasks</a>
+<span class="breadcrumb-sep">›</span> Add Exam
+{% endblock %}
+{% block content %}
+<div class="form-card">
+    <h2>Add Exam to a Task</h2>
+    {% if form.fields.subject.queryset.exists %}
+    <form method="post" class="custom-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Continue</button>
+            <a href="{% url 'task_list' %}" class="btn-cancel">Cancel</a>
+        </div>
+    </form>
+    {% else %}
+    <p class="empty-state-sm">You need a subject first. Go to Subjects to create one.</p>
+    {% endif %}
+</div>
+{% endblock %}

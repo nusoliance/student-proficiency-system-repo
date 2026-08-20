@@ -3,28 +3,32 @@
 <span class="breadcrumb-sep">›</span> Calendar
 {% endblock %}
 {% block content %}
-<div class="week-cal-page">
-    <div class="week-cal-toolbar">
-        <h2>Calendar</h2>
-    </div>
-    <p class="muted-note">Choose which calendar you'd like to view.</p>
+<h2>Calendar</h2>
+<p class="muted-note">Choose which calendar you'd like to view.</p>
 
-    <div class="calendar-hub-options">
-        <a href="{% url 'week_calendar_view' %}" class="calendar-hub-card">
-            <div class="calendar-hub-card-title">Calendar for Personal Tasks &amp; Subjects</div>
-            <div class="calendar-hub-card-desc">
-                Your weekly subject schedule{% if is_personal_student %}, plus your personal tasks{% endif %}, shown as
-                timed blocks.
+<ul class="subject-list">
+    <li>
+        <a href="{% url 'week_calendar_view' %}" class="subject-card">
+            <div class="subject-card-text">
+                <div class="subject-card-name">Calendar for Personal Tasks &amp; Subjects</div>
+                <div class="subject-card-teacher">
+                    Your weekly subject schedule{% if is_personal_student %}, plus your personal tasks{% endif %},
+                    shown as timed blocks.
+                </div>
             </div>
         </a>
-        <a href="{% url 'tasks_calendar_view' %}" class="calendar-hub-card">
-            <div class="calendar-hub-card-title">Calendar for Tasks</div>
-            <div class="calendar-hub-card-desc">
-                {% if is_personal_student %}Personal tasks, activities, assignments, quizzes, exams, and
-                projects{% else %}Activities, assignments, quizzes, exams, and projects{% endif %} — viewable by week
-                or by month.
+    </li>
+    <li>
+        <a href="{% url 'tasks_calendar_view' %}" class="subject-card">
+            <div class="subject-card-text">
+                <div class="subject-card-name">Calendar for Tasks</div>
+                <div class="subject-card-teacher">
+                    {% if is_personal_student %}Personal tasks, activities, assignments, quizzes, exams, and
+                    projects{% else %}Activities, assignments, quizzes, exams, and projects{% endif %}, laid out by
+                    month.
+                </div>
             </div>
         </a>
-    </div>
-</div>
+    </li>
+</ul>
 {% endblock %}

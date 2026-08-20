@@ -31,50 +31,66 @@
             {% if show_teacher_controls %}
             <form method="post" action="{% url 'update_grade_weights' subject.id %}" class="custom-form">
                 {% csrf_token %}
-                <p class="helptext">Set how much each category counts toward the General Average. Must add up to 100.</p>
+                <p class="helptext">Set how much each category counts toward the Average. Must add up to 100.</p>
                 <div class="weights-panel-row">
                     {% if divide_by_semester %}
+                    <p class="weights-panel-group-label">Midterm</p>
                     <p>{{ weights_form.midterm_activity_weight.label_tag }} {{ weights_form.midterm_activity_weight }} %</p>
-                    <p>{{ weights_form.final_activity_weight.label_tag }} {{ weights_form.final_activity_weight }} %</p>
                     <p>{{ weights_form.midterm_quiz_weight.label_tag }} {{ weights_form.midterm_quiz_weight }} %</p>
-                    <p>{{ weights_form.final_quiz_weight.label_tag }} {{ weights_form.final_quiz_weight }} %</p>
                     <p>{{ weights_form.midterm_assignment_weight.label_tag }} {{ weights_form.midterm_assignment_weight }} %</p>
+                    <p>{{ weights_form.midterm_project_weight.label_tag }} {{ weights_form.midterm_project_weight }} %</p>
+                    <p>{{ weights_form.prelim_weight.label_tag }} {{ weights_form.prelim_weight }} %</p>
+                    <p>{{ weights_form.midterm_weight.label_tag }} {{ weights_form.midterm_weight }} %</p>
+                    <p class="weights-panel-group-label">Final</p>
+                    <p>{{ weights_form.final_activity_weight.label_tag }} {{ weights_form.final_activity_weight }} %</p>
+                    <p>{{ weights_form.final_quiz_weight.label_tag }} {{ weights_form.final_quiz_weight }} %</p>
                     <p>{{ weights_form.final_assignment_weight.label_tag }} {{ weights_form.final_assignment_weight }} %</p>
+                    <p>{{ weights_form.final_project_weight.label_tag }} {{ weights_form.final_project_weight }} %</p>
+                    <p>{{ weights_form.prefinal_weight.label_tag }} {{ weights_form.prefinal_weight }} %</p>
+                    <p>{{ weights_form.final_weight.label_tag }} {{ weights_form.final_weight }} %</p>
                     {% else %}
                     <p>{{ weights_form.activity_weight.label_tag }} {{ weights_form.activity_weight }} %</p>
                     <p>{{ weights_form.quiz_weight.label_tag }} {{ weights_form.quiz_weight }} %</p>
                     <p>{{ weights_form.assignment_weight.label_tag }} {{ weights_form.assignment_weight }} %</p>
-                    {% endif %}
                     <p>{{ weights_form.prelim_weight.label_tag }} {{ weights_form.prelim_weight }} %</p>
                     <p>{{ weights_form.midterm_weight.label_tag }} {{ weights_form.midterm_weight }} %</p>
                     <p>{{ weights_form.prefinal_weight.label_tag }} {{ weights_form.prefinal_weight }} %</p>
                     <p>{{ weights_form.final_weight.label_tag }} {{ weights_form.final_weight }} %</p>
                     <p>{{ weights_form.project_weight.label_tag }} {{ weights_form.project_weight }} %</p>
+                    {% endif %}
                     <p>{{ weights_form.at_risk_threshold.label_tag }} {{ weights_form.at_risk_threshold }} %</p>
                     <button type="submit" class="btn-primary">Save</button>
                 </div>
             </form>
             {% else %}
             <div class="custom-form">
-                <p class="helptext">Your teacher configured this subject's General Average. Only a teacher can change the values below.</p>
+                <p class="helptext">Your teacher configured this subject's Average. Only a teacher can change the values below.</p>
                 <div class="weights-panel-row">
                     {% if divide_by_semester %}
+                    <p class="weights-panel-group-label">Midterm</p>
                     <p>{{ weights_form.midterm_activity_weight.label_tag }} {{ weights_form.midterm_activity_weight }} %</p>
-                    <p>{{ weights_form.final_activity_weight.label_tag }} {{ weights_form.final_activity_weight }} %</p>
                     <p>{{ weights_form.midterm_quiz_weight.label_tag }} {{ weights_form.midterm_quiz_weight }} %</p>
-                    <p>{{ weights_form.final_quiz_weight.label_tag }} {{ weights_form.final_quiz_weight }} %</p>
                     <p>{{ weights_form.midterm_assignment_weight.label_tag }} {{ weights_form.midterm_assignment_weight }} %</p>
+                    <p>{{ weights_form.midterm_project_weight.label_tag }} {{ weights_form.midterm_project_weight }} %</p>
+                    <p>{{ weights_form.prelim_weight.label_tag }} {{ weights_form.prelim_weight }} %</p>
+                    <p>{{ weights_form.midterm_weight.label_tag }} {{ weights_form.midterm_weight }} %</p>
+                    <p class="weights-panel-group-label">Final</p>
+                    <p>{{ weights_form.final_activity_weight.label_tag }} {{ weights_form.final_activity_weight }} %</p>
+                    <p>{{ weights_form.final_quiz_weight.label_tag }} {{ weights_form.final_quiz_weight }} %</p>
                     <p>{{ weights_form.final_assignment_weight.label_tag }} {{ weights_form.final_assignment_weight }} %</p>
+                    <p>{{ weights_form.final_project_weight.label_tag }} {{ weights_form.final_project_weight }} %</p>
+                    <p>{{ weights_form.prefinal_weight.label_tag }} {{ weights_form.prefinal_weight }} %</p>
+                    <p>{{ weights_form.final_weight.label_tag }} {{ weights_form.final_weight }} %</p>
                     {% else %}
                     <p>{{ weights_form.activity_weight.label_tag }} {{ weights_form.activity_weight }} %</p>
                     <p>{{ weights_form.quiz_weight.label_tag }} {{ weights_form.quiz_weight }} %</p>
                     <p>{{ weights_form.assignment_weight.label_tag }} {{ weights_form.assignment_weight }} %</p>
-                    {% endif %}
                     <p>{{ weights_form.prelim_weight.label_tag }} {{ weights_form.prelim_weight }} %</p>
                     <p>{{ weights_form.midterm_weight.label_tag }} {{ weights_form.midterm_weight }} %</p>
                     <p>{{ weights_form.prefinal_weight.label_tag }} {{ weights_form.prefinal_weight }} %</p>
                     <p>{{ weights_form.final_weight.label_tag }} {{ weights_form.final_weight }} %</p>
                     <p>{{ weights_form.project_weight.label_tag }} {{ weights_form.project_weight }} %</p>
+                    {% endif %}
                     <p>{{ weights_form.at_risk_threshold.label_tag }} {{ weights_form.at_risk_threshold }} %</p>
                 </div>
             </div>
@@ -169,6 +185,24 @@
                         <span class="gradesheet-col-type">Exam</span>
                     </th>
                     {% endfor %}
+                    {% if divide_by_semester %}
+                    {% for project in midterm_projects %}
+                    <th>
+                        <a href="{% url 'project_detail' project.id %}">{{ project.title }}</a>
+                        <span class="gradesheet-col-type">Midterm Project</span>
+                    </th>
+                    {% endfor %}
+                    <th class="gradesheet-total-col">Midterm Project Average</th>
+                    {% for project in final_projects %}
+                    <th>
+                        <a href="{% url 'project_detail' project.id %}">{{ project.title }}</a>
+                        <span class="gradesheet-col-type">Final Project</span>
+                    </th>
+                    {% endfor %}
+                    <th class="gradesheet-total-col">Final Project Average</th>
+                    <th class="gradesheet-total-col">Midterm Average</th>
+                    <th class="gradesheet-total-col">Final Average</th>
+                    {% else %}
                     {% for project in projects %}
                     <th>
                         <a href="{% url 'project_detail' project.id %}">{{ project.title }}</a>
@@ -176,6 +210,7 @@
                     </th>
                     {% endfor %}
                     <th class="gradesheet-total-col">General Average</th>
+                    {% endif %}
                     {% if show_teacher_controls %}
                     <th class="gradesheet-total-col">Ranking</th>
                     {% endif %}
@@ -337,6 +372,38 @@
                         {% endif %}
                     </td>
                     {% endfor %}
+                    {% if divide_by_semester %}
+                    {% for cell in row.midterm_project_cells %}
+                    <td class="gradesheet-cell">
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done">{{ cell.score }}/{{ cell.max_score }}</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    <td class="gradesheet-total-col">{% if row.midterm_project_average is not None %}{{ row.midterm_project_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% for cell in row.final_project_cells %}
+                    <td class="gradesheet-cell">
+                        <a href="{% url cell.url_name cell.obj_id %}">
+                            {% if cell.status == 'not_submitted' %}
+                            <span class="gradesheet-status gradesheet-status-empty">Not submitted</span>
+                            {% elif cell.status == 'pending' %}
+                            <span class="gradesheet-status gradesheet-status-pending">Pending evaluation</span>
+                            {% else %}
+                            <span class="gradesheet-status gradesheet-status-done">{{ cell.score }}/{{ cell.max_score }}</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    {% endfor %}
+                    <td class="gradesheet-total-col">{% if row.final_project_average is not None %}{{ row.final_project_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    <td class="gradesheet-total-col{% if row.midterm_average_below_passing %} gradesheet-below-passing{% endif %}">{% if row.midterm_average is not None %}{{ row.midterm_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    <td class="gradesheet-total-col{% if row.final_average_below_passing %} gradesheet-below-passing{% endif %}">{% if row.final_average is not None %}{{ row.final_average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% else %}
                     {% for cell in row.project_cells %}
                     <td class="gradesheet-cell">
                         <a href="{% url cell.url_name cell.obj_id %}">
@@ -351,6 +418,7 @@
                     </td>
                     {% endfor %}
                     <td class="gradesheet-total-col{% if row.average_below_passing %} gradesheet-below-passing{% endif %}">{% if row.average is not None %}{{ row.average|floatformat:2 }}%{% else %}—{% endif %}</td>
+                    {% endif %}
                     {% if show_teacher_controls %}
                     <td class="gradesheet-total-col">{{ row.rank|default:"—" }}</td>
                     {% endif %}

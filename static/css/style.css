@@ -1,6 +1,6 @@
 :root {
     --bg-dark: #0d1b39;
-    --bg-light: #d1cde0;
+    --bg-light: #9793a3e1;
     --panel: #FFFFFF;
     --line: #abaeb3;
     --text: #101828;
@@ -1495,6 +1495,19 @@ input[type="submit"]:hover {
     font-weight: 600;
     color: #0F172A;
 }
+.custom-form p:has(input[type="checkbox"]) {
+    flex-direction: row;
+    align-items: center;
+}
+
+.custom-form p:has(input[type="checkbox"]) label {
+    margin-bottom: 0;
+    order: 2;
+}
+
+.custom-form p:has(input[type="checkbox"]) input[type="checkbox"] {
+    order: 1;
+}
 
 .custom-form input[type="text"],
 .custom-form input[type="number"],
@@ -2271,6 +2284,11 @@ input[type="submit"]:hover {
     font-size: 1rem;
     text-align: center;
 }
+.weights-panel-group-label {
+    flex-basis: 100%;
+    font-weight: 700;
+    margin-top: 0.5rem !important;
+}
 
 /* classwide skill - jade */
 .skills-summary-container {
@@ -2611,52 +2629,6 @@ input[type="submit"]:hover {
     margin-bottom: 0.5rem;
 }
 
-.calendar-hub-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1rem;
-    margin-top: 1rem;
-    max-width: 900px;
-}
-
-.calendar-hub-card {
-    display: block;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 1.5rem;
-    color: var(--text);
-    text-decoration: none;
-}
-
-.calendar-hub-card:hover {
-    border-color: var(--blue);
-    color: var(--text);
-}
-
-.calendar-hub-card-title {
-    font-family: 'Sora', sans-serif;
-    font-weight: 700;
-    font-size: 1.05rem;
-    margin-bottom: 0.5rem;
-}
-
-.calendar-hub-card-desc {
-    color: var(--muted);
-    font-size: 0.85rem;
-    line-height: 1.4;
-}
-
-.tasks-cal-view-toggle {
-    display: flex;
-    gap: 0.4rem;
-}
-
-.tasks-cal-view-toggle .btn-secondary.active {
-    background: var(--blue);
-    color: #fff;
-    border-color: var(--blue);
-}
 
 .week-cal-grid {
     display: flex;

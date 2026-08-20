@@ -3,7 +3,14 @@
 <span class="breadcrumb-sep">›</span> Subjects
 {% endblock %}
 {% block content %}
-<h2>Subjects</h2>
+<div class="lesson-header">
+    <h2>Subjects</h2>
+    {% if user.profile.is_manager %}
+    <div class="manager-actions">
+        <a href="{% url 'add_subject' %}" class="btn-secondary">+ Add Subject</a>
+    </div>
+    {% endif %}
+</div>
 <ul class="subject-list">
     {% for item in subject_data %}
     <li>
@@ -21,7 +28,4 @@
     <li class="muted-note">No subjects yet.</li>
     {% endfor %}
 </ul>
-{% if user.profile.is_manager %}
-<a href="{% url 'add_subject' %}">+ Add Subject</a>
-{% endif %}
 {% endblock %}

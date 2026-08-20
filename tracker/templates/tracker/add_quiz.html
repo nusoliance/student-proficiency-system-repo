@@ -14,6 +14,7 @@
     <p>{{ form.instructions.label_tag }} {{ form.instructions }}{{ form.instructions.errors }}</p>
     <p>{{ form.deadline.label_tag }} {{ form.deadline }}{{ form.deadline.errors }}</p>
     <p>{{ form.max_score.label_tag }} {{ form.max_score }}{{ form.max_score.errors }}</p>
+    <p>{{ form.unknown_max_score }} {{ form.unknown_max_score.label_tag }}{{ form.unknown_max_score.errors }}</p>
     <p>{{ form.passing_percentage.label_tag }} {{ form.passing_percentage }}{{ form.passing_percentage.errors }}</p>
     {% if subject.divide_by_semester %}
     <p>{{ form.term.label_tag }} {{ form.term }}{{ form.term.errors }}</p>
@@ -24,6 +25,21 @@
         <button type="submit" class="btn-primary">Create &amp; Add Skills</button>
         <a href="{% url 'topic_quizzes' topic.id %}" class="btn-cancel">Cancel</a>
     </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var unknownBox = document.getElementById('id_unknown_max_score');
+            var maxScore = document.getElementById('id_max_score');
+            var passingPct = document.getElementById('id_passing_percentage');
+            function toggle() {
+                var unknown = unknownBox.checked;
+                maxScore.disabled = unknown;
+                passingPct.disabled = unknown;
+                if (unknown) { maxScore.value = ''; passingPct.value = ''; }
+            }
+            unknownBox.addEventListener('change', toggle);
+            toggle();
+        });
+        </script>
 </form>
 </div>
 {% endblock %}

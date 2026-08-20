@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from .models import Subject, SubjectMeetingDay, LessonPlan, Topic, Activity, ActivityCompletion, Assignment, AssignmentCompletion, Project, ProjectSubmission, SkillAward, PersonalTask, Skill, TopicDocument, TopicImage, Quiz, QuizSkillWeight, QuizCompletion, QuizSkillAward, Exam, ExamSkillWeight, ExamCompletion, ExamSkillAward, DAY_CHOICES
-from .forms import SubjectForm, SubjectCustomizeForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, AssignmentForm, AssignmentCompletionForm, GradeAssignmentForm, TaskActivityForm, TaskProjectForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm, TopicDocumentForm, TopicImageForm, QuizForm, QuizSkillWeightForm, GradeQuizForm, ExamForm, ExamSkillWeightForm, GradeExamForm
+from .forms import SubjectForm, SubjectCustomizeForm, TopicForm, ActivityForm, ProjectForm, SubmissionForm, SkillAwardForm, ManageStudentsForm, ActivityCompletionForm, AssignmentForm, AssignmentCompletionForm, GradeAssignmentForm, TaskActivityForm, TaskProjectForm, TaskAssignmentForm, TaskQuizForm, TaskExamForm, PersonalTaskForm, GradeActivityForm, GradeProjectForm, SubjectWeightsForm, TopicDocumentForm, TopicImageForm, QuizForm, QuizSkillWeightForm, GradeQuizForm, QuizScoringForm, ExamForm, ExamSkillWeightForm, GradeExamForm, ExamScoringForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
@@ -240,10 +240,13 @@ def toggle_semester_split(request, topic_id):
             subject.final_quiz_weight = subject.quiz_weight - subject.midterm_quiz_weight
             subject.midterm_assignment_weight = subject.assignment_weight // 2
             subject.final_assignment_weight = subject.assignment_weight - subject.midterm_assignment_weight
+            subject.midterm_project_weight = subject.project_weight // 2
+            subject.final_project_weight = subject.project_weight - subject.midterm_project_weight
         elif not new_value and subject.divide_by_semester:
             subject.activity_weight = subject.midterm_activity_weight + subject.final_activity_weight
             subject.quiz_weight = subject.midterm_quiz_weight + subject.final_quiz_weight
             subject.assignment_weight = subject.midterm_assignment_weight + subject.final_assignment_weight
+            subject.project_weight = subject.midterm_project_weight + subject.final_project_weight
         subject.divide_by_semester = new_value
         subject.save()
     return redirect('topic_detail', topic_id=topic.id)
@@ -371,10 +374,19 @@ def quiz_detail(request, quiz_id):
 
     if is_owner and is_personal:
         completion = QuizCompletion.objects.filter(quiz=quiz, student=request.user).first()
-        if request.method == 'POST' and not completion:
-            completion = QuizCompletion.objects.create(quiz=quiz, student=request.user)
-            return redirect('grade_quiz_completion', completion_id=completion.id)
-        return render(request, 'tracker/quiz_detail_personal.html', {'quiz': quiz, 'completion': completion})
+        scoring_form = QuizScoringForm(instance=quiz)
+        if request.method == 'POST':
+            if request.POST.get('action') == 'set_scoring':
+                scoring_form = QuizScoringForm(request.POST, instance=quiz)
+                if scoring_form.is_valid():
+                    scoring_form.save()
+                    return redirect('quiz_detail', quiz_id=quiz.id)
+            elif not completion and quiz.scoring_set:
+                completion = QuizCompletion.objects.create(quiz=quiz, student=request.user)
+                return redirect('grade_quiz_completion', completion_id=completion.id)
+        return render(request, 'tracker/quiz_detail_personal.html', {
+            'quiz': quiz, 'completion': completion, 'scoring_form': scoring_form,
+        })
 
     if is_owner:
         completions = quiz.completions.select_related('student').all()
@@ -388,13 +400,14 @@ def quiz_detail(request, quiz_id):
         completion = QuizCompletion.objects.create(quiz=quiz, student=request.user)
     return render(request, 'tracker/quiz_detail.html', {'quiz': quiz, 'completion': completion})
 
-
 @login_required
 def grade_quiz_completion(request, completion_id):
     completion = get_object_or_404(QuizCompletion, id=completion_id)
     quiz = completion.quiz
     if quiz.topic.lesson_plan.subject.teacher != request.user:
         return redirect('home')
+    if not quiz.scoring_set:
+        return redirect('quiz_detail', quiz_id=quiz.id)
 
     if request.method == 'POST' and not completion.graded:
         form = GradeQuizForm(request.POST, instance=completion, max_score=quiz.max_score)
@@ -1002,6 +1015,8 @@ def build_gradesheet_data(subject, is_teacher=True):
     exams_by_type = {e.exam_type: e for e in subject.exams.all()}
     exam_list = [exams_by_type.get(t) for t in EXAM_TYPE_ORDER]
     projects = subject.projects.all().order_by('deadline')
+    midterm_projects = [p for p in projects if p.term != 'final']
+    final_projects = [p for p in projects if p.term == 'final']
 
     activity_completions = ActivityCompletion.objects.filter(
         activity__in=activities)
@@ -1046,6 +1061,8 @@ def build_gradesheet_data(subject, is_teacher=True):
         quiz_passing_pct_by_id = {}
         assignment_cell_by_id = {}
         assignment_pct_by_id = {}
+        project_cell_by_id = {}
+        project_pct_by_id = {}
 
         for activity in activities:
             completion = completion_map.get((student.id, activity.id))
@@ -1151,25 +1168,28 @@ def build_gradesheet_data(subject, is_teacher=True):
         for project in projects:
             submission = submission_map.get((student.id, project.id))
             if submission is None:
-                project_cells.append({
+                cell = {
                     'status': 'not_submitted', 'score': None, 'max_score': project.max_score,
                     'url_name': 'project_detail', 'obj_id': project.id,
-                })
+                }
             elif not submission.evaluated:
-                project_cells.append({
+                cell = {
                     'status': 'pending', 'score': None, 'max_score': project.max_score,
                     'url_name': 'evaluate_submission' if is_teacher else 'project_detail',
                     'obj_id': submission.id if is_teacher else project.id,
-                })
+                }
             else:
                 if project.max_score and submission.score is not None:
-                    project_percentages.append(
-                        submission.score / project.max_score * 100)
-                project_cells.append({
+                    pct = submission.score / project.max_score * 100
+                    project_percentages.append(pct)
+                    project_pct_by_id[project.id] = pct
+                cell = {
                     'status': 'evaluated', 'score': submission.score, 'max_score': project.max_score,
                     'url_name': 'evaluate_submission' if is_teacher else 'project_detail',
                     'obj_id': submission.id if is_teacher else project.id,
-                })
+                }
+            project_cells.append(cell)
+            project_cell_by_id[project.id] = cell
 
         activity_average = (
             sum(activity_percentages) / len(activity_percentages)
@@ -1205,23 +1225,43 @@ def build_gradesheet_data(subject, is_teacher=True):
         final_quiz_avg = term_avg(quiz_pct_by_id, final_quizzes)
         midterm_assignment_avg = term_avg(assignment_pct_by_id, midterm_assignments)
         final_assignment_avg = term_avg(assignment_pct_by_id, final_assignments)
+        midterm_project_avg = term_avg(project_pct_by_id, midterm_projects)
+        final_project_avg = term_avg(project_pct_by_id, final_projects)
+
+        def weighted_avg(pairs):
+            present = [(avg, w) for avg, w in pairs if avg is not None]
+            if not present:
+                return None
+            total_weight = sum(w for _, w in present)
+            if total_weight > 0:
+                return sum(avg * w for avg, w in present) / total_weight
+            return sum(avg for avg, _ in present) / len(present)
 
         if divide:
-            weighted_categories = [
+            midterm_average = weighted_avg([
                 (midterm_activity_avg, subject.midterm_activity_weight),
-                (final_activity_avg, subject.final_activity_weight),
                 (midterm_quiz_avg, subject.midterm_quiz_weight),
-                (final_quiz_avg, subject.final_quiz_weight),
                 (midterm_assignment_avg, subject.midterm_assignment_weight),
-                (final_assignment_avg, subject.final_assignment_weight),
+                (midterm_project_avg, subject.midterm_project_weight),
                 (exam_pcts.get('prelim'), subject.prelim_weight),
                 (exam_pcts.get('midterm'), subject.midterm_weight),
+            ])
+            final_average = weighted_avg([
+                (final_activity_avg, subject.final_activity_weight),
+                (final_quiz_avg, subject.final_quiz_weight),
+                (final_assignment_avg, subject.final_assignment_weight),
+                (final_project_avg, subject.final_project_weight),
                 (exam_pcts.get('prefinal'), subject.prefinal_weight),
                 (exam_pcts.get('final'), subject.final_weight),
-                (project_average, subject.project_weight),
-            ]
+            ])
+            term_averages_present = [a for a in (midterm_average, final_average) if a is not None]
+            average = (
+                sum(term_averages_present) / len(term_averages_present)
+                if term_averages_present else None)
         else:
-            weighted_categories = [
+            midterm_average = None
+            final_average = None
+            average = weighted_avg([
                 (activity_average, subject.activity_weight),
                 (quiz_average, subject.quiz_weight),
                 (assignment_average, subject.assignment_weight),
@@ -1230,16 +1270,7 @@ def build_gradesheet_data(subject, is_teacher=True):
                 (exam_pcts.get('prefinal'), subject.prefinal_weight),
                 (exam_pcts.get('final'), subject.final_weight),
                 (project_average, subject.project_weight),
-            ]
-        present = [(avg, w) for avg, w in weighted_categories if avg is not None]
-        if not present:
-            average = None
-        else:
-            total_weight = sum(w for _, w in present)
-            if total_weight > 0:
-                average = sum(avg * w for avg, w in present) / total_weight
-            else:
-                average = sum(avg for avg, _ in present) / len(present)
+            ])
 
         all_cells = activity_cells + quiz_cells + assignment_cells + project_cells + [
             c for c in exam_cells if c['status'] != 'not_added']
@@ -1267,6 +1298,12 @@ def build_gradesheet_data(subject, is_teacher=True):
             'quiz_cells': quiz_cells, 'exam_cells': exam_cells,
             'assignment_cells': assignment_cells,
             'project_cells': project_cells, 'average': average,
+            'midterm_average': midterm_average,
+            'final_average': final_average,
+            'midterm_average_below_passing': (
+                midterm_average is not None and midterm_average < subject.at_risk_threshold),
+            'final_average_below_passing': (
+                final_average is not None and final_average < subject.at_risk_threshold),
             'activity_average': activity_average,
             'quiz_average': quiz_average,
             'assignment_average': assignment_average,
@@ -1291,6 +1328,10 @@ def build_gradesheet_data(subject, is_teacher=True):
                 'final_assignment_cells': [assignment_cell_by_id[a.id] for a in final_assignments],
                 'midterm_assignment_average': midterm_assignment_avg,
                 'final_assignment_average': final_assignment_avg,
+                'midterm_project_cells': [project_cell_by_id[p.id] for p in midterm_projects],
+                'final_project_cells': [project_cell_by_id[p.id] for p in final_projects],
+                'midterm_project_average': midterm_project_avg,
+                'final_project_average': final_project_avg,
             })
 
         rows.append(row)
@@ -1313,6 +1354,7 @@ def build_gradesheet_data(subject, is_teacher=True):
         'midterm_activities': midterm_activities, 'final_activities': final_activities,
         'midterm_quizzes': midterm_quizzes, 'final_quizzes': final_quizzes,
         'midterm_assignments': midterm_assignments, 'final_assignments': final_assignments,
+        'midterm_projects': midterm_projects, 'final_projects': final_projects,
         'divide_by_semester': divide,
         'exam_columns': list(zip(EXAM_TYPE_ORDER, exam_list)),
         'projects': projects, 'rows': rows,
@@ -1334,6 +1376,7 @@ def gradesheet_view(request, subject_id):
         'midterm_activities': data['midterm_activities'], 'final_activities': data['final_activities'],
         'midterm_quizzes': data['midterm_quizzes'], 'final_quizzes': data['final_quizzes'],
         'midterm_assignments': data['midterm_assignments'], 'final_assignments': data['final_assignments'],
+        'midterm_projects': data['midterm_projects'], 'final_projects': data['final_projects'],
         'divide_by_semester': data['divide_by_semester'],
         'projects': data['projects'], 'rows': data['rows'],
         'column_count': data['column_count'],
@@ -1360,6 +1403,7 @@ def my_gradesheet_view(request, subject_id):
         'midterm_activities': data['midterm_activities'], 'final_activities': data['final_activities'],
         'midterm_quizzes': data['midterm_quizzes'], 'final_quizzes': data['final_quizzes'],
         'midterm_assignments': data['midterm_assignments'], 'final_assignments': data['final_assignments'],
+        'midterm_projects': data['midterm_projects'], 'final_projects': data['final_projects'],
         'divide_by_semester': data['divide_by_semester'],
         'projects': data['projects'],
         'rows': [own_row] if own_row else [],
@@ -1617,6 +1661,55 @@ def add_task_project(request):
 
 
 @login_required
+def add_task_assignment(request):
+    if not (request.user.profile.role == 'student' and request.user.profile.mode == 'personal'):
+        return redirect('task_list')
+    relevant_skills = get_relevant_skills()
+    if request.method == 'POST':
+        form = TaskAssignmentForm(
+            request.POST, user=request.user, relevant_skills=relevant_skills)
+        if form.is_valid():
+            form.save()
+            return redirect('task_list')
+    else:
+        form = TaskAssignmentForm(
+            user=request.user, relevant_skills=relevant_skills)
+    return render(request, 'tracker/add_task_assignment.html', {
+        'form': form, 'skill_groups': skill_groups_for_picker(relevant_skills),
+    })
+
+
+@login_required
+def add_task_quiz(request):
+    if not (request.user.profile.role == 'student' and request.user.profile.mode == 'personal'):
+        return redirect('task_list')
+    if request.method == 'POST':
+        form = TaskQuizForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            quiz = form.save(commit=False)
+            quiz.topic = form.cleaned_data['topic']
+            quiz.save()
+            return redirect('add_quiz_skill', quiz_id=quiz.id)
+    else:
+        form = TaskQuizForm(user=request.user)
+    return render(request, 'tracker/add_task_quiz.html', {'form': form})
+
+
+@login_required
+def add_task_exam(request):
+    if not (request.user.profile.role == 'student' and request.user.profile.mode == 'personal'):
+        return redirect('task_list')
+    if request.method == 'POST':
+        form = TaskExamForm(request.POST, user=request.user)
+        if form.is_valid():
+            return redirect('exam_router', subject_id=form.cleaned_data['subject'].id,
+                             exam_type=form.cleaned_data['exam_type'])
+    else:
+        form = TaskExamForm(user=request.user)
+    return render(request, 'tracker/add_task_exam.html', {'form': form})
+
+
+@login_required
 def personal_task_list(request):
     if request.user.profile.mode != 'personal':
         return redirect('task_list')
@@ -1698,16 +1791,13 @@ def personal_task_detail(request, task_id):
     return render(request, 'tracker/personal_task_detail.html', {'task': task})
 
 
-WEEK_CALENDAR_COLOR_PALETTE = [
-    '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899',
-    '#14B8A6', '#F97316', '#6366F1', '#84CC16', '#06B6D4',
-]
+SUBJECT_CALENDAR_COLOR = '#0D9488'
 
 RECURRING_EVENT_CUTOFF = date(2027, 1, 1)
 
 
 def _subject_calendar_color(subject_id):
-    return WEEK_CALENDAR_COLOR_PALETTE[subject_id % len(WEEK_CALENDAR_COLOR_PALETTE)]
+    return SUBJECT_CALENDAR_COLOR
 
 
 def _format_12h(t):
@@ -1879,290 +1969,136 @@ def tasks_calendar_view(request):
     user = request.user
     today = timezone.now().date()
 
-    view_mode = request.GET.get('view', 'week')
-    if view_mode not in ('week', 'month'):
-        view_mode = 'week'
-
     subjects = Subject.objects.filter(
         Q(teacher=user) | Q(students=user)).distinct()
     is_personal_student = user.profile.role == 'student' and user.profile.mode == 'personal'
 
+    month_param = request.GET.get('month')
+    month_date = None
+    if month_param:
+        try:
+            y, m = month_param.split('-')
+            month_date = date(int(y), int(m), 1)
+        except (ValueError, IndexError):
+            month_date = None
+    if month_date is None:
+        month_date = today.replace(day=1)
+
+    c = cal_module.Calendar(firstweekday=0)
+    month_weeks = c.monthdatescalendar(month_date.year, month_date.month)
+
+    activities = Activity.objects.filter(
+        topic__lesson_plan__subject__in=subjects).select_related('topic__lesson_plan__subject')
+    assignments = Assignment.objects.filter(
+        topic__lesson_plan__subject__in=subjects).select_related('topic__lesson_plan__subject')
+    quizzes = Quiz.objects.filter(
+        topic__lesson_plan__subject__in=subjects).select_related('topic__lesson_plan__subject')
+    exams = Exam.objects.filter(subject__in=subjects).select_related('subject')
+    projects = Project.objects.filter(
+        subject__in=subjects, deadline__isnull=False).select_related('subject')
+    personal_tasks = PersonalTask.objects.filter(
+        student=user, no_deadline=False) if is_personal_student else PersonalTask.objects.none()
+
+    weeks_data = []
+    for week in month_weeks:
+        week_start, week_end = week[0], week[-1]
+        bars = []
+        row = 1
+
+        for activity in activities:
+            a_start, a_end = activity.created_at.date(), activity.deadline
+            if a_end < week_start or a_start > week_end:
+                continue
+            ib_start, ib_end = max(a_start, week_start), min(a_end, week_end)
+            bars.append({
+                'label': f"{activity.topic.lesson_plan.subject.name}: {activity.title}",
+                'css_class': 'cal-item-bar cal-activity-bar',
+                'col_start': (ib_start - week_start).days + 1,
+                'col_span': (ib_end - ib_start).days + 1,
+                'row': row, 'url_name': 'activity_detail', 'obj_id': activity.id,
+            })
+            row += 1
+
+        for assignment in assignments:
+            a_start, a_end = assignment.created_at.date(), assignment.deadline
+            if a_end < week_start or a_start > week_end:
+                continue
+            ib_start, ib_end = max(a_start, week_start), min(a_end, week_end)
+            bars.append({
+                'label': f"{assignment.topic.lesson_plan.subject.name}: {assignment.title}",
+                'css_class': 'cal-item-bar cal-assignment-bar',
+                'col_start': (ib_start - week_start).days + 1,
+                'col_span': (ib_end - ib_start).days + 1,
+                'row': row, 'url_name': 'assignment_detail', 'obj_id': assignment.id,
+            })
+            row += 1
+
+        for quiz in quizzes:
+            q_start, q_end = quiz.created_at.date(), quiz.deadline
+            if q_end < week_start or q_start > week_end:
+                continue
+            ib_start, ib_end = max(q_start, week_start), min(q_end, week_end)
+            bars.append({
+                'label': f"{quiz.topic.lesson_plan.subject.name}: {quiz.title}",
+                'css_class': 'cal-item-bar cal-quiz-bar',
+                'col_start': (ib_start - week_start).days + 1,
+                'col_span': (ib_end - ib_start).days + 1,
+                'row': row, 'url_name': 'quiz_detail', 'obj_id': quiz.id,
+            })
+            row += 1
+
+        for exam in exams:
+            if exam.deadline < week_start or exam.deadline > week_end:
+                continue
+            bars.append({
+                'label': f"{exam.subject.name}: {exam.get_exam_type_display()}",
+                'css_class': 'cal-item-bar cal-exam-bar',
+                'col_start': (exam.deadline - week_start).days + 1,
+                'col_span': 1,
+                'row': row, 'url_name': 'exam_detail', 'obj_id': exam.id,
+            })
+            row += 1
+
+        for project in projects:
+            p_start, p_end = project.created_at.date(), project.deadline
+            if p_end < week_start or p_start > week_end:
+                continue
+            ib_start, ib_end = max(p_start, week_start), min(p_end, week_end)
+            bars.append({
+                'label': f"{project.subject.name}: {project.title}",
+                'css_class': 'cal-item-bar cal-project-bar',
+                'col_start': (ib_start - week_start).days + 1,
+                'col_span': (ib_end - ib_start).days + 1,
+                'row': row, 'url_name': 'project_detail', 'obj_id': project.id,
+            })
+            row += 1
+
+        for task in personal_tasks:
+            if task.deadline < week_start or task.deadline > week_end:
+                continue
+            bars.append({
+                'label': task.title,
+                'css_class': 'cal-item-bar cal-task-bar' + (' cal-bar-done' if task.completed else ''),
+                'col_start': (task.deadline - week_start).days + 1,
+                'col_span': 1,
+                'row': row, 'url_name': 'personal_task_detail', 'obj_id': task.id,
+            })
+            row += 1
+
+        weeks_data.append({'days': week, 'bars': bars, 'row_count': row})
+
+    prev_month = (month_date - timedelta(days=1)).replace(day=1)
+    next_month = (month_date.replace(day=28) +
+                   timedelta(days=4)).replace(day=1)
+
     context = {
-        'view_mode': view_mode,
         'today': today,
         'is_personal_student': is_personal_student,
+        'weeks_data': weeks_data, 'month_name': month_date.strftime('%B %Y'),
+        'prev_month': prev_month.strftime('%Y-%m'),
+        'next_month': next_month.strftime('%Y-%m'),
+        'this_month': today.strftime('%Y-%m'),
     }
-
-    if view_mode == 'week':
-        week_start_param = request.GET.get('week_start')
-        week_start = None
-        if week_start_param:
-            try:
-                week_start = date.fromisoformat(week_start_param)
-            except ValueError:
-                week_start = None
-        if week_start is None:
-            week_start = today
-        week_start = week_start - timedelta(days=week_start.weekday())
-        week_days = [week_start + timedelta(days=i) for i in range(7)]
-        week_end = week_days[-1]
-
-        day_code_to_index = {code: i for i, (code, _) in enumerate(DAY_CHOICES)}
-
-        timed_events = [[] for _ in range(7)]
-        allday_events = [[] for _ in range(7)]
-
-        activities = Activity.objects.filter(
-            topic__lesson_plan__subject__in=subjects,
-            deadline__gte=week_start, deadline__lte=week_end
-        ).select_related('topic__lesson_plan__subject')
-        for activity in activities:
-            idx = (activity.deadline - week_start).days
-            allday_events[idx].append({
-                'label': f"{activity.topic.lesson_plan.subject.name}: {activity.title}",
-                'css_class': 'week-cal-activity-chip',
-                'url_name': 'activity_detail', 'obj_id': activity.id,
-            })
-
-        assignments = Assignment.objects.filter(
-            topic__lesson_plan__subject__in=subjects,
-            deadline__gte=week_start, deadline__lte=week_end
-        ).select_related('topic__lesson_plan__subject')
-        for assignment in assignments:
-            idx = (assignment.deadline - week_start).days
-            allday_events[idx].append({
-                'label': f"{assignment.topic.lesson_plan.subject.name}: {assignment.title}",
-                'css_class': 'week-cal-assignment-chip',
-                'url_name': 'assignment_detail', 'obj_id': assignment.id,
-            })
-
-        quizzes = Quiz.objects.filter(
-            topic__lesson_plan__subject__in=subjects,
-            deadline__gte=week_start, deadline__lte=week_end
-        ).select_related('topic__lesson_plan__subject')
-        for quiz in quizzes:
-            idx = (quiz.deadline - week_start).days
-            allday_events[idx].append({
-                'label': f"{quiz.topic.lesson_plan.subject.name}: {quiz.title}",
-                'css_class': 'week-cal-quiz-chip',
-                'url_name': 'quiz_detail', 'obj_id': quiz.id,
-            })
-
-        exams = Exam.objects.filter(
-            subject__in=subjects, deadline__gte=week_start, deadline__lte=week_end
-        ).select_related('subject')
-        for exam in exams:
-            idx = (exam.deadline - week_start).days
-            allday_events[idx].append({
-                'label': f"{exam.subject.name} — {exam.get_exam_type_display()}",
-                'css_class': 'week-cal-exam-chip',
-                'url_name': 'exam_detail', 'obj_id': exam.id,
-            })
-
-        projects = Project.objects.filter(
-            subject__in=subjects, deadline__isnull=False,
-            deadline__gte=week_start, deadline__lte=week_end
-        ).select_related('subject')
-        for project in projects:
-            idx = (project.deadline - week_start).days
-            allday_events[idx].append({
-                'label': f"{project.subject.name}: {project.title}",
-                'css_class': 'week-cal-project-chip',
-                'url_name': 'project_detail', 'obj_id': project.id,
-            })
-
-        if is_personal_student:
-            def _append_task_event(idx, task):
-                if task.start_time and task.end_time:
-                    start_minutes = task.start_time.hour * 60 + task.start_time.minute
-                    end_minutes = task.end_time.hour * 60 + task.end_time.minute
-                    duration = max(end_minutes - start_minutes, 15)
-                    time_label = f"{_format_12h(task.start_time)} – {_format_12h(task.end_time)}"
-                    timed_events[idx].append({
-                        'label': task.title,
-                        'time_label': time_label,
-                        'location_label': 'Completed' if task.completed else 'Personal Task',
-                        'top_px': start_minutes,
-                        'height_px': duration,
-                        'color': '#2563EB',
-                        'css_class': _event_size_class(duration) + (' week-cal-event-done' if task.completed else ''),
-                        'url_name': 'personal_task_detail', 'obj_id': task.id,
-                    })
-                else:
-                    allday_events[idx].append({
-                        'label': task.title,
-                        'css_class': 'week-cal-task-chip' + (' week-cal-chip-done' if task.completed else ''),
-                        'url_name': 'personal_task_detail', 'obj_id': task.id,
-                    })
-
-            dated_tasks = PersonalTask.objects.filter(
-                student=user, no_deadline=False,
-                deadline__gte=week_start, deadline__lte=week_end)
-            for task in dated_tasks:
-                idx = (task.deadline - week_start).days
-                _append_task_event(idx, task)
-
-            if week_start <= RECURRING_EVENT_CUTOFF:
-                recurring_tasks = PersonalTask.objects.filter(
-                    student=user, no_deadline=True, repeat__in=['daily', 'weekly'], completed=False)
-                for task in recurring_tasks:
-                    if task.repeat == 'daily':
-                        matching_days = range(7)
-                    else:
-                        task_days = task.weekly_days.split(',') if task.weekly_days else []
-                        matching_days = [
-                            day_code_to_index[d] for d in task_days if d in day_code_to_index]
-                    for idx in matching_days:
-                        if week_days[idx] > RECURRING_EVENT_CUTOFF:
-                            continue
-                        _append_task_event(idx, task)
-
-        days_data = []
-        for i, day in enumerate(week_days):
-            days_data.append({
-                'date': day, 'is_today': day == today,
-                'timed_events': timed_events[i], 'allday_events': allday_events[i],
-            })
-
-        hours = []
-        for h in range(24):
-            hour_label = 12 if h % 12 == 0 else h % 12
-            period = 'AM' if h < 12 else 'PM'
-            hours.append(f"{hour_label} {period}")
-
-        context.update({
-            'days_data': days_data, 'hours': hours,
-            'week_start': week_start, 'week_end': week_end,
-            'prev_week': week_start - timedelta(days=7),
-            'next_week': week_start + timedelta(days=7),
-            'this_week': today - timedelta(days=today.weekday()),
-        })
-
-    else:
-        month_param = request.GET.get('month')
-        month_date = None
-        if month_param:
-            try:
-                y, m = month_param.split('-')
-                month_date = date(int(y), int(m), 1)
-            except (ValueError, IndexError):
-                month_date = None
-        if month_date is None:
-            month_date = today.replace(day=1)
-
-        c = cal_module.Calendar(firstweekday=0)
-        month_weeks = c.monthdatescalendar(month_date.year, month_date.month)
-
-        activities = Activity.objects.filter(
-            topic__lesson_plan__subject__in=subjects).select_related('topic__lesson_plan__subject')
-        assignments = Assignment.objects.filter(
-            topic__lesson_plan__subject__in=subjects).select_related('topic__lesson_plan__subject')
-        quizzes = Quiz.objects.filter(
-            topic__lesson_plan__subject__in=subjects).select_related('topic__lesson_plan__subject')
-        exams = Exam.objects.filter(subject__in=subjects).select_related('subject')
-        projects = Project.objects.filter(
-            subject__in=subjects, deadline__isnull=False).select_related('subject')
-        personal_tasks = PersonalTask.objects.filter(
-            student=user, no_deadline=False) if is_personal_student else PersonalTask.objects.none()
-
-        weeks_data = []
-        for week in month_weeks:
-            week_start, week_end = week[0], week[-1]
-            bars = []
-            row = 1
-
-            for activity in activities:
-                a_start, a_end = activity.created_at.date(), activity.deadline
-                if a_end < week_start or a_start > week_end:
-                    continue
-                ib_start, ib_end = max(a_start, week_start), min(a_end, week_end)
-                bars.append({
-                    'label': f"{activity.topic.lesson_plan.subject.name}: {activity.title}",
-                    'css_class': 'cal-item-bar cal-activity-bar',
-                    'col_start': (ib_start - week_start).days + 1,
-                    'col_span': (ib_end - ib_start).days + 1,
-                    'row': row, 'url_name': 'activity_detail', 'obj_id': activity.id,
-                })
-                row += 1
-
-            for assignment in assignments:
-                a_start, a_end = assignment.created_at.date(), assignment.deadline
-                if a_end < week_start or a_start > week_end:
-                    continue
-                ib_start, ib_end = max(a_start, week_start), min(a_end, week_end)
-                bars.append({
-                    'label': f"{assignment.topic.lesson_plan.subject.name}: {assignment.title}",
-                    'css_class': 'cal-item-bar cal-assignment-bar',
-                    'col_start': (ib_start - week_start).days + 1,
-                    'col_span': (ib_end - ib_start).days + 1,
-                    'row': row, 'url_name': 'assignment_detail', 'obj_id': assignment.id,
-                })
-                row += 1
-
-            for quiz in quizzes:
-                q_start, q_end = quiz.created_at.date(), quiz.deadline
-                if q_end < week_start or q_start > week_end:
-                    continue
-                ib_start, ib_end = max(q_start, week_start), min(q_end, week_end)
-                bars.append({
-                    'label': f"{quiz.topic.lesson_plan.subject.name}: {quiz.title}",
-                    'css_class': 'cal-item-bar cal-quiz-bar',
-                    'col_start': (ib_start - week_start).days + 1,
-                    'col_span': (ib_end - ib_start).days + 1,
-                    'row': row, 'url_name': 'quiz_detail', 'obj_id': quiz.id,
-                })
-                row += 1
-
-            for exam in exams:
-                if exam.deadline < week_start or exam.deadline > week_end:
-                    continue
-                bars.append({
-                    'label': f"{exam.subject.name}: {exam.get_exam_type_display()}",
-                    'css_class': 'cal-item-bar cal-exam-bar',
-                    'col_start': (exam.deadline - week_start).days + 1,
-                    'col_span': 1,
-                    'row': row, 'url_name': 'exam_detail', 'obj_id': exam.id,
-                })
-                row += 1
-
-            for project in projects:
-                p_start, p_end = project.created_at.date(), project.deadline
-                if p_end < week_start or p_start > week_end:
-                    continue
-                ib_start, ib_end = max(p_start, week_start), min(p_end, week_end)
-                bars.append({
-                    'label': f"{project.subject.name}: {project.title}",
-                    'css_class': 'cal-item-bar cal-project-bar',
-                    'col_start': (ib_start - week_start).days + 1,
-                    'col_span': (ib_end - ib_start).days + 1,
-                    'row': row, 'url_name': 'project_detail', 'obj_id': project.id,
-                })
-                row += 1
-
-            for task in personal_tasks:
-                if task.deadline < week_start or task.deadline > week_end:
-                    continue
-                bars.append({
-                    'label': task.title,
-                    'css_class': 'cal-item-bar cal-task-bar' + (' cal-bar-done' if task.completed else ''),
-                    'col_start': (task.deadline - week_start).days + 1,
-                    'col_span': 1,
-                    'row': row, 'url_name': 'personal_task_detail', 'obj_id': task.id,
-                })
-                row += 1
-
-            weeks_data.append({'days': week, 'bars': bars, 'row_count': row})
-
-        prev_month = (month_date - timedelta(days=1)).replace(day=1)
-        next_month = (month_date.replace(day=28) +
-                       timedelta(days=4)).replace(day=1)
-
-        context.update({
-            'weeks_data': weeks_data, 'month_name': month_date.strftime('%B %Y'),
-            'prev_month': prev_month.strftime('%Y-%m'),
-            'next_month': next_month.strftime('%Y-%m'),
-            'this_month': today.strftime('%Y-%m'),
-        })
 
     return render(request, 'tracker/tasks_calendar.html', context)
 
@@ -2419,10 +2355,19 @@ def exam_detail(request, exam_id):
 
     if is_owner and is_personal:
         completion = ExamCompletion.objects.filter(exam=exam, student=request.user).first()
-        if request.method == 'POST' and not completion:
-            completion = ExamCompletion.objects.create(exam=exam, student=request.user)
-            return redirect('grade_exam_completion', completion_id=completion.id)
-        return render(request, 'tracker/exam_detail_personal.html', {'exam': exam, 'completion': completion})
+        scoring_form = ExamScoringForm(instance=exam)
+        if request.method == 'POST':
+            if request.POST.get('action') == 'set_scoring':
+                scoring_form = ExamScoringForm(request.POST, instance=exam)
+                if scoring_form.is_valid():
+                    scoring_form.save()
+                    return redirect('exam_detail', exam_id=exam.id)
+            elif not completion and exam.scoring_set:
+                completion = ExamCompletion.objects.create(exam=exam, student=request.user)
+                return redirect('grade_exam_completion', completion_id=completion.id)
+        return render(request, 'tracker/exam_detail_personal.html', {
+            'exam': exam, 'completion': completion, 'scoring_form': scoring_form,
+        })
 
     if is_owner:
         completions = exam.completions.select_related('student').all()
@@ -2436,13 +2381,14 @@ def exam_detail(request, exam_id):
         completion = ExamCompletion.objects.create(exam=exam, student=request.user)
     return render(request, 'tracker/exam_detail.html', {'exam': exam, 'completion': completion})
 
-
 @login_required
 def grade_exam_completion(request, completion_id):
     completion = get_object_or_404(ExamCompletion, id=completion_id)
     exam = completion.exam
     if exam.subject.teacher != request.user:
         return redirect('home')
+    if not quiz.scoring_set:
+        return redirect('quiz_detail', quiz_id=quiz.id)
 
     if request.method == 'POST' and not completion.graded:
         form = GradeExamForm(request.POST, instance=completion, max_score=exam.max_score)

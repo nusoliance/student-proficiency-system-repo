@@ -178,7 +178,7 @@ class GradeAssignmentForm(forms.ModelForm):
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
-        fields = ['title', 'description', 'deadline', 'max_score']
+        fields = ['title', 'description', 'deadline', 'max_score', 'term']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
 
@@ -252,6 +252,75 @@ class TaskActivityForm(forms.ModelForm):
         self.fields['skill_secondary'].queryset = relevant_skills
         self.fields['skill_tertiary'].queryset = relevant_skills
 
+class TaskAssignmentForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(queryset=Topic.objects.none())
+
+    class Meta:
+        model = Assignment
+        fields = ['topic', 'title', 'instructions', 'deadline',
+                  'max_score', 'skill_main', 'skill_secondary', 'skill_tertiary']
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        relevant_skills = kwargs.pop('relevant_skills')
+        super().__init__(*args, **kwargs)
+        self.fields['topic'].queryset = Topic.objects.filter(
+            lesson_plan__subject__teacher=user)
+        self.fields[
+            'topic'].label_from_instance = lambda obj: f"{obj.lesson_plan.subject.name} — {obj.title} ({obj.start_date} to {obj.end_date})"
+        self.fields['skill_main'].queryset = relevant_skills
+        self.fields['skill_secondary'].queryset = relevant_skills
+        self.fields['skill_tertiary'].queryset = relevant_skills
+
+
+class TaskQuizForm(forms.ModelForm):
+    topic = forms.ModelChoiceField(queryset=Topic.objects.none())
+    unknown_max_score = forms.BooleanField(
+        required=False, label="I don't know the max score yet",
+        help_text="You can set the max score and passing score later from the quiz's detail page."
+    )
+    passing_percentage = forms.IntegerField(
+        min_value=1, max_value=100, label="Passing Score (% of Max Score)",
+        help_text="e.g. 60 means students need 60% of the max score to pass",
+        required=False,
+    )
+
+    class Meta:
+        model = Quiz
+        fields = ['topic', 'title', 'instructions', 'deadline', 'max_score', 'passing_percentage', 'file', 'link']
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        self.fields['topic'].queryset = Topic.objects.filter(
+            lesson_plan__subject__teacher=user)
+        self.fields[
+            'topic'].label_from_instance = lambda obj: f"{obj.lesson_plan.subject.name} — {obj.title} ({obj.start_date} to {obj.end_date})"
+        self.order_fields(['topic', 'title', 'instructions', 'deadline',
+                            'max_score', 'unknown_max_score', 'passing_percentage', 'file', 'link'])
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('unknown_max_score'):
+            cleaned['max_score'] = None
+            cleaned['passing_percentage'] = None
+        else:
+            if not cleaned.get('max_score'):
+                self.add_error('max_score', 'Enter a max score, or check "I don\'t know the max score yet".')
+            if not cleaned.get('passing_percentage'):
+                self.add_error('passing_percentage', 'Enter a passing percentage, or check "I don\'t know the max score yet".')
+        return cleaned
+
+class TaskExamForm(forms.Form):
+    subject = forms.ModelChoiceField(queryset=Subject.objects.none())
+    exam_type = forms.ChoiceField(choices=Exam.EXAM_TYPE_CHOICES)
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        self.fields['subject'].queryset = Subject.objects.filter(teacher=user)
 
 class TaskProjectForm(forms.ModelForm):
     class Meta:
@@ -330,16 +399,17 @@ class PersonalTaskForm(forms.ModelForm):
             instance.save()
         return instance
 
-COMBINED_WEIGHT_FIELDS = ['activity_weight', 'quiz_weight', 'assignment_weight']
+COMBINED_WEIGHT_FIELDS = ['activity_weight', 'quiz_weight', 'assignment_weight', 'project_weight']
 SPLIT_WEIGHT_FIELDS = [
     'midterm_activity_weight', 'final_activity_weight',
     'midterm_quiz_weight', 'final_quiz_weight',
     'midterm_assignment_weight', 'final_assignment_weight',
+    'midterm_project_weight', 'final_project_weight',
 ]
-SHARED_WEIGHT_FIELDS = [
-    'prelim_weight', 'midterm_weight', 'prefinal_weight', 'final_weight', 'project_weight',
+EXAM_WEIGHT_FIELDS = [
+    'prelim_weight', 'midterm_weight', 'prefinal_weight', 'final_weight',
 ]
-SUBJECT_WEIGHT_FIELDS = COMBINED_WEIGHT_FIELDS + SPLIT_WEIGHT_FIELDS + SHARED_WEIGHT_FIELDS
+SUBJECT_WEIGHT_FIELDS = COMBINED_WEIGHT_FIELDS + SPLIT_WEIGHT_FIELDS + EXAM_WEIGHT_FIELDS
 
 
 class SubjectWeightsForm(forms.ModelForm):
@@ -354,18 +424,20 @@ class SubjectWeightsForm(forms.ModelForm):
             'activity_weight': 'Activities %',
             'quiz_weight': 'Quizzes %',
             'assignment_weight': 'Assignments %',
+            'project_weight': 'Projects %',
             'midterm_activity_weight': 'Midterm Activities %',
             'final_activity_weight': 'Final Activities %',
             'midterm_quiz_weight': 'Midterm Quizzes %',
             'final_quiz_weight': 'Final Quizzes %',
             'midterm_assignment_weight': 'Midterm Assignments %',
             'final_assignment_weight': 'Final Assignments %',
+            'midterm_project_weight': 'Midterm Projects %',
+            'final_project_weight': 'Final Projects %',
             'prelim_weight': 'Prelim Exam %',
             'midterm_weight': 'Midterm Exam %',
             'prefinal_weight': 'Prefinal Exam %',
             'final_weight': 'Final Exam %',
-            'project_weight': 'Projects %',
-            'at_risk_threshold': 'Flag students below this General Average (%)',
+            'at_risk_threshold': 'Flag students below this Average (%)',
         }
 
     def __init__(self, *args, **kwargs):
@@ -374,33 +446,72 @@ class SubjectWeightsForm(forms.ModelForm):
         if self.divide_by_semester:
             for field in COMBINED_WEIGHT_FIELDS:
                 del self.fields[field]
-            self.active_weight_fields = SPLIT_WEIGHT_FIELDS + SHARED_WEIGHT_FIELDS
+            self.midterm_weight_fields = [
+                'midterm_activity_weight', 'midterm_quiz_weight',
+                'midterm_assignment_weight', 'midterm_project_weight',
+                'prelim_weight', 'midterm_weight',
+            ]
+            self.final_weight_fields = [
+                'final_activity_weight', 'final_quiz_weight',
+                'final_assignment_weight', 'final_project_weight',
+                'prefinal_weight', 'final_weight',
+            ]
         else:
             for field in SPLIT_WEIGHT_FIELDS:
                 del self.fields[field]
-            self.active_weight_fields = COMBINED_WEIGHT_FIELDS + SHARED_WEIGHT_FIELDS
+            self.active_weight_fields = COMBINED_WEIGHT_FIELDS + EXAM_WEIGHT_FIELDS
 
     def clean(self):
         cleaned_data = super().clean()
-        values = [cleaned_data.get(f) for f in self.active_weight_fields]
-        if all(v is not None for v in values):
-            if sum(values) != 100:
+        if self.divide_by_semester:
+            for group_label, group_fields in (
+                ('Midterm', self.midterm_weight_fields),
+                ('Final', self.final_weight_fields),
+            ):
+                values = [cleaned_data.get(f) for f in group_fields]
+                if all(v is not None for v in values) and sum(values) != 100:
+                    raise forms.ValidationError(
+                        f'{group_label} weight percentages must add up to 100.')
+        else:
+            values = [cleaned_data.get(f) for f in self.active_weight_fields]
+            if all(v is not None for v in values) and sum(values) != 100:
                 raise forms.ValidationError(
                     'All weight percentages shown must add up to 100.')
         return cleaned_data
 
 
 class QuizForm(forms.ModelForm):
+    unknown_max_score = forms.BooleanField(
+        required=False, label="I don't know the max score yet",
+        help_text="You can set the max score and passing score later from the quiz's detail page."
+    )
     passing_percentage = forms.IntegerField(
         min_value=1, max_value=100, label="Passing Score (% of Max Score)",
-        help_text="e.g. 60 means students need 60% of the max score to pass"
+        help_text="e.g. 60 means students need 60% of the max score to pass",
+        required=False,
     )
 
     class Meta:
         model = Quiz
         fields = ['title', 'instructions', 'deadline', 'max_score', 'passing_percentage', 'term', 'file', 'link']
-        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})} 
+        widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.order_fields(['title', 'instructions', 'deadline', 'max_score',
+                            'unknown_max_score', 'passing_percentage', 'term', 'file', 'link'])
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('unknown_max_score'):
+            cleaned['max_score'] = None
+            cleaned['passing_percentage'] = None
+        else:
+            if not cleaned.get('max_score'):
+                self.add_error('max_score', 'Enter a max score, or check "I don\'t know the max score yet".')
+            if not cleaned.get('passing_percentage'):
+                self.add_error('passing_percentage', 'Enter a passing percentage, or check "I don\'t know the max score yet".')
+        return cleaned
 
 class QuizSkillWeightForm(forms.ModelForm):
     class Meta:
@@ -437,10 +548,29 @@ class GradeQuizForm(forms.ModelForm):
             raise forms.ValidationError(f"Score can't exceed the maximum of {self.max_score}.")
         return score
 
-class ExamForm(forms.ModelForm):
+class QuizScoringForm(forms.ModelForm):
     passing_percentage = forms.IntegerField(
         min_value=1, max_value=100, label="Passing Score (% of Max Score)",
         help_text="e.g. 60 means students need 60% of the max score to pass"
+    )
+
+    class Meta:
+        model = Quiz
+        fields = ['max_score', 'passing_percentage']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['max_score'].required = True
+
+class ExamForm(forms.ModelForm):
+    unknown_max_score = forms.BooleanField(
+        required=False, label="I don't know the max score yet",
+        help_text="You can set the max score and passing score later from the exam's detail page."
+    )
+    passing_percentage = forms.IntegerField(
+        min_value=1, max_value=100, label="Passing Score (% of Max Score)",
+        help_text="e.g. 60 means students need 60% of the max score to pass",
+        required=False,
     )
 
     class Meta:
@@ -448,6 +578,22 @@ class ExamForm(forms.ModelForm):
         fields = ['instructions', 'deadline', 'max_score', 'passing_percentage', 'file', 'image', 'link']
         widgets = {'deadline': forms.DateInput(attrs={'type': 'date'})}
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.order_fields(['instructions', 'deadline', 'max_score',
+                            'unknown_max_score', 'passing_percentage', 'file', 'image', 'link'])
+
+    def clean(self):
+        cleaned = super().clean()
+        if cleaned.get('unknown_max_score'):
+            cleaned['max_score'] = None
+            cleaned['passing_percentage'] = None
+        else:
+            if not cleaned.get('max_score'):
+                self.add_error('max_score', 'Enter a max score, or check "I don\'t know the max score yet".')
+            if not cleaned.get('passing_percentage'):
+                self.add_error('passing_percentage', 'Enter a passing percentage, or check "I don\'t know the max score yet".')
+        return cleaned
 
 class ExamSkillWeightForm(forms.ModelForm):
     class Meta:
@@ -483,3 +629,17 @@ class GradeExamForm(forms.ModelForm):
         if score > self.max_score:
             raise forms.ValidationError(f"Score can't exceed the maximum of {self.max_score}.")
         return score
+    
+class ExamScoringForm(forms.ModelForm):
+    passing_percentage = forms.IntegerField(
+        min_value=1, max_value=100, label="Passing Score (% of Max Score)",
+        help_text="e.g. 60 means students need 60% of the max score to pass"
+    )
+
+    class Meta:
+        model = Exam
+        fields = ['max_score', 'passing_percentage']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['max_score'].required = True

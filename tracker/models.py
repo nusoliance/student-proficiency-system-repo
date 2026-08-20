@@ -39,6 +39,8 @@ class Subject(models.Model):
     final_quiz_weight = models.PositiveIntegerField(default=0)
     midterm_assignment_weight = models.PositiveIntegerField(default=0)
     final_assignment_weight = models.PositiveIntegerField(default=0)
+    midterm_project_weight = models.PositiveIntegerField(default=0)
+    final_project_weight = models.PositiveIntegerField(default=0)
     prelim_weight = models.PositiveIntegerField(default=0)
     midterm_weight = models.PositiveIntegerField(default=0)
     prefinal_weight = models.PositiveIntegerField(default=0)
@@ -270,6 +272,8 @@ class Project(models.Model):
     deadline = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     max_score = models.PositiveIntegerField(default=100)
+    term = models.CharField(
+        max_length=7, choices=TERM_CHOICES, default='midterm', blank=True)
 
     def __str__(self):
         return self.title
@@ -378,8 +382,8 @@ class Quiz(models.Model):
     title = models.CharField(max_length=200)
     instructions = models.TextField(blank=True)
     deadline = models.DateField()
-    max_score = models.PositiveIntegerField(default=100)
-    passing_percentage = models.PositiveIntegerField(default=60)
+    max_score = models.PositiveIntegerField(null=True, blank=True)
+    passing_percentage = models.PositiveIntegerField(null=True, blank=True)
     file = models.FileField(upload_to='quiz_materials/', null=True, blank=True)
     link = models.URLField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -387,7 +391,13 @@ class Quiz(models.Model):
         max_length=7, choices=TERM_CHOICES, default='midterm', blank=True)
 
     @property
+    def scoring_set(self):
+        return self.max_score is not None and self.passing_percentage is not None
+
+    @property
     def passing_score(self):
+        if not self.scoring_set:
+            return None
         return round(self.max_score * self.passing_percentage / 100)
 
     @property
@@ -422,7 +432,7 @@ class QuizCompletion(models.Model):
 
     @property
     def total_points(self):
-        if self.score is None:
+        if self.score is None or not self.quiz.scoring_set:
             return 0
         quiz = self.quiz
         pool = quiz.max_score // 2
@@ -477,8 +487,8 @@ class Exam(models.Model):
     exam_type = models.CharField(max_length=10, choices=EXAM_TYPE_CHOICES)
     instructions = models.TextField(blank=True)
     deadline = models.DateField()
-    max_score = models.PositiveIntegerField(default=100)
-    passing_percentage = models.PositiveIntegerField(default=60)
+    max_score = models.PositiveIntegerField(null=True, blank=True)
+    passing_percentage = models.PositiveIntegerField(null=True, blank=True)
     file = models.FileField(upload_to='exam_materials/files/', null=True, blank=True)
     image = models.ImageField(upload_to='exam_materials/images/', null=True, blank=True)
     link = models.URLField(blank=True)
@@ -488,7 +498,13 @@ class Exam(models.Model):
         unique_together = ('subject', 'exam_type')
 
     @property
+    def scoring_set(self):
+        return self.max_score is not None and self.passing_percentage is not None
+
+    @property
     def passing_score(self):
+        if not self.scoring_set:
+            return None
         return round(self.max_score * self.passing_percentage / 100)
 
     @property
@@ -523,7 +539,7 @@ class ExamCompletion(models.Model):
 
     @property
     def total_points(self):
-        if self.score is None:
+        if self.score is None or not self.exam.scoring_set:
             return 0
         exam = self.exam
         pool = exam.max_score // 2

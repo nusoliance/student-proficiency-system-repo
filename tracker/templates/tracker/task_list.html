@@ -10,8 +10,6 @@
 
     {% if user.profile.mode == 'personal' %}
     <div class="manager-actions" style="margin-bottom:20px;">
-        <a href="{% url 'add_task_activity' %}" class="btn-secondary">+ Add Activity</a>
-        <a href="{% url 'add_task_project' %}" class="btn-secondary">+ Add Project</a>
         <a href="{% url 'personal_task_list' %}" class="btn-secondary">View Personal Tasks</a>
     </div>
     {% endif %}
@@ -33,7 +31,13 @@
 
 
     <div class="topic-card">
-        <h3 style="color:#1E3A8A; margin-top:0;">Assignments</h3>
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 style="color:#1E3A8A; margin-top:0;">Assignments</h3>
+            {% if user.profile.mode == 'personal' %}
+            <a href="{% url 'add_task_assignment' %}" class="btn-secondary" title="Add Assignment"
+                style="line-height:1; padding:0.35rem 0.75rem;">+</a>
+            {% endif %}
+        </div>
         <ul class="activity-list">
             {% for assignment in assignments %}
             <li class="activity-item">
@@ -58,7 +62,13 @@
     </div>
 
     <div class="topic-card">
-        <h3 style="color:#1E3A8A; margin-top:0;">Activities</h3>
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 style="color:#1E3A8A; margin-top:0;">Activities</h3>
+            {% if user.profile.mode == 'personal' %}
+            <a href="{% url 'add_task_activity' %}" class="btn-secondary" title="Add Activity"
+                style="line-height:1; padding:0.35rem 0.75rem;">+</a>
+            {% endif %}
+        </div>
         <ul class="activity-list">
             {% for activity in activities %}
             <li class="activity-item">
@@ -83,7 +93,13 @@
     </div>
 
     <div class="topic-card">
-        <h3 style="color:#1E3A8A; margin-top:0;">Quiz</h3>
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 style="color:#1E3A8A; margin-top:0;">Quiz</h3>
+            {% if user.profile.mode == 'personal' %}
+            <a href="{% url 'add_task_quiz' %}" class="btn-secondary" title="Add Quiz"
+                style="line-height:1; padding:0.35rem 0.75rem;">+</a>
+            {% endif %}
+        </div>
         <ul class="activity-list">
             {% for quiz in quizzes %}
             <li class="activity-item">
@@ -108,7 +124,13 @@
     </div>
 
     <div class="topic-card">
-        <h3 style="color:#1E3A8A; margin-top:0;">Projects</h3>
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 style="color:#1E3A8A; margin-top:0;">Projects</h3>
+            {% if user.profile.mode == 'personal' %}
+            <a href="{% url 'add_task_project' %}" class="btn-secondary" title="Add Project"
+                style="line-height:1; padding:0.35rem 0.75rem;">+</a>
+            {% endif %}
+        </div>
         <ul class="activity-list">
             {% for item in project_data %}
             <li class="activity-item">
@@ -134,7 +156,13 @@
     </div>
 
     <div class="topic-card">
-        <h3 style="color:#1E3A8A; margin-top:0;">Exams</h3>
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 style="color:#1E3A8A; margin-top:0;">Exams</h3>
+            {% if user.profile.mode == 'personal' %}
+            <a href="{% url 'add_task_exam' %}" class="btn-secondary" title="Add Exam"
+                style="line-height:1; padding:0.35rem 0.75rem;">+</a>
+            {% endif %}
+        </div>
         <ul class="activity-list">
             {% for exam in exams %}
             <li class="activity-item">
