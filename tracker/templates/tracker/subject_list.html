@@ -3,6 +3,7 @@
 <span class="breadcrumb-sep">›</span> Subjects
 {% endblock %}
 {% block content %}
+<div class="page-container">
 <div class="lesson-header">
     <h2>Subjects</h2>
     {% if user.profile.is_manager %}
@@ -28,4 +29,5 @@
     <li class="muted-note">No subjects yet.</li>
     {% endfor %}
 </ul>
+</div>
 {% endblock %}

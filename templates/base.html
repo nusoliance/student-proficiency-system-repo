@@ -6,7 +6,7 @@
     <title>Student Proficiency System</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link
-        href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lora:wght@400;500;600&family=IBM+Plex+Mono:wght@600&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
@@ -56,6 +56,48 @@
                         the same school ID.</p>
                 </div>
                 {% endif %}
+            </div>
+        </div>
+
+        <div class="profile-stats-bar">
+            <div class="profile-stats-list">
+                <div class="profile-stat">
+                    <div class="profile-stat-value">{{ profile_stats.personal_tasks|default:0 }}</div>
+                    <div class="profile-stat-label">Personal tasks</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">{{ profile_stats.activities|default:0 }}</div>
+                    <div class="profile-stat-label">Activities</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">{{ profile_stats.assignments|default:0 }}</div>
+                    <div class="profile-stat-label">Assignments</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">{{ profile_stats.quizzes|default:0 }}</div>
+                    <div class="profile-stat-label">Quizzes</div>
+                </div>
+                <div class="profile-stat">
+                    <div class="profile-stat-value">{{ profile_stats.projects|default:0 }}</div>
+                    <div class="profile-stat-label">Projects</div>
+                </div>
+            </div>
+
+            <div class="profile-progress-col">
+                <div class="profile-progress-row">
+                    <span class="profile-progress-label">{% if top_skill %}{{ top_skill.skill.name }} {{ top_skill.level }}{% else %}LEVEL 0{% endif %}</span>
+                    <div class="profile-progress-track">
+                        <div class="profile-progress-fill" style="width: {% if top_skill %}{{ top_skill.points_into_level }}{% else %}0{% endif %}%;"></div>
+                    </div>
+                    <span class="profile-progress-text">{% if top_skill %}{{ top_skill.points_into_level }}/100 XP{% else %}0/100 XP{% endif %}</span>
+                </div>
+                <div class="profile-progress-row">
+                    <span class="profile-progress-label">PRODUCTIVITY</span>
+                    <div class="profile-progress-track">
+                        <div class="profile-progress-fill profile-progress-fill-alt" style="width: 0%;"></div>
+                    </div>
+                    <span class="profile-progress-text">0/100</span>
+                </div>
             </div>
         </div>
     </div>

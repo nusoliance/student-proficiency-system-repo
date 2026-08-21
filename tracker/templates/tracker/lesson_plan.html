@@ -4,70 +4,93 @@
 <span class="breadcrumb-sep">›</span> {{ subject.name }}
 {% endblock %}
 {% block content %}
-<div class="lesson-plan-container">
-    <div class="lesson-header">
-        <h2>{{ subject.name }} — Lesson Plan</h2>
-        <div class="manager-actions">
-            <a href="{% url 'calendar_view' subject.id %}" class="btn-secondary">Calendar View</a>
-            <div style="position:relative; display:inline-block;">
-                <button type="button" class="btn-secondary" onclick="document.getElementById('examDropdown').classList.toggle('open')">Exams ▾</button>
-                <div id="examDropdown" class="dropdown-menu" style="position:absolute; top:110%; left:0;">
-                    <a href="{% url 'exam_router' subject.id 'prelim' %}">Prelim Exam</a>
-                    <a href="{% url 'exam_router' subject.id 'midterm' %}">Midterm Exam</a>
-                    <a href="{% url 'exam_router' subject.id 'prefinal' %}">Prefinal Exam</a>
-                    <a href="{% url 'exam_router' subject.id 'final' %}">Final Exam</a>
+<div class="lesson-plan-shell">
+
+    <aside class="lesson-plan-sidebar">
+        <div class="lp-sidebar-title">{{ subject.name }}</div>
+
+        <div class="lp-side-link active">Lesson Plan</div>
+
+        <a href="{% url 'calendar_view' subject.id %}" class="lp-side-link">Calendar View</a>
+
+        <div class="lp-side-dropdown">
+            <button type="button" class="lp-side-link" onclick="document.getElementById('examDropdown').classList.toggle('open')">Exams ▾</button>
+            <div id="examDropdown" class="dropdown-menu">
+                <a href="{% url 'exam_router' subject.id 'prelim' %}">Prelim Exam</a>
+                <a href="{% url 'exam_router' subject.id 'midterm' %}">Midterm Exam</a>
+                <a href="{% url 'exam_router' subject.id 'prefinal' %}">Prefinal Exam</a>
+                <a href="{% url 'exam_router' subject.id 'final' %}">Final Exam</a>
+            </div>
+        </div>
+
+        {% if user.profile.is_manager %}
+        <a href="{% url 'add_topic' subject.id %}" class="lp-side-link">+ Add Topic</a>
+        <a href="{% url 'gradesheet_view' subject.id %}" class="lp-side-link">Gradesheet</a>
+        <a href="{% url 'customize_subject' subject.id %}" class="lp-side-link">Customize</a>
+        {% if user.profile.mode != 'personal' %}
+        <a href="{% url 'manage_students' subject.id %}" class="lp-side-link">Manage Students</a>
+        {% endif %}
+        {% endif %}
+
+        {% if not user.profile.is_manager and user.profile.mode == 'professional' %}
+        <a href="{% url 'my_gradesheet_view' subject.id %}" class="lp-side-link">My Gradesheet</a>
+        {% endif %}
+
+        {% if user.profile.is_manager %}
+        <a href="{% url 'delete_subject' subject.id %}" class="lp-side-link lp-side-danger">Delete Subject</a>
+        {% endif %}
+    </aside>
+
+    <div class="lesson-plan-main">
+        <div class="lp-main-header">
+            <h2>{{ subject.name }} — Lesson Plan</h2>
+        </div>
+
+        <div class="lp-section">
+            <div class="lp-section-title">Topics</div>
+
+            {% for topic in topics %}
+            <div class="lp-row">
+                <div class="lp-date-badge">
+                    <span>{{ topic.start_date|date:"M d" }}</span>
+                    <span class="lp-date-sep">to</span>
+                    <span>{{ topic.end_date|date:"M d" }}</span>
+                </div>
+                <div class="lp-row-body">
+                    <a href="{% url 'topic_detail' topic.id %}" class="lp-row-title">{{ topic.title }}</a>
+                </div>
+                <div class="lp-row-actions">
+                    {% if user.profile.is_manager %}
+                    <a href="{% url 'edit_topic' topic.id %}" class="btn-sm">Edit</a>
+                    <a href="{% url 'delete_topic' topic.id %}" class="btn-sm"
+                        style="color:#991B1B; border-color:#991B1B;">Delete</a>
+                    {% endif %}
                 </div>
             </div>
-            {% if user.profile.is_manager %}
-            <a href="{% url 'add_topic' subject.id %}" class="btn-secondary">+ Add Topic</a>
-            <a href="{% url 'gradesheet_view' subject.id %}" class="btn-secondary">Gradesheet</a>
-            <a href="{% url 'customize_subject' subject.id %}" class="btn-secondary">Customize</a>
-            {% if user.profile.mode != 'personal' %}
-            <a href="{% url 'manage_students' subject.id %}" class="btn-secondary">Manage Students</a>
-            {% endif %}
-            <a href="{% url 'delete_subject' subject.id %}" class="btn-secondary"
-                style="color:#991B1B; border-color:#991B1B;">Delete Subject</a>
-            {% endif %}
-            {% if not user.profile.is_manager and user.profile.mode == 'professional' %}
-            <a href="{% url 'my_gradesheet_view' subject.id %}" class="btn-secondary">My Gradesheet</a>
-            
-            {% endif %}
+            {% empty %}
+            <p class="empty-state-sm">No topics added yet.</p>
+            {% endfor %}
         </div>
-    </div>
 
-   {% for topic in topics %}
-    <div class="topic-card">
-        <div class="topic-header">
-            <h3><a href="{% url 'topic_detail' topic.id %}">{{ topic.title }}</a> <span class="muted-note">({{ topic.start_date }} – {{ topic.end_date }})</span></h3>
-            <div class="manager-actions">
+        <div class="lp-section">
+            <div class="lp-section-title-row">
+                <div class="lp-section-title">Projects</div>
                 {% if user.profile.is_manager %}
-                <a href="{% url 'edit_topic' topic.id %}" class="btn-sm">Edit</a>
-                <a href="{% url 'delete_topic' topic.id %}" class="btn-sm"
-                    style="color:#991B1B; border-color:#991B1B;">Delete Topic</a>
+                <a href="{% url 'add_project' subject.id %}" class="btn-sm">+ Add Project</a>
                 {% endif %}
             </div>
-        </div>
-    </div>
-    {% empty %}
-    <p class="empty-state-sm">No topics added yet.</p>
-    {% endfor %}
 
-    <div class="projects-section">
-        <div class="projects-header">
-            <h3>Projects</h3>
-            {% if user.profile.is_manager %}
-            <a href="{% url 'add_project' subject.id %}" class="btn-sm">+ Add Project</a>
-            {% endif %}
-        </div>
-        <ul class="project-list">
             {% for project in subject.projects.all %}
-            <li class="project-item">
-                <a href="{% url 'project_detail' project.id %}">{{ project.title }}</a>
-            </li>
+            <div class="lp-row">
+                <div class="lp-row-body">
+                    <a href="{% url 'project_detail' project.id %}" class="lp-row-title">{{ project.title }}</a>
+                </div>
+            </div>
             {% empty %}
-            <li class="empty-state-sm">No projects yet.</li>
+            <p class="empty-state-sm">No projects yet.</p>
             {% endfor %}
-        </ul>
+        </div>
     </div>
+
 </div>
 {% endblock %}
