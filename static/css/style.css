@@ -1114,6 +1114,264 @@ input[type="submit"]:hover {
     background: linear-gradient(90deg, #8a4a47, #5a2827);
 }
 
+/* Avatar page redesigned as an open book - dark academia -kian */
+.skill-book {
+    position: relative;
+    max-width: 760px;
+    margin: 0 auto 3rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    box-shadow: 0 18px 40px rgba(43, 31, 20, .28), inset 0 0 60px rgba(160, 142, 120, .15);
+    padding: 3rem 3.5rem 4.5rem;
+    min-height: 420px;
+}
+
+.skill-book::before {
+    content: "";
+    position: absolute;
+    top: 2.2rem;
+    bottom: 2.2rem;
+    left: 2.4rem;
+    width: 1px;
+    background: rgba(90, 40, 39, .25);
+}
+
+.skill-book-page {
+    display: none;
+    padding-left: 1.5rem;
+}
+
+.skill-book-page.active {
+    display: block;
+    animation: skill-page-turn .4s ease;
+}
+
+@keyframes skill-page-turn {
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.skill-book-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--text);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: .6rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: .02em;
+}
+
+.skill-page-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.skill-entry {
+    padding: 1rem 0;
+    border-bottom: 1px dashed rgba(160, 142, 120, .5);
+}
+
+.skill-entry:last-child {
+    border-bottom: none;
+}
+
+.skill-entry-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: .6rem;
+}
+
+.skill-entry-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text);
+    position: relative;
+    padding-left: 1.1rem;
+}
+
+.skill-entry-name::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--blue-dark);
+}
+
+.skill-entry.blue .skill-entry-name::before {
+    background: #2f3a5c;
+}
+
+.skill-entry.purple .skill-entry-name::before {
+    background: #4a2545;
+}
+
+.skill-entry.orange .skill-entry-name::before {
+    background: #8a5a2b;
+}
+
+.skill-entry.green .skill-entry-name::before {
+    background: #2f4a35;
+}
+
+.skill-entry.cyan .skill-entry-name::before {
+    background: #1f4a4a;
+}
+
+.skill-entry.pink .skill-entry-name::before {
+    background: #5a2827;
+}
+
+.skill-entry-level {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.skill-entry-bar-track {
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(107, 90, 74, .18);
+    overflow: hidden;
+}
+
+.skill-entry-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--blue-dark);
+    transition: width .9s ease;
+}
+
+.skill-entry.blue .skill-entry-bar-fill {
+    background: linear-gradient(90deg, #5b6f9e, #2f3a5c);
+}
+
+.skill-entry.purple .skill-entry-bar-fill {
+    background: linear-gradient(90deg, #7d4a78, #4a2545);
+}
+
+.skill-entry.orange .skill-entry-bar-fill {
+    background: linear-gradient(90deg, #c08a42, #8a5a2b);
+}
+
+.skill-entry.green .skill-entry-bar-fill {
+    background: linear-gradient(90deg, #5c8a68, #2f4a35);
+}
+
+.skill-entry.cyan .skill-entry-bar-fill {
+    background: linear-gradient(90deg, #3f7d7d, #1f4a4a);
+}
+
+.skill-entry.pink .skill-entry-bar-fill {
+    background: linear-gradient(90deg, #8a4a47, #5a2827);
+}
+
+.skill-entry-points {
+    margin-top: .4rem;
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .78rem;
+    color: var(--muted);
+}
+
+.book-nav-next {
+    position: absolute;
+    right: 1.8rem;
+    bottom: 1.6rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: .55rem 1.1rem;
+    font-family: 'Playfair Display', serif;
+    font-size: .92rem;
+    font-weight: 700;
+    color: var(--blue-dark);
+    cursor: pointer;
+    box-shadow: -6px 6px 14px rgba(43, 31, 20, .2);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.book-nav-next:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: -8px 10px 18px rgba(43, 31, 20, .28);
+}
+
+.book-nav-prev {
+    position: absolute;
+    left: 1.8rem;
+    bottom: 1.6rem;
+    background: transparent;
+    border: none;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--muted);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.book-nav-prev:hover {
+    color: var(--blue-dark);
+}
+
+.book-page-indicator {
+    position: absolute;
+    left: 50%;
+    bottom: 1.8rem;
+    transform: translateX(-50%);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: .75rem;
+    color: var(--muted);
+    letter-spacing: .05em;
+}
+
+@media (max-width: 640px) {
+    .skill-book {
+        padding: 2rem 1.5rem 4.5rem;
+    }
+
+    .skill-book::before {
+        display: none;
+    }
+
+    .skill-book-page {
+        padding-left: 0;
+    }
+
+    .book-nav-next {
+        right: 1rem;
+        bottom: 1rem;
+        padding: .5rem .85rem;
+        font-size: .82rem;
+    }
+
+    .book-nav-prev {
+        left: 1rem;
+        bottom: 1rem;
+    }
+
+    .book-page-indicator {
+        bottom: 1.2rem;
+    }
+}
+
 /*pang edit sa gamay na info sa taas -kian*/
 .profile-banner {
     background: var(--bg-dark);
@@ -1217,7 +1475,7 @@ input[type="submit"]:hover {
     text-transform: uppercase;
     letter-spacing: 0.03em;
     white-space: nowrap;
-    width: 100px;
+    flex-shrink: 0;
 }
 
 .profile-progress-track {
@@ -1270,7 +1528,7 @@ input[type="submit"]:hover {
 
 /*student info when teacher checks a student profile -kian*/
 .dossier {
-    max-width: 620px;
+    max-width: 720px;
     margin: 0 auto;
     background: var(--panel);
     border: 1px solid var(--line);
@@ -1377,17 +1635,17 @@ input[type="submit"]:hover {
 
 /* for forum -kian */
 .content-frame {
-    max-width: 760px;
+    max-width: 620px;
     margin: 0 auto;
-    border: 3px solid rgb(201, 201, 204);
+    border: 3px solid var(--blue-dark);
     border-radius: 10px;
-    padding: 2.5rem 3rem;
+    padding: 3.75rem;
     background: none;
 }
 
 .alert-banner {
-    max-width: 620px;
-    border: 2px solid rgb(201, 201, 204);
+    max-width: 760px;
+    border: 2px solid var(--blue-dark);
     border-radius: 8px;
     padding: 0.9rem 1.2rem;
     background: none;
@@ -1397,7 +1655,7 @@ input[type="submit"]:hover {
     list-style: none;
     padding: 0;
     margin: 0 0 1.5rem;
-    max-width: 620px;
+    max-width: 760px;
 }
 
 .forum-topic-card {
@@ -1426,7 +1684,7 @@ input[type="submit"]:hover {
 .ask-question-btn {
     display: block;
     width: 100%;
-    max-width: 620px;
+    max-width: 760px;
     text-align: left;
     background: none;
     border: 1px solid gray;
@@ -1446,7 +1704,7 @@ input[type="submit"]:hover {
 .ask-question-form {
     display: none;
     margin-bottom: 1.5rem;
-    max-width: 620px;
+    max-width: 760px;
     background: none;
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -1680,7 +1938,7 @@ input[type="submit"]:hover {
 
 /* everything in lesson plan - Jade */
 .lesson-plan-container {
-    max-width: 850px;
+    max-width: 950px;
 }
 
 /* lesson plan: sidebar + main container layout - kian */
@@ -1688,9 +1946,9 @@ input[type="submit"]:hover {
     display: flex;
     align-items: flex-start;
     gap: 2rem;
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 1.5rem 3rem;
+    padding: 2rem 1.25rem 3rem;
 }
 
 .lesson-plan-sidebar {
@@ -1987,7 +2245,7 @@ input[type="submit"]:hover {
 
 /* for reporting - Jade */
 .report-container {
-    max-width: 650px;
+    max-width: 760px;
 }
 
 .report-header {
@@ -2036,7 +2294,7 @@ input[type="submit"]:hover {
 
 /* For calendar - Jade (this block wins in the cascade over the earlier Kian block; left as-is for a separate careful pass) */
 .calendar-container {
-    max-width: 850px;
+    max-width: 950px;
 }
 
 .calendar-header {
@@ -2114,7 +2372,7 @@ input[type="submit"]:hover {
 
 /* for submitting act.s or projs, - Jade */
 .submission-container {
-    max-width: 700px;
+    max-width: 800px;
 }
 
 .submission-header {
@@ -2144,12 +2402,12 @@ input[type="submit"]:hover {
 
 /* manage students button - Jade */
 .manage-students-container {
-    max-width: 700px;
+    max-width: 820px;
 }
 
 /* Tasks - Jade */
 .tasks-container {
-    max-width: 850px;
+    max-width: 950px;
 }
 
 .tasks-header {
@@ -2189,9 +2447,9 @@ input[type="submit"]:hover {
 
 /*perosnal task details - Jade */
 .task-detail-container {
-    max-width: 900px;
+    max-width: 960px;
     margin: 20px auto 40px auto;
-    padding: 0 20px;
+    padding: 0 16px;
 }
 
 .task-detail-title {
@@ -2488,9 +2746,9 @@ input[type="submit"]:hover {
 
 /*breadcrumbs -kian */
 .breadcrumb-bar {
-    max-width: 780px;
+    max-width: 950px;
     margin: 0 auto;
-    padding: 0.75rem 1.5rem 0;
+    padding: 0.75rem 1.25rem 0;
     font-size: 0.82rem;
     color: var(--muted);
 }

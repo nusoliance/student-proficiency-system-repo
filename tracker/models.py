@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from avatar.models import Skill
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 DAY_CHOICES = [
     ('mon', 'Mon'), ('tue', 'Tue'), ('wed', 'Wed'), ('thu', 'Thu'),
@@ -123,6 +123,8 @@ class Activity(models.Model):
         Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities_secondary')
     skill_tertiary = models.ForeignKey(
         Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='activities_tertiary')
+    productivity_penalized_students = models.ManyToManyField(
+        User, blank=True, related_name='activity_productivity_penalties')
 
     @property
     def due_soon(self):
@@ -144,6 +146,7 @@ class ActivityCompletion(models.Model):
     completed_at = models.DateTimeField(auto_now_add=True)
     score = models.PositiveIntegerField(null=True, blank=True)
     graded = models.BooleanField(default=False)
+    productivity_processed = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('activity', 'student')
@@ -202,6 +205,8 @@ class Assignment(models.Model):
         Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='assignments_secondary')
     skill_tertiary = models.ForeignKey(
         Skill, on_delete=models.SET_NULL, null=True, blank=True, related_name='assignments_tertiary')
+    productivity_penalized_students = models.ManyToManyField(
+        User, blank=True, related_name='assignment_productivity_penalties')
 
     @property
     def due_soon(self):
@@ -223,6 +228,7 @@ class AssignmentCompletion(models.Model):
     completed_at = models.DateTimeField(auto_now_add=True)
     score = models.PositiveIntegerField(null=True, blank=True)
     graded = models.BooleanField(default=False)
+    productivity_processed = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('assignment', 'student')
@@ -274,6 +280,8 @@ class Project(models.Model):
     max_score = models.PositiveIntegerField(default=100)
     term = models.CharField(
         max_length=7, choices=TERM_CHOICES, default='midterm', blank=True)
+    productivity_penalized_students = models.ManyToManyField(
+        User, blank=True, related_name='project_productivity_penalties')
 
     def __str__(self):
         return self.title
@@ -292,6 +300,7 @@ class ProjectSubmission(models.Model):
     evaluated = models.BooleanField(default=False)
     feedback = models.TextField(blank=True)
     score = models.PositiveIntegerField(null=True, blank=True)
+    productivity_processed = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('project', 'student')
@@ -345,11 +354,25 @@ class PersonalTask(models.Model):
     weekly_days = models.CharField(max_length=50, blank=True)
     notify = models.BooleanField(default=True)
     completed = models.BooleanField(default=False)
+    productivity_processed = models.BooleanField(default=False)
+
+    @property
+    def has_time_slot(self):
+        return bool(self.start_time and self.end_time)
 
     @property
     def due_soon(self):
         if self.no_deadline or not self.deadline:
             return False
+        if self.has_time_slot:
+            start_dt = datetime.combine(self.deadline, self.start_time)
+            end_dt = datetime.combine(self.deadline, self.end_time)
+            if timezone.is_naive(start_dt):
+                start_dt = timezone.make_aware(start_dt)
+            if timezone.is_naive(end_dt):
+                end_dt = timezone.make_aware(end_dt)
+            now = timezone.now()
+            return (start_dt - timedelta(hours=2)) <= now <= end_dt
         return 0 <= (self.deadline - timezone.now().date()).days <= 3
 
     @property

@@ -4,7 +4,7 @@ from .forms import SubjectForm, SubjectCustomizeForm, TopicForm, ActivityForm, P
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from datetime import timedelta
+from datetime import datetime, timedelta
 from django.contrib.auth.models import User
 import calendar as cal_module
 import os
@@ -1754,6 +1754,18 @@ def complete_personal_task(request, task_id):
     task = get_object_or_404(PersonalTask, id=task_id, student=request.user)
     if not task.completed:
         task.completed = True
+
+        if task.has_time_slot and not task.productivity_processed:
+            now = timezone.now()
+            task_end = datetime.combine(task.deadline, task.end_time)
+            if timezone.is_naive(task_end):
+                task_end = timezone.make_aware(task_end)
+            if now <= task_end:
+                profile = request.user.profile
+                profile.productivity_points += task.points_value
+                profile.save(update_fields=['productivity_points'])
+            task.productivity_processed = True
+
         task.save()
         awards = [(task.skill_main, task.main_points)]
         if task.skill_secondary:

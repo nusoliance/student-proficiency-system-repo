@@ -43,12 +43,44 @@ def view_student_skills(request, student_id):
     })
 
 
+def _skill_entries(student_skills_qs):
+    return [
+        {
+            'name': s.skill.name,
+            'level': s.level,
+            'into_level': s.points_into_level,
+            'needed': s.points_needed_for_level,
+        }
+        for s in student_skills_qs
+    ]
+
+
 @login_required
 def my_skills(request):
     student_skills = request.user.skills.select_related('skill').all()
     course_skills = student_skills.filter(skill__category='course')
     general_skills = student_skills.filter(skill__category='general')
     broad_skills = student_skills.filter(skill__category='broad')
-    return render(request, 'avatar/my_skills.html', {
-        'course_skills': course_skills, 'general_skills': general_skills, 'broad_skills': broad_skills
+
+    pages = []
+    if course_skills:
+        pages.append({'label': 'Course Skills', 'entries': _skill_entries(course_skills)})
+    if general_skills:
+        pages.append({'label': 'General Education Skills', 'entries': _skill_entries(general_skills)})
+    if broad_skills:
+        pages.append({'label': 'Skills', 'entries': _skill_entries(broad_skills)})
+
+    profile = request.user.profile
+    pages.append({
+        'label': 'Personal Skills',
+        'entries': [
+            {
+                'name': 'Productivity',
+                'level': profile.productivity_level,
+                'into_level': profile.productivity_into_level,
+                'needed': 100,
+            },
+        ],
     })
+
+    return render(request, 'avatar/my_skills.html', {'pages': pages})

@@ -92,11 +92,11 @@
                     <span class="profile-progress-text">{% if top_skill %}{{ top_skill.points_into_level }}/100 XP{% else %}0/100 XP{% endif %}</span>
                 </div>
                 <div class="profile-progress-row">
-                    <span class="profile-progress-label">PRODUCTIVITY</span>
+                    <span class="profile-progress-label">PRODUCTIVITY {{ user.profile.productivity_level }}</span>
                     <div class="profile-progress-track">
-                        <div class="profile-progress-fill profile-progress-fill-alt" style="width: 0%;"></div>
+                        <div class="profile-progress-fill profile-progress-fill-alt" style="width: {{ user.profile.productivity_into_level }}%;"></div>
                     </div>
-                    <span class="profile-progress-text">0/100</span>
+                    <span class="profile-progress-text">{{ user.profile.productivity_into_level }}/100</span>
                 </div>
             </div>
         </div>

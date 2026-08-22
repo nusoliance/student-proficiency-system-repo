@@ -31,6 +31,7 @@ class Profile(models.Model):
     school_id = models.CharField(max_length=12, blank=True)
     under_evaluation = models.BooleanField(default=False)
     middle_initial = models.CharField(max_length=4, blank=True)
+    productivity_points = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.username} ({self.role})"
@@ -38,6 +39,14 @@ class Profile(models.Model):
     @property
     def is_manager(self):
         return self.role == 'teacher' or self.mode == 'personal'
+
+    @property
+    def productivity_level(self):
+        return self.productivity_points // 100
+
+    @property
+    def productivity_into_level(self):
+        return self.productivity_points % 100
 
     @property
     def full_display_name(self):

@@ -48,6 +48,16 @@
             <p class="task-detail-row">Does not repeat</p>
             {% endif %}
 
+            {% if task.has_time_slot %}
+            <p class="task-detail-row task-detail-meta">
+                {% if task.productivity_processed %}
+                {% if task.completed %}Productivity points awarded for this task.{% else %}Productivity points were deducted — this task's end time passed without it being completed.{% endif %}
+                {% else %}
+                Completing this before {{ task.end_time|time:"g:i A" }} on {{ task.deadline }} earns productivity points; missing it deducts points instead.
+                {% endif %}
+            </p>
+            {% endif %}
+
             {% if task.completed %}
             <p class="task-detail-row task-detail-status">
                 <span class="stamp stamp-done">Completed</span>

@@ -24,7 +24,7 @@
         </div>
 
         {% if user.profile.is_manager %}
-        <a href="{% url 'add_topic' subject.id %}" class="lp-side-link">+ Add Topic</a>
+        <a href="{% url 'add_topic' subject.id %}" class="lp-side-link">Add Topic</a>
         <a href="{% url 'gradesheet_view' subject.id %}" class="lp-side-link">Gradesheet</a>
         <a href="{% url 'customize_subject' subject.id %}" class="lp-side-link">Customize</a>
         {% if user.profile.mode != 'personal' %}

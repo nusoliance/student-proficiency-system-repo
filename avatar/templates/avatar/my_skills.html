@@ -7,122 +7,82 @@
 
 <h2>Avatar</h2>
 
-{% if course_skills %}
-<h3>Course Skills</h3>
-
-<ul class="skill-list">
-    {% for student_skill in course_skills %}
-    <li class="skill-card {% cycle 'blue' 'purple' 'orange' 'green' 'cyan' 'pink' %}">
-
-        <div class="skill-card-top">
-            <div class="skill-card-name">
-                {{ student_skill.skill.name }}
-            </div>
-
-            <div class="skill-card-level">
-                LVL {{ student_skill.level|stringformat:"02d" }}
-            </div>
-        </div>
-
-        <div class="skill-description">
-        
-        </div>
-
-        <div class="skill-bar-track">
-            <div class="skill-bar-fill" style="width: {{ student_skill.points_into_level }}%;">
-            </div>
-        </div>
-
-        <div class="skill-card-points">
-            {{ student_skill.points_into_level }}
-            /
-            {{ student_skill.points_needed_for_level }}
-        </div>
-
-    </li>
+{% if pages %}
+<div class="skill-book" id="skillBook">
+    {% for page in pages %}
+    <div class="skill-book-page {% if forloop.first %}active{% endif %}">
+        <h3 class="skill-book-heading">{{ page.label }}</h3>
+        <ul class="skill-page-list">
+            {% for entry in page.entries %}
+            <li class="skill-entry {% cycle 'blue' 'purple' 'orange' 'green' 'cyan' 'pink' %}">
+                <div class="skill-entry-top">
+                    <span class="skill-entry-name">{{ entry.name }}</span>
+                    <span class="skill-entry-level">LVL {{ entry.level|stringformat:"02d" }}</span>
+                </div>
+                <div class="skill-entry-bar-track">
+                    <div class="skill-entry-bar-fill" style="width: {{ entry.into_level }}%;"></div>
+                </div>
+                <div class="skill-entry-points">{{ entry.into_level }} / {{ entry.needed }}</div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
     {% endfor %}
-</ul>
-{% endif %}
 
-
-{% if general_skills %}
-<h3>General Education Skills</h3>
-
-<ul class="skill-list">
-    {% for student_skill in general_skills %}
-    <li class="skill-card {% cycle 'blue' 'purple' 'orange' 'green' 'cyan' 'pink' %}">
-
-        <div class="skill-card-top">
-            <div class="skill-card-name">
-                {{ student_skill.skill.name }}
-            </div>
-
-            <div class="skill-card-level">
-                LVL {{ student_skill.level|stringformat:"02d" }}
-            </div>
-        </div>
-
-        <div class="skill-description">
-        </div>
-
-        <div class="skill-bar-track">
-            <div class="skill-bar-fill" style="width: {{ student_skill.points_into_level }}%;">
-            </div>
-        </div>
-
-        <div class="skill-card-points">
-            {{ student_skill.points_into_level }}
-            /
-            {{ student_skill.points_needed_for_level }}
-        </div>
-
-    </li>
-    {% endfor %}
-</ul>
-{% endif %}
-
-
-{% if broad_skills %}
-<h3>Skills</h3>
-
-<ul class="skill-list">
-    {% for student_skill in broad_skills %}
-    <li class="skill-card {% cycle 'blue' 'purple' 'orange' 'green' 'cyan' 'pink' %}">
-
-        <div class="skill-card-top">
-            <div class="skill-card-name">
-                {{ student_skill.skill.name }}
-            </div>
-
-            <div class="skill-card-level">
-                LVL {{ student_skill.level|stringformat:"02d" }}
-            </div>
-        </div>
-
-        <div class="skill-description">
-            
-        </div>
-
-        <div class="skill-bar-track">
-            <div class="skill-bar-fill" style="width: {{ student_skill.points_into_level }}%;">
-            </div>
-        </div>
-
-        <div class="skill-card-points">
-            {{ student_skill.points_into_level }}
-            /
-            {{ student_skill.points_needed_for_level }}
-        </div>
-
-    </li>
-    {% endfor %}
-</ul>
-{% endif %}
-
-
-{% if not course_skills and not general_skills and not broad_skills %}
+    {% if pages|length > 1 %}
+    <button type="button" class="book-nav-prev" id="bookPrevBtn" aria-label="Previous page" style="visibility: hidden;">&#8249;</button>
+    <div class="book-page-indicator" id="bookPageIndicator">Page 1 of {{ pages|length }}</div>
+    <button type="button" class="book-nav-next" id="bookNextBtn" aria-label="Next page">Next Page &#8250;</button>
+    {% endif %}
+</div>
+{% else %}
 <p class="muted-note">No skills yet.</p>
 {% endif %}
 
 </div>
+
+<script>
+(function () {
+    var pages = document.querySelectorAll('#skillBook .skill-book-page');
+    var prevBtn = document.getElementById('bookPrevBtn');
+    var nextBtn = document.getElementById('bookNextBtn');
+    var indicator = document.getElementById('bookPageIndicator');
+    if (!pages.length) return;
+    var current = 0;
+
+    function showPage(index) {
+        pages.forEach(function (p, i) {
+            p.classList.toggle('active', i === index);
+        });
+        if (indicator) {
+            indicator.textContent = 'Page ' + (index + 1) + ' of ' + pages.length;
+        }
+        if (prevBtn) {
+            prevBtn.style.visibility = index === 0 ? 'hidden' : 'visible';
+        }
+        if (nextBtn) {
+            nextBtn.style.visibility = index === pages.length - 1 ? 'hidden' : 'visible';
+        }
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener('click', function () {
+            if (current < pages.length - 1) {
+                current += 1;
+                showPage(current);
+            }
+        });
+    }
+    if (prevBtn) {
+        prevBtn.addEventListener('click', function () {
+            if (current > 0) {
+                current -= 1;
+                showPage(current);
+            }
+        });
+    }
+
+    showPage(current);
+})();
+</script>
 {% endblock %}

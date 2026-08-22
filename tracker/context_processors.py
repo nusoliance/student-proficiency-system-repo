@@ -1,10 +1,13 @@
 from django.utils import timezone
 from .models import Subject, Activity, Project, ProjectSubmission, PersonalTask, ActivityCompletion
+from .productivity import sync_productivity
 
 
 def reminders(request):
     if not request.user.is_authenticated or request.user.profile.role != 'student':
         return {}
+
+    sync_productivity(request.user)
 
     if request.user.profile.is_manager:
         owned = Subject.objects.filter(teacher=request.user)
