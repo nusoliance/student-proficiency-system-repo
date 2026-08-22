@@ -71,6 +71,10 @@
             <button type="submit" class="btn-complete">Mark Complete</button>
         </form>
         {% endif %}
+
+        <div class="task-detail-actions" style="margin-top:1rem;">
+            <a href="{% url 'edit_personal_task' task.id %}" class="btn-secondary">Edit Task</a>
+        </div>
     </div>
 </div>
 {% endblock %}

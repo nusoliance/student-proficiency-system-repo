@@ -58,7 +58,10 @@
     </div>
     {% endif %}
 
-    <div style="margin-top:1.5rem;">
+    <div style="margin-top:1.5rem; display:flex; gap:1rem;">
+        {% if not activity.has_graded_completions %}
+        <a href="{% url 'edit_activity' activity.id %}" class="btn-secondary">Edit Activity</a>
+        {% endif %}
         <a href="{% url 'delete_activity' activity.id %}" class="btn-secondary"
             style="color:#991B1B; border-color:#991B1B;">Delete Activity</a>
     </div>

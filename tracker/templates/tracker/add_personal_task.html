@@ -2,11 +2,11 @@
 {% block breadcrumbs %}
 <span class="breadcrumb-sep">›</span> <a href="{% url 'task_list' %}">Tasks</a>
 <span class="breadcrumb-sep">›</span> <a href="{% url 'personal_task_list' %}">Personal Tasks</a>
-<span class="breadcrumb-sep">›</span> Add Task
+<span class="breadcrumb-sep">›</span> {% if editing %}Edit Task{% else %}Add Task{% endif %}
 {% endblock %}
 {% block content %}
 <div class="form-card">
-    <h2>Add Personal Task</h2>
+    <h2>{% if editing %}Edit Personal Task{% else %}Add Personal Task{% endif %}</h2>
     <form method="post" class="custom-form">
         {% csrf_token %}
         {{ form.non_field_errors }}
@@ -41,8 +41,12 @@
         <p><label>{{ form.notify }} {{ form.notify.label }}</label></p>
 
         <div class="form-actions">
-            <button type="submit" class="btn-primary">Create</button>
+            <button type="submit" class="btn-primary">{% if editing %}Save Changes{% else %}Create{% endif %}</button>
+            {% if editing %}
+            <a href="{% url 'personal_task_detail' task.id %}" class="btn-cancel">Cancel</a>
+            {% else %}
             <a href="{% url 'personal_task_list' %}" class="btn-cancel">Cancel</a>
+            {% endif %}
         </div>
     </form>
 </div>

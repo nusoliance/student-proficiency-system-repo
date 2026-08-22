@@ -414,11 +414,17 @@ textarea:focus-visible {
 
 /*tasks or lesson plan lists - Jade*/
 .topic-card {
-    background-color: #FFFFFF;
+    background-color: var(--panel);
     border: 2px solid #341f22;
     border-radius: 6px;
     padding: 20px;
     margin-bottom: 20px;
+    box-shadow: 0 4px 14px rgba(43, 31, 20, .12);
+}
+
+.topic-card h3 {
+    color: var(--blue);
+    margin-top: 0;
 }
 
 .topic-header,
@@ -427,7 +433,7 @@ textarea:focus-visible {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
-    border-bottom: 2px solid #E2E8F0;
+    border-bottom: 2px solid var(--line);
     padding-bottom: 10px;
 }
 
@@ -474,7 +480,7 @@ textarea:focus-visible {
     justify-content: space-between;
     align-items: center;
     padding: 12px 0;
-    border-bottom: 1px solid #CBD5E1;
+    border-bottom: 1px solid var(--line);
 }
 
 .activity-item:last-child {
@@ -2208,15 +2214,16 @@ input[type="submit"]:hover {
 
 .projects-section {
     margin-top: 40px;
-    background-color: #FFFFFF;
+    background-color: var(--panel);
     border: 2px solid #341f22;
     border-radius: 6px;
     padding: 20px;
+    box-shadow: 0 4px 14px rgba(43, 31, 20, .12);
 }
 
 .project-item {
     padding: 10px 0;
-    border-bottom: 1px solid #CBD5E1;
+    border-bottom: 1px solid var(--line);
 }
 
 .project-item:last-child {

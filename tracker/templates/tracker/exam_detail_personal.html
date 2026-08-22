@@ -51,6 +51,9 @@
     {% endif %}
 
     <div style="margin-top:1.5rem; display:flex; gap:1rem;">
+        {% if not exam.has_graded_completions %}
+        <a href="{% url 'edit_exam' exam.id %}" class="btn-secondary">Edit Exam</a>
+        {% endif %}
         <a href="{% url 'add_exam_skill' exam.id %}" class="btn-secondary">Manage Skills</a>
         <a href="{% url 'delete_exam' exam.id %}" class="btn-secondary" style="color:#991B1B; border-color:#991B1B;">Delete Exam</a>
     </div>

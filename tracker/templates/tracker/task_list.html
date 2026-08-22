@@ -16,7 +16,7 @@
 
     {% if reminder_items %}
     <div class="topic-card">
-        <h3 style="color:#1E3A8A; margin-top:0;">Due Soon</h3>
+        <h3>Due Soon</h3>
         <ul class="activity-list">
             {% for item in reminder_items %}
             <li class="activity-item">
@@ -32,7 +32,7 @@
 
     <div class="topic-card">
         <div style="display:flex; align-items:center; justify-content:space-between;">
-            <h3 style="color:#1E3A8A; margin-top:0;">Assignments</h3>
+            <h3>Assignments</h3>
             {% if user.profile.mode == 'personal' %}
             <a href="{% url 'add_task_assignment' %}" class="btn-secondary" title="Add Assignment"
                 style="line-height:1; padding:0.35rem 0.75rem;">+</a>
@@ -63,7 +63,7 @@
 
     <div class="topic-card">
         <div style="display:flex; align-items:center; justify-content:space-between;">
-            <h3 style="color:#1E3A8A; margin-top:0;">Activities</h3>
+            <h3>Activities</h3>
             {% if user.profile.mode == 'personal' %}
             <a href="{% url 'add_task_activity' %}" class="btn-secondary" title="Add Activity"
                 style="line-height:1; padding:0.35rem 0.75rem;">+</a>
@@ -94,7 +94,7 @@
 
     <div class="topic-card">
         <div style="display:flex; align-items:center; justify-content:space-between;">
-            <h3 style="color:#1E3A8A; margin-top:0;">Quiz</h3>
+            <h3>Quiz</h3>
             {% if user.profile.mode == 'personal' %}
             <a href="{% url 'add_task_quiz' %}" class="btn-secondary" title="Add Quiz"
                 style="line-height:1; padding:0.35rem 0.75rem;">+</a>
@@ -125,7 +125,7 @@
 
     <div class="topic-card">
         <div style="display:flex; align-items:center; justify-content:space-between;">
-            <h3 style="color:#1E3A8A; margin-top:0;">Projects</h3>
+            <h3>Projects</h3>
             {% if user.profile.mode == 'personal' %}
             <a href="{% url 'add_task_project' %}" class="btn-secondary" title="Add Project"
                 style="line-height:1; padding:0.35rem 0.75rem;">+</a>
@@ -157,7 +157,7 @@
 
     <div class="topic-card">
         <div style="display:flex; align-items:center; justify-content:space-between;">
-            <h3 style="color:#1E3A8A; margin-top:0;">Exams</h3>
+            <h3>Exams</h3>
             {% if user.profile.mode == 'personal' %}
             <a href="{% url 'add_task_exam' %}" class="btn-secondary" title="Add Exam"
                 style="line-height:1; padding:0.35rem 0.75rem;">+</a>

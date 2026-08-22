@@ -130,6 +130,10 @@ class Activity(models.Model):
     def due_soon(self):
         return 0 <= (self.deadline - timezone.now().date()).days <= 3
 
+    @property
+    def has_graded_completions(self):
+        return self.completions.filter(graded=True).exists()
+
     def __str__(self):
         return self.title
 
@@ -283,6 +287,10 @@ class Project(models.Model):
     productivity_penalized_students = models.ManyToManyField(
         User, blank=True, related_name='project_productivity_penalties')
 
+    @property
+    def has_graded_completions(self):
+        return self.submissions.filter(evaluated=True).exists()
+
     def __str__(self):
         return self.title
 
@@ -427,6 +435,10 @@ class Quiz(models.Model):
     def due_soon(self):
         return 0 <= (self.deadline - timezone.now().date()).days <= 3
 
+    @property
+    def has_graded_completions(self):
+        return self.completions.filter(graded=True).exists()
+
     def __str__(self):
         return self.title
 
@@ -533,6 +545,10 @@ class Exam(models.Model):
     @property
     def due_soon(self):
         return 0 <= (self.deadline - timezone.now().date()).days <= 3
+
+    @property
+    def has_graded_completions(self):
+        return self.completions.filter(graded=True).exists()
 
     def __str__(self):
         return f"{self.subject.name} - {self.get_exam_type_display()}"

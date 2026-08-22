@@ -1,13 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="form-card">
-<h2>Create {{ exam_type_label }} — {{ subject.name }}</h2>
+<h2>{% if editing %}Edit {{ exam_type_label }}{% else %}Create {{ exam_type_label }}{% endif %} — {{ subject.name }}</h2>
 <form method="post" enctype="multipart/form-data" class="custom-form">
     {% csrf_token %}
     {{ form.as_p }}
     <div class="form-actions">
-        <button type="submit" class="btn-primary">Create &amp; Add Skills</button>
+        <button type="submit" class="btn-primary">{% if editing %}Save Changes{% else %}Create &amp; Add Skills{% endif %}</button>
+        {% if editing %}
+        <a href="{% url 'exam_detail' exam.id %}" class="btn-cancel">Cancel</a>
+        {% else %}
         <a href="{% url 'lesson_plan_view' subject.id %}" class="btn-cancel">Cancel</a>
+        {% endif %}
     </div>
     
         <script>

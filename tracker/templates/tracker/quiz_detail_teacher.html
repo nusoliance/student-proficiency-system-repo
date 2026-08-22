@@ -7,27 +7,30 @@
 {% block content %}
 <h2>{{ quiz.title }} — Completions</h2>
 <div class="content-frame">
-<p class="muted-note">Max score: {{ quiz.max_score }} · Passing: {{ quiz.passing_score }}</p>
-<ul class="ruled-list">
-{% for completion in completions %}
-    <li>
-        <div>
-            <span class="forum-topic-name" style="font-size:0.95rem;">{{ completion.student.username }}</span>
-            <div class="muted-note">
-                {% if completion.graded %}Graded — {{ completion.score }}/{{ quiz.max_score }}{% else %}Pending{% endif %}
+    <p class="muted-note">Max score: {{ quiz.max_score }} · Passing: {{ quiz.passing_score }}</p>
+    <ul class="ruled-list">
+    {% for completion in completions %}
+        <li>
+            <div>
+                <span class="forum-topic-name" style="font-size:0.95rem;">{{ completion.student.username }}</span>
+                <div class="muted-note">
+                    {% if completion.graded %}Graded — {{ completion.score }}/{{ quiz.max_score }}{% else %}Pending{% endif %}
+                </div>
             </div>
-        </div>
-        <a href="{% url 'grade_quiz_completion' completion.id %}" class="btn-secondary">
-            {% if completion.graded %}View{% else %}Grade{% endif %}
-        </a>
-    </li>
-{% empty %}
-    <li class="muted-note">No one has marked this done yet.</li>
-{% endfor %}
-</ul>
-<div style="margin-top:1.5rem; display:flex; gap:1rem;">
-<a href="{% url 'add_quiz_skill' quiz.id %}" class="btn-secondary">Manage Skills</a>
-<a href="{% url 'delete_quiz' quiz.id %}" class="btn-secondary" style="color:#991B1B; border-color:#991B1B;">Delete Quiz</a>
-</div>
+            <a href="{% url 'grade_quiz_completion' completion.id %}" class="btn-secondary">
+                {% if completion.graded %}View{% else %}Grade{% endif %}
+            </a>
+        </li>
+    {% empty %}
+        <li class="muted-note">No one has marked this done yet.</li>
+    {% endfor %}
+    </ul>
+    <div style="margin-top:1.5rem; display:flex; gap:1rem;">
+        {% if not quiz.has_graded_completions %}
+        <a href="{% url 'edit_quiz' quiz.id %}" class="btn-secondary">Edit Quiz</a>
+        {% endif %}
+        <a href="{% url 'add_quiz_skill' quiz.id %}" class="btn-secondary">Manage Skills</a>
+        <a href="{% url 'delete_quiz' quiz.id %}" class="btn-secondary" style="color:#991B1B; border-color:#991B1B;">Delete Quiz</a>
+    </div>
 </div>
 {% endblock %}

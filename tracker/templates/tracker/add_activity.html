@@ -2,12 +2,12 @@
 {% block breadcrumbs %}
 <span class="breadcrumb-sep">›</span> <a href="{% url 'subject_list' %}">Subjects</a>
 <span class="breadcrumb-sep">›</span> <a href="{% url 'lesson_plan_view' topic.lesson_plan.subject.id %}">{{ topic.lesson_plan.subject.name }}</a>
-<span class="breadcrumb-sep">›</span> Add Activity
+<span class="breadcrumb-sep">›</span> {% if editing %}Edit Activity{% else %}Add Activity{% endif %}
 {% endblock %}
 {% load static %}
 {% block content %}
 <div class="form-card">
-    <h2>Add Activity to {{ topic.title }}</h2>
+    <h2>{% if editing %}Edit Activity{% else %}Add Activity to {{ topic.title }}{% endif %}</h2>
     <form method="post" class="custom-form">
         {% csrf_token %}
         {{ form.title.errors }}
@@ -29,8 +29,12 @@
         {{ skill_groups|json_script:"skill-groups-data" }}
 
         <div class="form-actions">
-            <button type="submit" class="btn-primary">Create</button>
+            <button type="submit" class="btn-primary">{% if editing %}Save Changes{% else %}Create{% endif %}</button>
+            {% if editing %}
+            <a href="{% url 'activity_detail' activity.id %}" class="btn-cancel">Cancel</a>
+            {% else %}
             <a href="{% url 'lesson_plan_view' topic.lesson_plan.subject.id %}" class="btn-cancel">Cancel</a>
+            {% endif %}
         </div>
     </form>
 </div>

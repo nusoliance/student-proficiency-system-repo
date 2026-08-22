@@ -342,6 +342,26 @@ def add_quiz(request, topic_id):
 
 
 @login_required
+def edit_quiz(request, quiz_id):
+    quiz = get_object_or_404(
+        Quiz, id=quiz_id, topic__lesson_plan__subject__teacher=request.user)
+    if quiz.has_graded_completions:
+        return redirect('quiz_detail', quiz_id=quiz.id)
+    topic = quiz.topic
+    subject = topic.lesson_plan.subject
+    if request.method == 'POST':
+        form = QuizForm(request.POST, request.FILES, instance=quiz)
+        if form.is_valid():
+            form.save()
+            return redirect('quiz_detail', quiz_id=quiz.id)
+    else:
+        form = QuizForm(instance=quiz, initial={'unknown_max_score': quiz.max_score is None})
+    return render(request, 'tracker/add_quiz.html', {
+        'form': form, 'topic': topic, 'subject': subject, 'editing': True, 'quiz': quiz,
+    })
+
+
+@login_required
 def add_quiz_skill_weight(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
     subject = quiz.topic.lesson_plan.subject
@@ -535,6 +555,29 @@ def add_activity(request, topic_id):
     return render(request, 'tracker/add_activity.html', {
         'form': form, 'topic': topic, 'subject': subject,
         'skill_groups': skill_groups_for_picker(relevant_skills),
+    })
+
+
+@login_required
+def edit_activity(request, activity_id):
+    activity = get_object_or_404(
+        Activity, id=activity_id, topic__lesson_plan__subject__teacher=request.user)
+    if activity.has_graded_completions:
+        return redirect('activity_detail', activity_id=activity.id)
+    topic = activity.topic
+    subject = topic.lesson_plan.subject
+    relevant_skills = get_relevant_skills()
+    if request.method == 'POST':
+        form = ActivityForm(request.POST, instance=activity, relevant_skills=relevant_skills)
+        if form.is_valid():
+            form.save()
+            return redirect('activity_detail', activity_id=activity.id)
+    else:
+        form = ActivityForm(instance=activity, relevant_skills=relevant_skills)
+    return render(request, 'tracker/add_activity.html', {
+        'form': form, 'topic': topic, 'subject': subject,
+        'skill_groups': skill_groups_for_picker(relevant_skills),
+        'editing': True, 'activity': activity,
     })
 
 
@@ -819,6 +862,25 @@ def add_project(request, subject_id):
     else:
         form = ProjectForm()
     return render(request, 'tracker/add_project.html', {'form': form, 'subject': subject})
+
+
+@login_required
+def edit_project(request, project_id):
+    project = get_object_or_404(
+        Project, id=project_id, subject__teacher=request.user)
+    if project.has_graded_completions:
+        return redirect('project_detail', project_id=project.id)
+    subject = project.subject
+    if request.method == 'POST':
+        form = ProjectForm(request.POST, instance=project)
+        if form.is_valid():
+            form.save()
+            return redirect('project_detail', project_id=project.id)
+    else:
+        form = ProjectForm(instance=project)
+    return render(request, 'tracker/add_project.html', {
+        'form': form, 'subject': subject, 'editing': True, 'project': project,
+    })
 
 
 @login_required
@@ -1735,6 +1797,19 @@ def add_personal_task(request):
     return render(request, 'tracker/add_personal_task.html', {'form': form})
 
 
+@login_required
+def edit_personal_task(request, task_id):
+    task = get_object_or_404(PersonalTask, id=task_id, student=request.user)
+    if request.method == 'POST':
+        form = PersonalTaskForm(request.POST, instance=task, user=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('personal_task_detail', task_id=task.id)
+    else:
+        form = PersonalTaskForm(instance=task, user=request.user)
+    return render(request, 'tracker/add_personal_task.html', {'form': form, 'editing': True, 'task': task})
+
+
 PERSONAL_TASK_WEEKDAY_ORDER = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 
 
@@ -2331,6 +2406,25 @@ def add_exam(request, subject_id, exam_type):
         form = ExamForm()
     return render(request, 'tracker/add_exam.html', {
         'form': form, 'subject': subject, 'exam_type_label': EXAM_TYPE_LABELS.get(exam_type, exam_type),
+    })
+
+
+@login_required
+def edit_exam(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id, subject__teacher=request.user)
+    if exam.has_graded_completions:
+        return redirect('exam_detail', exam_id=exam.id)
+    subject = exam.subject
+    if request.method == 'POST':
+        form = ExamForm(request.POST, request.FILES, instance=exam)
+        if form.is_valid():
+            form.save()
+            return redirect('exam_detail', exam_id=exam.id)
+    else:
+        form = ExamForm(instance=exam, initial={'unknown_max_score': exam.max_score is None})
+    return render(request, 'tracker/add_exam.html', {
+        'form': form, 'subject': subject, 'exam_type_label': exam.get_exam_type_display(),
+        'editing': True, 'exam': exam,
     })
 
 

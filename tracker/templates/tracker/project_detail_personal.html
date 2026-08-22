@@ -37,5 +37,11 @@
         </form>
     </div>
     {% endif %}
+
+    <div style="margin-top:1.5rem;">
+        {% if not project.has_graded_completions %}
+        <a href="{% url 'edit_project' project.id %}" class="btn-secondary">Edit Project</a>
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

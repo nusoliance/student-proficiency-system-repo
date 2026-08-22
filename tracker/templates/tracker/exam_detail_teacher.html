@@ -7,27 +7,30 @@
 {% block content %}
 <h2>{{ exam.get_exam_type_display }} — Completions</h2>
 <div class="content-frame">
-<p class="muted-note">Max score: {{ exam.max_score }} · Passing: {{ exam.passing_score }} ({{ exam.passing_percentage }}%)</p>
-<ul class="ruled-list">
-{% for completion in completions %}
-    <li>
-        <div>
-            <span class="forum-topic-name" style="font-size:0.95rem;">{{ completion.student.username }}</span>
-            <div class="muted-note">
-                {% if completion.graded %}Graded — {{ completion.score }}/{{ exam.max_score }}{% else %}Pending{% endif %}
+    <p class="muted-note">Max score: {{ exam.max_score }} · Passing: {{ exam.passing_score }} ({{ exam.passing_percentage }}%)</p>
+    <ul class="ruled-list">
+    {% for completion in completions %}
+        <li>
+            <div>
+                <span class="forum-topic-name" style="font-size:0.95rem;">{{ completion.student.username }}</span>
+                <div class="muted-note">
+                    {% if completion.graded %}Graded — {{ completion.score }}/{{ exam.max_score }}{% else %}Pending{% endif %}
+                </div>
             </div>
-        </div>
-        <a href="{% url 'grade_exam_completion' completion.id %}" class="btn-secondary">
-            {% if completion.graded %}View{% else %}Grade{% endif %}
-        </a>
-    </li>
-{% empty %}
-    <li class="muted-note">No one has marked this done yet.</li>
-{% endfor %}
-</ul>
-<div style="margin-top:1.5rem; display:flex; gap:1rem;">
-<a href="{% url 'add_exam_skill' exam.id %}" class="btn-secondary">Manage Skills</a>
-<a href="{% url 'delete_exam' exam.id %}" class="btn-secondary" style="color:#991B1B; border-color:#991B1B;">Delete Exam</a>
-</div>
+            <a href="{% url 'grade_exam_completion' completion.id %}" class="btn-secondary">
+                {% if completion.graded %}View{% else %}Grade{% endif %}
+            </a>
+        </li>
+    {% empty %}
+        <li class="muted-note">No one has marked this done yet.</li>
+    {% endfor %}
+    </ul>
+    <div style="margin-top:1.5rem; display:flex; gap:1rem;">
+        {% if not exam.has_graded_completions %}
+        <a href="{% url 'edit_exam' exam.id %}" class="btn-secondary">Edit Exam</a>
+        {% endif %}
+        <a href="{% url 'add_exam_skill' exam.id %}" class="btn-secondary">Manage Skills</a>
+        <a href="{% url 'delete_exam' exam.id %}" class="btn-secondary" style="color:#991B1B; border-color:#991B1B;">Delete Exam</a>
+    </div>
 </div>
 {% endblock %}
